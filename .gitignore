@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────────────
+# .gitignore — รักบ้าน@CNX Web Portal
+# รายชื่อไฟล์และโฟลเดอร์ที่ห้ามส่งขึ้น GitHub
+# ─────────────────────────────────────────────────────────────
+
+# โฟลเดอร์เครื่องมือและขยะ
+node_modules/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.vscode/
+.idea/
+.claude/
+.firebase/
+
+# ไฟล์ config และ key ที่มีข้อมูลอ่อนไหว
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+service-account*.json
+firebase-adminsdk*.json
+*secret*
+*credential*
