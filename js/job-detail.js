@@ -13,6 +13,18 @@
   var btnSendComment = document.getElementById("ปุ่มส่งความเห็น");
   var alertComment = document.getElementById("เตือนความเห็น");
 
+  // ส่วนประกอบ UI ผู้ช่วย AI ระดับ 2
+  var aiCard = document.getElementById("กล่องผู้ช่วยAI");
+  var btnAiAnalyze = document.getElementById("btnAiAnalyze");
+  var aiAlert = document.getElementById("aiAnalysisAlert");
+  var aiResultBox = document.getElementById("aiAnalysisResult");
+  var aiContentBox = document.getElementById("aiAnalysisContent");
+  var btnSaveAi = document.getElementById("btnSaveAiSuggestion");
+  var aiSavedBox = document.getElementById("aiSavedBox");
+  var aiSavedContent = document.getElementById("aiSavedContent");
+  var aiSavedMeta = document.getElementById("aiSavedMeta");
+  var currentAiResult = null;
+
   if (!jobId) {
     detailBox.innerHTML = "<p style='color:var(--สีแดง);'>ไม่พบรหัสงานซ่อมในลิงก์</p>";
     return;
@@ -54,12 +66,33 @@
 
       วาดรายละเอียด();
       วาดประวัติ();
+      วาดข้อมูลAIที่เคยบันทึก();
       commentCard.classList.remove("hidden");
+      if (aiCard) aiCard.classList.remove("hidden");
     } catch (err) {
       console.error("Load job detail error:", err);
       detailBox.innerHTML = "<p style='color:var(--สีแดง);'>เกิดข้อผิดพลาดในการโหลดข้อมูล: " + esc(err.message) + "</p>";
     }
   }
+
+  // ── แสดงผลคำแนะนำจาก AI ที่เคยบันทึกไว้ใน Firestore ──
+  function วาดข้อมูลAIที่เคยบันทึก() {
+    if (!job || !aiSavedBox) return;
+
+    if (job.aiSuggestion) {
+      aiSavedContent.textContent = job.aiSuggestion;
+      var metaText = "🕒 บันทึกล่าสุดเมื่อ: " + (job.aiAnalyzedAt ? formatDateTime(job.aiAnalyzedAt) : "ไม่ระบุ") +
+        " โดย: " + esc(job.aiAnalyzedBy || "ทีมงาน");
+      if (job.aiSource) {
+        metaText += " · แหล่งที่มา: " + (job.aiSource === "openrouter" ? "OpenRouter (Gemini 2.5 Flash Lite)" : "ระบบวิเคราะห์อัตโนมัติ");
+      }
+      aiSavedMeta.innerHTML = metaText;
+      aiSavedBox.classList.remove("hidden");
+    } else {
+      aiSavedBox.classList.add("hidden");
+    }
+  }
+
 
   // ── วาดข้อมูลรายละเอียดงาน ──
   function วาดรายละเอียด() {
@@ -254,8 +287,114 @@
     });
   }
 
+  // ── 5. ฟังก์ชันสำหรับ AI ระดับ 2: ประเมินงานช่างและแนะนำเครื่องมือ ──
+  if (btnAiAnalyze) {
+    btnAiAnalyze.addEventListener("click", async function () {
+      if (!job) return;
+
+      btnAiAnalyze.disabled = true;
+      btnAiAnalyze.textContent = "⏳ กำลังประเมินงาน…";
+      aiAlert.className = "alert";
+      aiAlert.style.background = "#e8f4fd";
+      aiAlert.style.color = "#004085";
+      aiAlert.innerHTML = "🤖 <em>กำลังรวบรวมข้อมูลงานซ่อมส่งให้ AI (google/gemini-2.5-flash-lite) สรุปประเมินหน้างาน…</em>";
+      aiAlert.classList.remove("hidden");
+
+      try {
+        if (!window.RakbaanAIService) {
+          throw new Error("ระบบ AI ยังไม่พร้อมใช้งาน");
+        }
+
+        var recentComments = histories.map(function (h) {
+          return (h.actorName || "เจ้าหน้าที่") + ": " + (h.note || "");
+        }).join(" | ");
+
+        var jobData = {
+          id: jobId,
+          title: job.title,
+          category: job.category,
+          description: job.description,
+          address: job.address,
+          customerName: job.customerName,
+          status: job.status,
+          recentComments: recentComments || "ยังไม่มีบันทึกเพิ่มเติม"
+        };
+
+        var res = await window.RakbaanAIService.analyzeJob(jobData);
+        if (res.success && res.suggestion) {
+          currentAiResult = res;
+          aiAlert.classList.add("hidden");
+
+          // แปลง markdown ขึ้นบรรทัดใหม่ง่าย ๆ เพื่อแสดงผล
+          var formatted = esc(res.suggestion)
+            .replace(/###\s*(.*?)(\n|$)/g, "<h3 style='font-size:16px; margin:14px 0 6px 0; color:var(--สีน้ำเงิน);'>$1</h3>")
+            .replace(/\n/g, "<br>");
+
+          aiContentBox.innerHTML = formatted;
+          aiResultBox.classList.remove("hidden");
+          btnSaveAi.disabled = false;
+          btnSaveAi.textContent = "💾 บันทึกคำแนะนำนี้ลงระบบ";
+
+          // เลื่อนหน้าจอให้เห็นผลลัพธ์
+          aiResultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else {
+          aiAlert.className = "alert alert-error";
+          aiAlert.textContent = "⚠️ ไม่สามารถประเมินผลได้: " + (res.message || "เกิดข้อผิดพลาด");
+          aiAlert.classList.remove("hidden");
+        }
+      } catch (err) {
+        console.error("AI Analysis Error:", err);
+        aiAlert.className = "alert alert-error";
+        aiAlert.textContent = "⚠️ การเรียก AI ขัดข้อง (" + esc(err.message) + ") — ระบบเปิดให้ท่านตรวจสอบงานตามปกติค่ะ";
+        aiAlert.classList.remove("hidden");
+      } finally {
+        btnAiAnalyze.disabled = false;
+        btnAiAnalyze.textContent = "🤖 ให้ AI ประเมินอาการและจัดเครื่องมือ";
+      }
+    });
+  }
+
+  // บันทึกคำแนะนำของ AI ลง Firestore (aiSuggestion, aiReason, aiLog)
+  if (btnSaveAi) {
+    btnSaveAi.addEventListener("click", async function () {
+      if (!currentAiResult) return;
+
+      btnSaveAi.disabled = true;
+      btnSaveAi.textContent = "⏳ กำลังบันทึก…";
+
+      try {
+        var currentUser = firebase.auth().currentUser;
+        await window.RakbaanAIService.saveJobAnalysis(jobId, currentAiResult, currentUser);
+
+        // อัปเดต state ทันทีในเครื่อง
+        job.aiSuggestion = currentAiResult.suggestion;
+        job.aiReason = currentAiResult.reason || "";
+        job.aiUrgency = currentAiResult.urgency || "normal";
+        job.aiSource = currentAiResult.source || "openrouter";
+        job.aiAnalyzedAt = typeof เวลาตอนนี้ === "function" ? เวลาตอนนี้() : new Date().toISOString();
+        job.aiAnalyzedBy = window.currentUserName || (currentUser ? currentUser.displayName || currentUser.email : "ทีมงานรักบ้าน");
+
+        วาดข้อมูลAIที่เคยบันทึก();
+
+        aiAlert.className = "alert alert-success";
+        aiAlert.style.background = "#e8f5e9";
+        aiAlert.style.color = "#1b5e20";
+        aiAlert.innerHTML = "✅ <strong>บันทึกสำเร็จ!</strong> ระบบได้บันทึกคำแนะนำของ AI ลง Cloud Firestore ในฟิลด์ <code>aiSuggestion</code> และประวัติ <code>aiLog</code> เรียบร้อยแล้วค่ะ";
+        aiAlert.classList.remove("hidden");
+
+        btnSaveAi.textContent = "✅ บันทึกแล้ว";
+      } catch (err) {
+        console.error("Save AI suggestion error:", err);
+        alert("เกิดข้อผิดพลาดในการบันทึกคำแนะนำ AI: " + err.message);
+        btnSaveAi.disabled = false;
+        btnSaveAi.textContent = "💾 บันทึกคำแนะนำนี้ลงระบบ";
+      }
+    });
+  }
+
   // อัปเดตเมื่อสิทธิ์ Auth พร้อม
   window.addEventListener("rakbaan-auth-ready", function () {
     if (job) วาดรายละเอียด();
   });
 })();
+

@@ -10,6 +10,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
   <script src="js/firebase-config.js" defer></script>
+  <script src="js/ai-config.example.js" defer></script>
+  <script src="js/ai-config.js" defer></script>
+  <script src="js/ai-service.js" defer></script>
   <script src="js/nav.js" defer></script>
   <script src="js/job-detail.js" defer></script>
 </head>
@@ -22,6 +25,45 @@
 
     <div id="กล่องรายละเอียด" class="card">
       <p>กำลังโหลดข้อมูลงานซ่อม…</p>
+    </div>
+
+    <!-- ผู้ช่วย AI ระดับ 2: ประเมินงานช่าง/เครื่องมือ/ความปลอดภัย -->
+    <div id="กล่องผู้ช่วยAI" class="card hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+        <h2 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+          🤖 ผู้ช่วย AI ประเมินงานช่าง
+          <span class="badge" style="background: #e8f4fd; color: var(--สีน้ำเงิน); font-size: 12px; font-weight: normal;">Gemini 2.5 Flash Lite</span>
+        </h2>
+        <button type="button" id="btnAiAnalyze" class="btn" style="padding: 6px 14px; font-size: 14px; background: var(--สีน้ำเงิน);">
+          🤖 ให้ AI ประเมินอาการและจัดเครื่องมือ
+        </button>
+      </div>
+
+      <p class="hint" style="margin-bottom: 12px;">
+        AI จะรวบรวมข้อมูลอาการเสีย สถานที่ และบันทึกหน้างาน เพื่อสรุปสาเหตุ ประเมินความเร่งด่วน และแนะนำเครื่องมือที่ช่างต้องเตรียมขึ้นรถ
+      </p>
+
+      <div id="aiAnalysisAlert" class="alert hidden" style="margin-bottom: 12px;"></div>
+
+      <div id="aiAnalysisResult" class="hidden" style="background: #f8f9fa; border: 1px solid var(--สีขอบ); border-radius: 8px; padding: 16px; margin-top: 12px;">
+        <div id="aiAnalysisContent" style="white-space: pre-wrap; line-height: 1.6; font-size: 14.5px;"></div>
+        
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--สีขอบ); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 13px; color: var(--สีเทา);">
+            ⚠️ <em>AI เป็นผู้ช่วยให้ข้อมูลและข้อเสนอแนะ — มนุษย์เป็นผู้ตรวจสอบและยืนยันการบันทึก</em>
+          </div>
+          <button type="button" id="btnSaveAiSuggestion" class="btn btn-ok" style="padding: 6px 16px; font-size: 14px;">
+            💾 บันทึกคำแนะนำนี้ลงระบบ
+          </button>
+        </div>
+      </div>
+
+      <!-- ส่วนแสดงประวัติการเรียก AI ที่เคยบันทึกไว้ใน Firestore -->
+      <div id="aiSavedBox" class="hidden" style="margin-top: 16px; border-top: 1px solid var(--สีขอบ); padding-top: 12px;">
+        <h3 style="font-size: 15px; margin-bottom: 8px; color: var(--สีน้ำเงิน);">📋 ข้อมูลคำแนะนำจาก AI ที่บันทึกไว้ในระบบ</h3>
+        <div id="aiSavedContent" style="white-space: pre-wrap; background: #fff; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; line-height: 1.6;"></div>
+        <p id="aiSavedMeta" class="hint" style="margin-top: 6px;"></p>
+      </div>
     </div>
 
     <!-- บันทึกความเห็นหรือการปฏิบัติงานหน้างาน -->

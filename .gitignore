@@ -24,3 +24,6 @@ service-account*.json
 firebase-adminsdk*.json
 *secret*
 *credential*
+js/ai-config.js
+ai-config.js
+

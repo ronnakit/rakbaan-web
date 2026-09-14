@@ -12,6 +12,8 @@
   var submitBtn = document.getElementById("ปุ่มบันทึก");
   var alertBox = document.getElementById("ข้อความเตือน");
   var catCards = document.querySelectorAll(".category-card");
+  var btnAiClassify = document.getElementById("btnAiClassify");
+  var aiClassifyBox = document.getElementById("aiClassifyBox");
 
   // ควบคุมการเลือกหมวดหมู่ผ่านการกดการ์ด
   catCards.forEach(function (card) {
@@ -21,6 +23,60 @@
       categoryInput.value = card.dataset.cat;
     });
   });
+
+  // ── AI ระดับ 1: วิเคราะห์หมวดหมู่ช่างจากอาการเสีย ──
+  if (btnAiClassify) {
+    btnAiClassify.addEventListener("click", async function () {
+      alertBox.classList.add("hidden");
+      var title = titleInput.value.trim();
+      var description = descInput.value.trim();
+
+      if (!title && !description) {
+        alertBox.textContent = "💡 กรุณากรอกหัวข้อหรือรายละเอียดอาการเสียก่อน เพื่อให้ AI วิเคราะห์หมวดหมู่ได้แม่นยำ";
+        alertBox.classList.remove("hidden");
+        titleInput.focus();
+        return;
+      }
+
+      btnAiClassify.disabled = true;
+      btnAiClassify.textContent = "⏳ กำลังวิเคราะห์…";
+      aiClassifyBox.innerHTML = "<em>🤖 กำลังปรึกษา AI (google/gemini-2.5-flash-lite) เพื่อคัดกรองหมวดหมู่ช่าง…</em>";
+      aiClassifyBox.classList.remove("hidden");
+
+      try {
+        if (!window.RakbaanAIService) {
+          throw new Error("ระบบ AI ยังไม่พร้อมใช้งาน");
+        }
+
+        var res = await window.RakbaanAIService.classifyRepairCategory(title, description);
+        if (res.success && res.selectedCategory) {
+          // ไฮไลต์เลือกการ์ดหมวดหมู่อัตโนมัติ
+          catCards.forEach(function (c) {
+            if (c.dataset.cat === res.selectedCategory) {
+              c.classList.add("selected");
+              categoryInput.value = res.selectedCategory;
+            } else {
+              c.classList.remove("selected");
+            }
+          });
+
+          var sourceNote = res.source === "openrouter" ? "Gemini 2.5 Flash Lite" : "ระบบวิเคราะห์ความเชี่ยวชาญ";
+          aiClassifyBox.innerHTML =
+            "<strong>💡 ข้อเสนอแนะจาก AI (" + sourceNote + "):</strong> แนะนำหมวด <strong>" + esc(res.categoryName) + "</strong><br>" +
+            "<span style='font-size:13px; color:#222;'>เหตุผล: " + esc(res.reason) + "</span><br>" +
+            "<span style='font-size:12px; color:#555;'>👉 คุณสามารถคลิกเลือกเปลี่ยนหมวดหมู่อื่นด้านล่างได้อิสระตามต้องการ ก่อนกดยืนยันการแจ้งซ่อม</span>";
+        } else {
+          aiClassifyBox.innerHTML = "<strong>ℹ️ ข้อสังเกต:</strong> " + esc(res.message || "ไม่สามารถระบุหมวดหมู่ชัดเจนได้ โปรดเลือกด้วยตนเอง");
+        }
+      } catch (err) {
+        console.error("AI Classify Error:", err);
+        aiClassifyBox.innerHTML = "<strong>⚠️ แจ้งเตือน:</strong> ไม่สามารถเชื่อมต่อ AI ได้ในขณะนี้ (" + esc(err.message) + ") คุณสามารถเลือกหมวดหมู่ช่างด้วยตนเองได้ทันทีค่ะ";
+      } finally {
+        btnAiClassify.disabled = false;
+        btnAiClassify.textContent = "🤖 ให้ AI ช่วยวิเคราะห์หมวดหมู่";
+      }
+    });
+  }
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();

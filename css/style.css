@@ -187,10 +187,13 @@ textarea { min-height: 100px; resize: vertical; }
 
 /* ── แจ้งเตือน ── */
 .alert { padding: 12px 16px; border-radius: 8px; margin: 14px 0; font-size: 15px; }
-.alert-error { background: #fdecea; border: 1px solid #f5b3ad; color: #8b1f1a; }
-.alert-ok    { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e34; }
-.alert-warn  { background: #fff8e1; border: 1px solid #ffd54f; color: #7a5b00; }
+.alert-error   { background: #fdecea; border: 1px solid #f5b3ad; color: #8b1f1a; }
+.alert-ok,
+.alert-success { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e34; }
+.alert-warn    { background: #fff8e1; border: 1px solid #ffd54f; color: #7a5b00; }
+.alert-info    { background: #e8f4fd; border: 1px solid #b6e0fe; color: #004085; }
 .hidden { display: none !important; }
+
 
 /* ── รายการข้อมูลในหน้ารายละเอียด ── */
 .field-row { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 9px 0; border-bottom: 1px dashed var(--สีขอบ); }

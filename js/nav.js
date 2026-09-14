@@ -20,14 +20,33 @@
       html += '<a href="' + m.href + '"' + active + ">" + m.ชื่อ + "</a>";
     });
 
+    html += '<button type="button" id="btnConfigKey" style="background:transparent; border:1px dashed rgba(255,255,255,0.4); color:#fff; border-radius:4px; padding:3px 8px; font-size:12px; cursor:pointer; margin-left:8px;" title="ตั้งค่า OpenRouter AI Key">🔑 AI Key</button>';
+
     html += '<div class="nav-user" id="navUser">กำลังตรวจสอบสถานะ…</div></div>';
 
     var navEl = document.getElementById("nav");
     if (navEl) navEl.innerHTML = html;
+
+    var btnConfigKey = document.getElementById("btnConfigKey");
+    if (btnConfigKey) {
+      btnConfigKey.addEventListener("click", function () {
+        var current = localStorage.getItem("rakbaan_ai_key") || "";
+        var val = prompt("กรุณากรอก OpenRouter API Key สำหรับทดสอบระบบ AI:\n(คีย์จะถูกบันทึกในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่ส่งขึ้น GitHub หรือเซิร์ฟเวอร์)", current);
+        if (val !== null) {
+          localStorage.setItem("rakbaan_ai_key", val.trim());
+          if (val.trim()) {
+            alert("✅ บันทึก API Key เรียบร้อยแล้ว! ระบบพร้อมเชื่อมต่อ google/gemini-2.5-flash-lite");
+          } else {
+            alert("ℹ️ ลบคีย์ออกจากเบราว์เซอร์แล้ว (ระบบจะใช้ Smart Fallback Engine สำรอง)");
+          }
+        }
+      });
+    }
   }
 
   // วาดโครงเริ่มต้น
   วาดเมนู(null);
+
 
   // ตรวจสอบ Firebase Authentication
   if (typeof firebase !== "undefined" && firebase.auth) {

@@ -10,6 +10,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
   <script src="js/firebase-config.js" defer></script>
+  <script src="js/ai-config.example.js" defer></script>
+  <script src="js/ai-config.js" defer></script>
+  <script src="js/ai-service.js" defer></script>
   <script src="js/nav.js" defer></script>
   <script src="js/new-job.js" defer></script>
 </head>
@@ -27,7 +30,15 @@
         <label for="title">หัวข้ออาการเสีย / งานที่ต้องการซ่อม</label>
         <input type="text" id="title" required placeholder="เช่น ปั๊มน้ำทำงานไม่ยอมตัด น้ำไหลอ่อนชั้นสอง">
 
-        <label>เลือกหมวดหมู่บริการ (9 หมวด)</label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 8px;">
+          <label style="margin: 0;">เลือกหมวดหมู่บริการ (9 หมวด)</label>
+          <button type="button" id="btnAiClassify" class="btn btn-ghost" style="padding: 6px 12px; font-size: 13px; border-color: var(--สีน้ำเงิน); color: var(--สีน้ำเงิน); font-weight: 600;">
+            🤖 ให้ AI ช่วยวิเคราะห์หมวดหมู่
+          </button>
+        </div>
+
+        <div id="aiClassifyBox" class="alert hidden" style="margin-bottom: 14px; background: #e8f4fd; border: 1px solid #b6e0fe; color: #004085; font-size: 14px;"></div>
+
         <div class="category-grid" id="categoryGrid">
           <div class="category-card selected" data-cat="plumbing"><div class="icon">🚰</div>ระบบประปา</div>
           <div class="category-card" data-cat="electrical"><div class="icon">⚡</div>ระบบไฟฟ้า</div>
