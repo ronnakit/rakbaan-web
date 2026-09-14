@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สมัครสมาชิก · รักบ้าน@CNX</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/util.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/nav.js" defer></script>
+  <script src="js/register.js" defer></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container" style="max-width: 520px;">
+    <h1>สมัครสมาชิกใหม่</h1>
+    <p class="subtitle">ระบบบริการซ่อมแซมและดูแลบ้าน รักบ้าน@CNX เชียงใหม่</p>
+
+    <div class="card">
+      <div id="ข้อความเตือน" class="alert alert-error hidden"></div>
+      <div id="ข้อความสำเร็จ" class="alert alert-ok hidden"></div>
+
+      <form id="ฟอร์มสมัคร">
+        <label for="fullName">ชื่อ - นามสกุล</label>
+        <input type="text" id="fullName" required placeholder="เช่น เชิดชัย ใจมั่น">
+
+        <label for="email">อีเมล</label>
+        <input type="email" id="email" required placeholder="you@example.com" autocomplete="email">
+
+        <label for="password">รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+        <input type="password" id="password" required minlength="6" placeholder="••••••••" autocomplete="new-password">
+
+        <label for="phone">เบอร์โทรศัพท์ติดต่อ</label>
+        <input type="tel" id="phone" required placeholder="เช่น 081-234-5678">
+
+        <label for="role">บทบาทในการใช้งาน</label>
+        <select id="role">
+          <option value="customer" selected>🏠 เจ้าของบ้าน (Customer) — แจ้งซ่อมและติดตามสถานะงานของตนเอง</option>
+          <option value="staff">🔧 ช่าง / ทีมงานรักบ้าน (Staff) — ดูงานทั้งหมดและอัปเดตความคืบหน้า</option>
+        </select>
+        <p class="hint">ค่าเริ่มต้นคือ "เจ้าของบ้าน" (Customer)</p>
+
+        <div class="btn-row" style="margin-top: 24px;">
+          <button type="submit" id="ปุ่มสมัคร" style="width: 100%;">ยืนยันการสมัครสมาชิก</button>
+        </div>
+      </form>
+
+      <div style="margin-top: 20px; text-align: center; border-top: 1px solid var(--สีขอบ); padding-top: 16px;">
+        <p class="hint">มีบัญชีผู้ใช้อยู่แล้ว? <a href="login.html" style="color:var(--สีหลัก); font-weight:700;">เข้าสู่ระบบที่นี่</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

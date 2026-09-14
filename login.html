@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ · รักบ้าน@CNX</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/util.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/nav.js" defer></script>
+  <script src="js/login.js" defer></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container" style="max-width: 480px;">
+    <h1>เข้าสู่ระบบ</h1>
+    <p class="subtitle">ระบบบริการซ่อมแซมและดูแลบ้าน รักบ้าน@CNX</p>
+
+    <div class="card">
+      <div id="ข้อความเตือน" class="alert alert-error hidden"></div>
+      <div id="ข้อความสำเร็จ" class="alert alert-ok hidden"></div>
+
+      <form id="ฟอร์มล็อกอิน">
+        <label for="email">อีเมล</label>
+        <input type="email" id="email" required placeholder="you@example.com" autocomplete="email">
+
+        <label for="password">รหัสผ่าน</label>
+        <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password">
+
+        <div class="btn-row" style="margin-top: 20px;">
+          <button type="submit" id="ปุ่มล็อกอิน" style="width: 100%;">เข้าสู่ระบบ</button>
+        </div>
+      </form>
+
+      <div style="margin-top: 20px; text-align: center; border-top: 1px solid var(--สีขอบ); padding-top: 16px;">
+        <p class="hint">ยังไม่มีบัญชีผู้ใช้? <a href="register.html" style="color:var(--สีหลัก); font-weight:700;">สมัครสมาชิกที่นี่</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
