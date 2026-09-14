@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายละเอียดงานแจ้งซ่อม · รักบ้าน@CNX</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/util.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/nav.js" defer></script>
+  <script src="js/job-detail.js" defer></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <h1>รายละเอียดงานแจ้งซ่อม</h1>
+    <p class="subtitle">ระบบติดตามและบริหารงานซ่อม รักบ้าน@CNX เชียงใหม่</p>
+
+    <div id="กล่องรายละเอียด" class="card">
+      <p>กำลังโหลดข้อมูลงานซ่อม…</p>
+    </div>
+
+    <!-- บันทึกความเห็นหรือการปฏิบัติงานหน้างาน -->
+    <div id="กล่องความเห็น" class="card hidden">
+      <h2>📝 บันทึกความคืบหน้าหน้างาน</h2>
+      <div id="รายการความเห็น" style="margin-bottom: 16px;"></div>
+
+      <label for="commentInput">เขียนบันทึกความคืบหน้าใหม่</label>
+      <textarea id="commentInput" placeholder="พิมพ์รายงานความคืบหน้า เช่น ช่างเข้าตรวจหน้างานแล้ว พบสายไฟขาดใต้ฝ้า"></textarea>
+      <div id="เตือนความเห็น" class="alert alert-error hidden"></div>
+      <div class="btn-row">
+        <button type="button" id="ปุ่มส่งความเห็น" class="btn">บันทึกรายงาน</button>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top: 20px;">
+      <a class="btn btn-ghost" href="jobs.html">← กลับไปหน้ารายการแจ้งซ่อม</a>
+    </div>
+  </div>
+</body>
+</html>

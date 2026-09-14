@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายการแจ้งซ่อม · รักบ้าน@CNX</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/util.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/nav.js" defer></script>
+  <script src="js/jobs.js" defer></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h1 style="margin-bottom:4px;">รายการแจ้งซ่อม</h1>
+        <p class="subtitle" id="subtitleText">กำลังโหลดข้อมูลงานซ่อม…</p>
+      </div>
+      <a class="btn" href="new-job.html">+ แจ้งซ่อมบ้านใหม่</a>
+    </div>
+
+    <!-- แถบปุ่มกรองสถานะ -->
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin: 16px 0 12px;">
+      <a href="jobs.html" class="btn btn-ghost" style="font-size:14px; padding:5px 12px;">ทั้งหมด</a>
+      <a href="jobs.html?status=pending_review" class="btn btn-ghost" style="font-size:14px; padding:5px 12px; border-color:#ffeeba; background:#fff3cd; color:#856404;">⏳ รอรับเรื่อง</a>
+      <a href="jobs.html?status=assigned" class="btn btn-ghost" style="font-size:14px; padding:5px 12px; border-color:#b3e5fc; background:#e1f5fe; color:#0277bd;">👤 มอบหมายแล้ว</a>
+      <a href="jobs.html?status=in_progress" class="btn btn-ghost" style="font-size:14px; padding:5px 12px; border-color:#ffccbc; background:#fff0e6; color:#d84315;">🔨 กำลังซ่อม</a>
+      <a href="jobs.html?status=completed" class="btn btn-ghost" style="font-size:14px; padding:5px 12px; border-color:#c8e6c9; background:#e8f5e9; color:#2e7d32;">✅ เสร็จสิ้น</a>
+    </div>
+
+    <div id="กล่องตาราง" class="card" style="margin-top:10px; padding:0; overflow:hidden;">
+      <p style="padding:20px;">กำลังโหลดข้อมูลจากฐานข้อมูล…</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แจ้งซ่อมบ้านใหม่ · รักบ้าน@CNX</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/util.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/nav.js" defer></script>
+  <script src="js/new-job.js" defer></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <h1>แจ้งซ่อมบ้านใหม่</h1>
+    <p class="subtitle">กรอกรายละเอียดอาการเสียและสถานที่ เพื่อให้ทีมช่างรักบ้านเข้าตรวจสอบ · สถานะเริ่มต้นคือ "รอรับเรื่อง"</p>
+
+    <div class="card">
+      <div id="ข้อความเตือน" class="alert alert-error hidden"></div>
+
+      <form id="ฟอร์มแจ้งซ่อม">
+        <label for="title">หัวข้ออาการเสีย / งานที่ต้องการซ่อม</label>
+        <input type="text" id="title" required placeholder="เช่น ปั๊มน้ำทำงานไม่ยอมตัด น้ำไหลอ่อนชั้นสอง">
+
+        <label>เลือกหมวดหมู่บริการ (9 หมวด)</label>
+        <div class="category-grid" id="categoryGrid">
+          <div class="category-card selected" data-cat="plumbing"><div class="icon">🚰</div>ระบบประปา</div>
+          <div class="category-card" data-cat="electrical"><div class="icon">⚡</div>ระบบไฟฟ้า</div>
+          <div class="category-card" data-cat="air_con"><div class="icon">❄️</div>ล้าง/ซ่อมแอร์</div>
+          <div class="category-card" data-cat="roof_structure"><div class="icon">🏠</div>หลังคา/โครงสร้าง</div>
+          <div class="category-card" data-cat="wall_paint"><div class="icon">🎨</div>งานผนัง/สี</div>
+          <div class="category-card" data-cat="floor_tile"><div class="icon">🧱</div>งานพื้น/กระเบื้อง</div>
+          <div class="category-card" data-cat="door_window"><div class="icon">🚪</div>ประตู/หน้าต่าง</div>
+          <div class="category-card" data-cat="appliance_ventilation"><div class="icon">🔌</div>เครื่องใช้ไฟฟ้า</div>
+          <div class="category-card" data-cat="emergency_safety"><div class="icon">🚨</div>ฉุกเฉินเร่งด่วน</div>
+        </div>
+        <input type="hidden" id="category" value="plumbing">
+
+        <label for="description">รายละเอียดอาการเพิ่มเติม</label>
+        <textarea id="description" required placeholder="เล่าอาการให้ช่างเข้าใจเบื้องต้น เช่น เพิ่งเริ่มเป็นเมื่อคืน มีเสียงดังรบกวนตลอดเวลา"></textarea>
+
+        <label for="address">สถานที่หน้างานในเชียงใหม่</label>
+        <input type="text" id="address" required placeholder="เช่น บ้านเลขที่ 88/12 หมู่บ้านกรีนวัลเลย์ ต.แม่สา อ.แม่ริม จ.เชียงใหม่">
+
+        <label for="contactPhone">เบอร์โทรศัพท์สำหรับให้ช่างติดต่อ</label>
+        <input type="tel" id="contactPhone" required placeholder="เช่น 089-999-8888">
+
+        <div class="btn-row" style="margin-top: 24px;">
+          <button type="submit" id="ปุ่มบันทึก" style="font-size:17px; padding:10px 24px;">ยืนยันการแจ้งซ่อม</button>
+          <a class="btn btn-ghost" href="jobs.html">ยกเลิก</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

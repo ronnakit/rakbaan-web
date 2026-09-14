@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รักบ้าน@CNX · บริการดูแลและซ่อมแซมบ้าน เชียงใหม่</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/util.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js" defer></script>
+  <script src="js/firebase-config.js" defer></script>
+  <script src="js/nav.js" defer></script>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <div class="container">
+    <div class="card" style="border-left: 6px solid var(--สีหลัก); background: linear-gradient(135deg, #fff 0%, #fff8f2 100%);">
+      <h1 style="font-size:30px; margin-top:0;">🏠 รักบ้าน@CNX — Home Care & Repair</h1>
+      <p class="subtitle" style="font-size:17px; color:var(--สีกรมท่า);">
+        แพลตฟอร์มบริการดูแลและซ่อมแซมบ้านครบวงจรในเชียงใหม่ · อุ่นใจเรื่องบ้าน มีช่างมืออาชีพพร้อมดูแลคุณ
+      </p>
+
+      <div class="btn-row" style="margin-top:20px;">
+        <a class="btn" href="new-job.html" style="font-size:17px; padding:10px 24px;">+ แจ้งซ่อมบ้านใหม่</a>
+        <a class="btn btn-ghost" href="jobs.html" style="font-size:17px; padding:10px 20px;">📋 ติดตามรายการแจ้งซ่อม</a>
+      </div>
+    </div>
+
+    <!-- หมวดหมู่บริการ 9 หมวด -->
+    <div class="card">
+      <h2>🛠️ หมวดหมู่บริการงานช่างและซ่อมแซม (9 บริการหลัก)</h2>
+      <div class="category-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+        <div class="category-card"><div class="icon">⚡</div><strong>ระบบไฟฟ้า</strong><div class="hint">เดินสายไฟ, ปลั๊ก, ตู้โหลด</div></div>
+        <div class="category-card"><div class="icon">🚰</div><strong>ระบบประปา</strong><div class="hint">ท่อแตก, ปั๊มน้ำ, สุขภัณฑ์</div></div>
+        <div class="category-card"><div class="icon">❄️</div><strong>ล้างและซ่อมแอร์</strong><div class="hint">ล้างแอร์, เติมน้ำยา, แอร์รั่ว</div></div>
+        <div class="category-card"><div class="icon">🏠</div><strong>หลังคาและโครงสร้าง</strong><div class="hint">หลังคารั่ว, ซ่อมฝ้า, ต่อเติม</div></div>
+        <div class="category-card"><div class="icon">🎨</div><strong>งานผนังและทาสี</strong><div class="hint">ทาสีภายใน, ภายนอก, รอยร้าว</div></div>
+        <div class="category-card"><div class="icon">🧱</div><strong>งานพื้นและกระเบื้อง</strong><div class="hint">ปูกระเบื้อง, ยาแนว, พื้นร้าว</div></div>
+        <div class="category-card"><div class="icon">🚪</div><strong>ประตูและหน้าต่าง</strong><div class="hint">มุ้งลวด, รางเลื่อน, บานพับ</div></div>
+        <div class="category-card"><div class="icon">🔌</div><strong>เครื่องใช้ไฟฟ้า</strong><div class="hint">พัดลมดูดอากาศ, เครื่องทำน้ำอุ่น</div></div>
+        <div class="category-card"><div class="icon">🚨</div><strong>ความปลอดภัยฉุกเฉิน</strong><div class="hint">ไฟดับฉุกเฉิน, ท่อน้ำเมนแตก</div></div>
+      </div>
+    </div>
+
+    <!-- สิทธิ์การใช้งานตามบทบาท -->
+    <div class="card">
+      <h2>👥 บทบาทผู้ใช้ในระบบ รักบ้าน@CNX</h2>
+      <table>
+        <thead>
+          <tr><th>บทบาท</th><th>รหัสในระบบ</th><th>สิทธิ์การทำงาน</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🏠 <strong>เจ้าของบ้าน</strong></td>
+            <td><span class="badge badge-role-customer">customer</span></td>
+            <td>แจ้งซ่อมออนไลน์, ดูและติดตามงานของตนเอง, ยกเลิกงานที่รอรับเรื่องได้</td>
+          </tr>
+          <tr>
+            <td>🔧 <strong>ช่าง / ทีมงาน</strong></td>
+            <td><span class="badge badge-role-staff">staff</span></td>
+            <td>ดูงานแจ้งซ่อมทั้งหมดในเชียงใหม่, รับเรื่อง, มอบหมายงาน, เลื่อนสถานะงาน</td>
+          </tr>
+          <tr>
+            <td>👑 <strong>ผู้ดูแลระบบ</strong></td>
+            <td><span class="badge badge-role-admin">admin</span></td>
+            <td>บริหารจัดการผู้ใช้, ตรวจสอบงานทั้งหมด, ควบคุมสิทธิ์ระบบ</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- สถานะงานซ่อม -->
+    <div class="card">
+      <h2>🚦 ขั้นตอนการดำเนินงานซ่อม (Job Stepper)</h2>
+      <p style="margin:12px 0;">
+        <span class="badge badge-pending_review">รอรับเรื่อง</span> ➔ 
+        <span class="badge badge-assigned">มอบหมายช่างแล้ว</span> ➔ 
+        <span class="badge badge-in_progress">กำลังซ่อม</span> ➔ 
+        <span class="badge badge-completed">เสร็จสิ้น</span>
+      </p>
+      <p class="hint">สถานะงานสามารถปรับเปลี่ยนได้โดยทีมงานช่าง (Staff) เท่านั้น เพื่อความถูกต้องในการดำเนินงานจริง</p>
+    </div>
+  </div>
+</body>
+</html>

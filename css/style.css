@@ -1,0 +1,204 @@
+/* ─────────────────────────────────────────────────────────────
+   css/style.css — ธีมหลักของ รักบ้าน@CNX Web Portal
+   สีประจำแบรนด์: ส้มรักบ้าน (#e65100) + กรมท่า (#1a2530)
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --สีหลัก: #e65100;
+  --สีหลักเข้ม: #bf360c;
+  --สีหลักอ่อน: #ffe0b2;
+  --สีกรมท่า: #1a2530;
+  --สีพื้น: #f7f9fa;
+  --สีขอบ: #d8dee4;
+  --สีตัวอักษร: #212529;
+  --สีจาง: #6c757d;
+  --สีเขียว: #2e7d32;
+  --สีแดง: #c62828;
+  --สีฟ้า: #0277bd;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Leelawadee UI", "Sarabun", "Segoe UI", -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--สีตัวอักษร);
+  background: var(--สีพื้น);
+}
+
+/* ── แถบเมนูนำทาง ── */
+.navbar {
+  background: var(--สีกรมท่า);
+  color: #fff;
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  border-bottom: 3px solid var(--สีหลัก);
+}
+.navbar .brand {
+  font-weight: 800;
+  font-size: 21px;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.navbar a.nav-link {
+  color: #e0e6ed;
+  text-decoration: none;
+  padding: 6px 4px;
+  font-size: 15px;
+  transition: all 0.2s;
+}
+.navbar a.nav-link:hover, .navbar a.nav-link.active {
+  color: #ffb74d;
+  border-bottom: 2px solid #ff9800;
+}
+.navbar .nav-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+/* ── กล่องเนื้อหา ── */
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+h1 { font-size: 26px; color: var(--สีกรมท่า); margin: 16px 0 6px; }
+h2 { font-size: 20px; color: var(--สีกรมท่า); margin: 20px 0 10px; }
+.subtitle { color: var(--สีจาง); margin-top: 0; font-size: 15px; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--สีขอบ);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+/* ── ตาราง ── */
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--สีขอบ); text-align: left; }
+th { background: #f0f4f8; font-weight: 700; color: var(--สีกรมท่า); font-size: 15px; }
+tbody tr.clickable:hover { background: #fff8f2; cursor: pointer; }
+
+/* ── ป้ายสถานะ ── */
+.badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-pending_review { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.badge-assigned       { background: #e1f5fe; color: #0277bd; border: 1px solid #b3e5fc; }
+.badge-traveling      { background: #e8eaf6; color: #283593; border: 1px solid #c5cae9; }
+.badge-in_progress    { background: #fff0e6; color: #d84315; border: 1px solid #ffccbc; }
+.badge-completed      { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.badge-cancelled      { background: #fbe9e7; color: #c62828; border: 1px solid #ffcdd2; }
+
+.badge-role-customer  { background: #e0f2fe; color: #0369a1; }
+.badge-role-staff     { background: #fef3c7; color: #b45309; }
+.badge-role-admin     { background: #fee2e2; color: #b91c1c; }
+
+/* ── ปุ่ม ── */
+button, .btn {
+  font-family: inherit;
+  font-size: 16px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--สีหลัก);
+  background: var(--สีหลัก);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+button:hover, .btn:hover { background: var(--สีหลักเข้ม); border-color: var(--สีหลักเข้ม); }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-ghost { background: #fff; color: var(--สีกรมท่า); border-color: var(--สีขอบ); }
+.btn-ghost:hover { background: #f5f5f5; border-color: #bbb; color: var(--สีกรมท่า); }
+.btn-danger { background: var(--สีแดง); border-color: var(--สีแดง); color: #fff; }
+.btn-danger:hover { background: #b71c1c; border-color: #b71c1c; }
+.btn-ok { background: var(--สีเขียว); border-color: var(--สีเขียว); color: #fff; }
+.btn-ok:hover { background: #1b5e20; border-color: #1b5e20; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+/* ── ฟอร์ม ── */
+label { display: block; font-weight: 700; margin: 14px 0 5px; font-size: 15px; color: var(--สีกรมท่า); }
+input, select, textarea {
+  font-family: inherit;
+  font-size: 15px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--สีขอบ);
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--สีหลัก);
+  box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.15);
+}
+textarea { min-height: 100px; resize: vertical; }
+.hint { color: var(--สีจาง); font-size: 14px; margin-top: 4px; }
+
+/* ── หมวดหมู่งานซ่อม (Category Grid) ── */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.category-card {
+  border: 1px solid var(--สีขอบ);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s;
+}
+.category-card:hover { border-color: var(--สีหลัก); background: #fff8f2; }
+.category-card.selected {
+  border-color: var(--สีหลัก);
+  background: var(--สีหลักอ่อน);
+  color: var(--สีหลักเข้ม);
+  font-weight: 700;
+}
+.category-card .icon { font-size: 24px; margin-bottom: 4px; }
+
+/* ── แจ้งเตือน ── */
+.alert { padding: 12px 16px; border-radius: 8px; margin: 14px 0; font-size: 15px; }
+.alert-error { background: #fdecea; border: 1px solid #f5b3ad; color: #8b1f1a; }
+.alert-ok    { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e34; }
+.alert-warn  { background: #fff8e1; border: 1px solid #ffd54f; color: #7a5b00; }
+.hidden { display: none !important; }
+
+/* ── รายการข้อมูลในหน้ารายละเอียด ── */
+.field-row { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 9px 0; border-bottom: 1px dashed var(--สีขอบ); }
+.field-row .k { min-width: 160px; font-weight: 700; color: var(--สีกรมท่า); }
+
+/* ── มือถือ ── */
+@media (max-width: 640px) {
+  .container { padding: 14px 12px 60px; }
+  .navbar .nav-user { margin-left: 0; width: 100%; }
+  .hide-mobile { display: none; }
+}
