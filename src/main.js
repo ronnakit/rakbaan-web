@@ -188,8 +188,11 @@ function renderDashboard(user, role) {
           <button class="nav-item ${activeTab === 'finance' ? 'active' : ''}" id="nav-finance">
             💰 สรุปการเงิน
           </button>
-          <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: var(--mint-600); margin-top: 12px; background: var(--mint-100); border: 1px dashed var(--mint); border-radius: var(--radius-md); font-size: 13px;">
-            📱 ช่าง Pro Portal ↗
+          <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: #d97706; margin-top: 12px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: var(--radius-md); font-size: 13px;">
+            🔧 จอมือถือช่าง Pro ↗
+          </a>
+          <a href="/customer.html" target="_blank" class="nav-item" style="text-decoration: none; color: var(--mint-600); margin-top: 6px; background: var(--mint-100); border: 1px dashed var(--mint); border-radius: var(--radius-md); font-size: 13px;">
+            👤 จอลูกค้าแจ้งซ่อม (Senior-First) ↗
           </a>
         </nav>
         <div class="sidebar-footer">

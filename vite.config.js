@@ -7,6 +7,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         tech: resolve(__dirname, 'tech.html'),
+        customer: resolve(__dirname, 'customer.html'),
       },
     },
   },

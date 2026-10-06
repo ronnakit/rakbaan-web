@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>รักบ้าน@CNX — จอลูกค้าแจ้งซ่อมบ้าน (Senior-First)</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      /* Senior-First Customer App Styles (Font size 18-20pt+, Frameless UI, Warm Green) */
+      body {
+        background-color: #f0fdf4;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", Helvetica, Arial, sans-serif;
+        color: #0f172a;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .customer-container {
+        max-width: 520px;
+        margin: 0 auto;
+        min-height: 100vh;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 25px rgba(16, 185, 129, 0.1);
+        position: relative;
+      }
+
+      /* Distinct Customer App Header - Green & Friendly */
+      .customer-app-bar {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: #fff;
+        padding: 16px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 3px 12px rgba(5, 150, 105, 0.2);
+      }
+
+      .role-tag-customer {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 999px;
+        margin-bottom: 6px;
+        letter-spacing: 0.5px;
+      }
+
+      .customer-brand-title {
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .customer-brand-sub {
+        font-size: 14px;
+        opacity: 0.92;
+        margin-top: 2px;
+      }
+
+      /* Role Switcher Floating Pill */
+      .role-switcher-banner {
+        background: #ecfdf5;
+        border-bottom: 2px solid #a7f3d0;
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: #065f46;
+      }
+
+      /* Senior-First Main Content */
+      .customer-main {
+        flex: 1;
+        padding: 20px 18px 80px;
+      }
+
+      .senior-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #065f46;
+        margin: 0 0 12px 0;
+      }
+
+      .senior-text {
+        font-size: 18px;
+        line-height: 1.5;
+        color: #1e293b;
+      }
+
+      /* Clean Service Card (Frameless) */
+      .service-card-senior {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+        border: 1.5px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .service-card-senior:hover, .service-card-senior.selected {
+        background: #f0fdf4;
+        border-color: #10b981;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+      }
+
+      .service-card-senior.selected {
+        border-width: 2.5px;
+      }
+
+      .service-name-senior {
+        font-size: 19px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .service-price-senior {
+        font-size: 20px;
+        font-weight: 800;
+        color: #059669;
+      }
+
+      /* Senior-First Big Action Buttons */
+      .btn-senior-primary {
+        width: 100%;
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 16px 20px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: transform 0.1s;
+      }
+
+      .btn-senior-primary:active {
+        transform: scale(0.98);
+      }
+
+      .btn-senior-danger {
+        width: 100%;
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #f87171;
+        font-size: 18px;
+        font-weight: 700;
+        padding: 14px 20px;
+        border-radius: 14px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      /* Bottom Nav Bar */
+      .customer-nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 520px;
+        background: #fff;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0 12px;
+        z-index: 99;
+      }
+
+      .customer-nav-item {
+        background: none;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .customer-nav-item.active {
+        color: #059669;
+      }
+
+      .customer-nav-icon {
+        font-size: 22px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="customer-container">
+      <!-- Customer App Header -->
+      <header class="customer-app-bar">
+        <span class="role-tag-customer">👤 หน้าจอลูกค้าเจ้าของบ้าน (Customer Screen)</span>
+        <h1 class="customer-brand-title">🏡 รักบ้าน@CNX — แจ้งซ่อมบ้าน</h1>
+        <div class="customer-brand-sub">ซ่อมง่าย สบายใจ มาตรฐานเพียบพร้อมทำ • เชียงใหม่</div>
+      </header>
+
+      <!-- Multi-Window Navigation Helper -->
+      <div class="role-switcher-banner">
+        <span>💡 กำลังเปิดในบทบาท: <strong>ลูกค้า 👤</strong></span>
+        <div>
+          <a href="/" target="_blank" style="color: #0284c7; text-decoration: none; font-weight: 600; margin-right: 10px;">เปิดจอเรา (Ops) ↗</a>
+          <a href="/tech.html" target="_blank" style="color: #d97706; text-decoration: none; font-weight: 600;">เปิดจอช่าง ↗</a>
+        </div>
+      </div>
+
+      <!-- Main Body Container (Rendered by JS) -->
+      <main class="customer-main" id="customer-app">
+        <!-- Content injected dynamically -->
+      </main>
+
+      <!-- Bottom Nav Bar -->
+      <nav class="customer-nav">
+        <button class="customer-nav-item active" id="nav-book">
+          <span class="customer-nav-icon">🛠️</span>
+          <span>แจ้งซ่อมใหม่</span>
+        </button>
+        <button class="customer-nav-item" id="nav-myjobs">
+          <span class="customer-nav-icon">📋</span>
+          <span>งานของฉัน / ประกัน</span>
+        </button>
+      </nav>
+    </div>
+
+    <script type="module" src="/src/customer.js"></script>
+  </body>
+</html>
