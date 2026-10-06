@@ -778,17 +778,6 @@ async function refreshJobsTable() {
       `;
     }
   }
-          <td style="font-size: 12px;">${escapeHtml(j.customerId?.slice(0, 15) || '-')}</td>
-          <td style="font-size: 12px; color: var(--gray-600); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
-          <td style="font-size: 12px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(techDisplay)}</td>
-          <td style="font-weight: 600; color: var(--navy);">฿${(j.price || 0).toLocaleString()}</td>
-          <td style="text-align: center;">
-            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" title="[📋 ใบงาน] ตรวจสอบ/มอบหมายช่าง" style="font-size: 14px; padding: 4px 8px;">📋</button>
-          </td>
-        </tr>
-      `;
-    }
-  }
   
   tableHtml += `</tbody></table>`;
   container.innerHTML = tableHtml;
