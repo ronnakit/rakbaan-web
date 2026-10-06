@@ -5,7 +5,8 @@
  * ครอบคลุม: หน้าแรก (Home) + ตารางติดตาม Step Light + แจ้งซ่อม 3 ขั้นตอน + ตรวจรับงานสเต็ป 10
  */
 
-import { db } from './firebase.js';
+import { auth, db } from './firebase.js';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import {
   collection,
   query,
@@ -102,8 +103,18 @@ init();
 
 function init() {
   bindNavTabs();
-  startListeningJobs();
-  renderCurrentView();
+  renderCurrentView(); // Render immediately so screen appears in 0ms
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      try {
+        await signInAnonymously(auth);
+      } catch (e) {
+        console.warn('Anonymous auth note:', e.message);
+      }
+    }
+    startListeningJobs();
+  });
 }
 
 function bindNavTabs() {
@@ -111,43 +122,61 @@ function bindNavTabs() {
   const tabBook = document.getElementById('tab-book');
   const tabTracking = document.getElementById('tab-tracking');
 
-  tabHome.onclick = () => {
-    activeNav = 'home';
-    updateNavButtons();
-    renderCurrentView();
-  };
+  if (tabHome) {
+    tabHome.onclick = () => {
+      activeNav = 'home';
+      updateNavButtons();
+      renderCurrentView();
+    };
+  }
 
-  tabBook.onclick = () => {
-    activeNav = 'book';
-    wizardStep = 1;
-    updateNavButtons();
-    renderCurrentView();
-  };
+  if (tabBook) {
+    tabBook.onclick = () => {
+      activeNav = 'book';
+      wizardStep = 1;
+      updateNavButtons();
+      renderCurrentView();
+    };
+  }
 
-  tabTracking.onclick = () => {
-    activeNav = 'tracking';
-    updateNavButtons();
-    renderCurrentView();
-  };
+  if (tabTracking) {
+    tabTracking.onclick = () => {
+      activeNav = 'tracking';
+      updateNavButtons();
+      renderCurrentView();
+    };
+  }
 }
 
 function updateNavButtons() {
-  document.getElementById('tab-home').classList.toggle('active', activeNav === 'home');
-  document.getElementById('tab-book').classList.toggle('active', activeNav === 'book');
-  document.getElementById('tab-tracking').classList.toggle('active', activeNav === 'tracking');
+  const tabHome = document.getElementById('tab-home');
+  const tabBook = document.getElementById('tab-book');
+  const tabTracking = document.getElementById('tab-tracking');
+  if (tabHome) tabHome.classList.toggle('active', activeNav === 'home');
+  if (tabBook) tabBook.classList.toggle('active', activeNav === 'book');
+  if (tabTracking) tabTracking.classList.toggle('active', activeNav === 'tracking');
 }
 
 function startListeningJobs() {
-  if (unsubscribe) unsubscribe();
+  if (unsubscribe) {
+    unsubscribe();
+    unsubscribe = null;
+  }
 
-  const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'), limit(50));
-  unsubscribe = onSnapshot(q, (snapshot) => {
-    allMyJobs = snapshot.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(j => j.customerId === CUSTOMER_ID || !j.customerId || j.customerId.includes('cherd'));
+  try {
+    const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'), limit(50));
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      allMyJobs = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(j => j.customerId === CUSTOMER_ID || !j.customerId || j.customerId.includes('cherd'));
 
-    renderCurrentView();
-  });
+      renderCurrentView();
+    }, (err) => {
+      console.warn('Firestore snapshot error:', err.message);
+    });
+  } catch (err) {
+    console.warn('Query setup error:', err.message);
+  }
 }
 
 function renderCurrentView() {
