@@ -17,6 +17,13 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { loadServices, renderCatalogView } from './catalog-manager.js';
+import {
+  TECHNICIANS,
+  getTechnicians,
+  getTechnicianById,
+  getTechniciansForCategory,
+  TRADE_LABELS,
+} from './technicians-data.js';
 
 const app = document.getElementById('app');
 
@@ -181,6 +188,9 @@ function renderDashboard(user, role) {
           <button class="nav-item ${activeTab === 'finance' ? 'active' : ''}" id="nav-finance">
             💰 สรุปการเงิน
           </button>
+          <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: var(--mint-600); margin-top: 12px; background: var(--mint-100); border: 1px dashed var(--mint); border-radius: var(--radius-md); font-size: 13px;">
+            📱 ช่าง Pro Portal ↗
+          </a>
         </nav>
         <div class="sidebar-footer">
           <div class="user-chip" style="margin-bottom: 12px;">
@@ -276,72 +286,76 @@ let mockCustomers = [
 
 
 function renderTechniciansView(container) {
-  const all = mockTechnicians.length;
-  const available = mockTechnicians.filter(t => t.status === 'available').length;
-  const busy = mockTechnicians.filter(t => t.status === 'busy').length;
-  const inactive = mockTechnicians.filter(t => t.status === 'inactive').length;
+  const allTechs = getTechnicians();
+  const all = allTechs.length;
+  const available = allTechs.filter(t => t.status === 'active').length;
+  const busy = allTechs.filter(t => t.status === 'busy').length;
+  const leave = all - available - busy;
 
   container.innerHTML = `
     <div class="catalog-header">
       <div>
-        <h2 class="catalog-title">👷‍♂️ ทะเบียนช่าง (Technicians)</h2>
-        <p class="catalog-subtitle">ข้อมูลช่างสังกัด PPT, Multi-select Skill Tags, ระบบคะแนน 2 มิติ และโมเดลค่าแรง</p>
+        <h2 class="catalog-title">👷‍♂️ ทำเนียบกำลังพลช่างฝีมือเชียงใหม่ (15 Pro Technicians)</h2>
+        <p class="catalog-subtitle">ทะเบียนช่างมืออาชีพผ่านการคัดกรอง RakBaan Pro Academy — ตรวจประวัติอาชญากรรม 100%</p>
       </div>
       <div>
-        <button class="btn-mint" id="btn-add-tech">➕ เพิ่มช่างใหม่</button>
+        <a href="/tech.html" target="_blank" class="btn-mint" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          <span>📱</span> เปิดหน้าจอมือถือช่าง (Tech Portal) ↗
+        </a>
       </div>
     </div>
     
     <div class="kpi-row" style="margin-bottom: 20px;">
-      <div class="kpi-tile"><div class="kpi-value">${all}</div><div class="kpi-label">ช่างทั้งหมด</div></div>
-      <div class="kpi-tile" style="border-color: var(--mint);"><div class="kpi-value text-mint">${available}</div><div class="kpi-label">พร้อมรับงาน</div></div>
-      <div class="kpi-tile" style="border-color: var(--amber);"><div class="kpi-value text-amber">${busy}</div><div class="kpi-label">ติดงาน</div></div>
-      <div class="kpi-tile" style="border-color: var(--gray-400);"><div class="kpi-value" style="color: var(--gray-500);">${inactive}</div><div class="kpi-label">พักงาน</div></div>
+      <div class="kpi-tile"><div class="kpi-value">${all}</div><div class="kpi-label">ช่างในระบบทั้งหมด</div></div>
+      <div class="kpi-tile" style="border-color: var(--mint);"><div class="kpi-value text-mint">${available}</div><div class="kpi-label">พร้อมรับงาน (Active)</div></div>
+      <div class="kpi-tile" style="border-color: var(--amber);"><div class="kpi-value text-amber">${busy}</div><div class="kpi-label">ติดงานหน้างาน (Busy)</div></div>
+      <div class="kpi-tile" style="border-color: var(--gray-400);"><div class="kpi-value" style="color: var(--gray-500);">${leave}</div><div class="kpi-label">ลาพัก / สแตนด์บาย</div></div>
     </div>
 
     <div class="table-responsive card" style="padding: 0; overflow: hidden; margin-bottom: 20px;">
       <table class="catalog-table">
         <thead>
           <tr>
-            <th style="width: 100px;">รหัสช่าง</th>
-            <th style="width: 160px;">ชื่อ-สกุล</th>
-            <th style="width: 100px; text-align: center;">สถานะ</th>
-            <th style="width: 90px;">เพศ/อายุ</th>
-            <th style="width: 120px;">เบอร์โทร</th>
-            <th>ทักษะความชำนาญ</th>
-            <th style="width: 140px;">คะแนน (QC | ลูกค้า)</th>
-            <th style="width: 120px;">โมเดลค่าแรง</th>
-            <th style="width: 120px; text-align: center;">จัดการ</th>
+            <th style="width: 90px;">รหัสช่าง</th>
+            <th style="width: 170px;">ชื่อ-นามสกุล (ชื่อเล่น)</th>
+            <th style="width: 120px; text-align: center;">สถานะปฏิบัติงาน</th>
+            <th style="width: 170px;">หมวดงานความเชี่ยวชาญ</th>
+            <th style="width: 110px;">เบอร์ติดต่อ</th>
+            <th style="width: 150px;">พื้นที่ให้บริการ</th>
+            <th style="width: 90px; text-align: center;">งานที่จบ</th>
+            <th style="width: 150px;">คะแนน (Audit | CSAT)</th>
+            <th style="width: 100px; text-align: center;">หน้าช่าง</th>
           </tr>
         </thead>
         <tbody>
-          ${mockTechnicians.map(t => `
+          ${allTechs.map(t => `
             <tr class="service-row">
-              <td style="font-family: monospace; font-weight: 700; color: var(--navy);">${t.id}</td>
-              <td style="font-weight: 600; color: var(--gray-900);">${t.name}</td>
+              <td style="font-family: monospace; font-weight: 700; color: var(--navy); font-size: 13px;">${t.id}</td>
+              <td>
+                <div style="font-weight: 600; color: var(--gray-900);">${t.name}</div>
+                <div style="font-size: 11px; color: var(--gray-500);">${t.nickname ? `(${t.nickname})` : ''} ประสบการณ์ ${t.yearsExp} ปี</div>
+              </td>
               <td style="text-align: center;">
-                <span class="badge ${t.status === 'available' ? '' : (t.status === 'busy' ? 'jobtype-large' : 'pending')}" 
-                      style="${t.status === 'available' ? 'background: var(--mint-100); color: var(--mint-600);' : (t.status === 'busy' ? 'background: var(--amber-100); color: var(--amber);' : 'background: var(--gray-200); color: var(--gray-600);')}">
-                  ${t.status === 'available' ? 'พร้อมรับงาน' : (t.status === 'busy' ? 'กำลังทำงาน' : 'พักงาน')}
+                <span class="badge" style="${t.status === 'active' ? 'background: var(--mint-100); color: var(--mint-600);' : 'background: var(--amber-100); color: var(--amber);'} font-size: 11px;">
+                  ${t.status === 'active' ? '🟢 พร้อมรับงาน' : '🟡 กำลังทำงาน'}
                 </span>
               </td>
-              <td style="color: var(--gray-600);">${t.gender} ${t.age}</td>
-              <td>${t.phone}</td>
               <td>
-                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                  ${t.skills.map(s => `<span class="badge" style="background: var(--gray-100); color: var(--gray-700); font-size: 11px;">${s}</span>`).join('')}
+                <span class="badge" style="background: var(--gray-100); color: var(--gray-800); font-size: 11px;">${t.tradeName}</span>
+              </td>
+              <td style="font-family: monospace; font-size: 12px;">${t.phone}</td>
+              <td style="font-size: 12px; color: var(--gray-600);">${t.coverageArea}</td>
+              <td style="text-align: center; font-weight: 600; color: var(--navy);">${t.completedJobs} งาน</td>
+              <td>
+                <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
+                  <span style="color: #0284c7;">🛡️ บริษัท: <strong>${t.companyScore}%</strong></span>
+                  <span style="color: #d97706;">⭐ ลูกค้า: <strong>${t.customerRating}</strong> (${t.reviewCount})</span>
                 </div>
               </td>
-              <td>
-                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px;">
-                  <span>🏅 PPT QC: ${t.qcScore}</span>
-                  <span>⭐ รีวิว: ${t.reviewScore}</span>
-                </div>
-              </td>
-              <td style="color: var(--gray-700);">${t.paymentModel}</td>
               <td style="text-align: center;">
-                <button class="secondary btn-sm" onclick="alert('ฟังก์ชันแก้ไขช่าง')">✏️</button>
-                <button class="secondary btn-sm" onclick="alert('ฟังก์ชันดูประวัติ')">🔍</button>
+                <a href="/tech.html?techId=${t.id}" target="_blank" class="secondary btn-sm" style="text-decoration: none; font-size: 11px; padding: 3px 8px;" title="เข้าสู่ระบบในนามช่างคนนี้">
+                  📱 สวมบท
+                </a>
               </td>
             </tr>
           `).join('')}
@@ -573,13 +587,14 @@ function renderJobsView(container) {
       </div>
     </div>
     
-    <!-- 5 State Tabs -->
+    <!-- 6 Workflow Tabs -->
     <div class="nav-tabs" style="margin-bottom: 20px; display: flex; gap: 8px; overflow-x: auto; padding: 4px;">
-      <button class="nav-tab ${currentJobTab === 'active' ? 'active' : ''}" data-tab="active">🟡 กำลังดำเนินการ</button>
-      <button class="nav-tab ${currentJobTab === 'pending' ? 'active' : ''}" data-tab="pending">🔵 งานรอคิว</button>
-      <button class="nav-tab ${currentJobTab === 'special' ? 'active' : ''}" data-tab="special">⭐ งานนอกเมนู</button>
-      <button class="nav-tab ${currentJobTab === 'completed' ? 'active' : ''}" data-tab="completed">🟢 งานเสร็จสิ้น</button>
       <button class="nav-tab ${currentJobTab === 'all' ? 'active' : ''}" data-tab="all">⚪ งานทั้งหมด</button>
+      <button class="nav-tab ${currentJobTab === 'pending' ? 'active' : ''}" data-tab="pending">🔵 1-3 รอจัดช่าง</button>
+      <button class="nav-tab ${currentJobTab === 'active' ? 'active' : ''}" data-tab="active">🟡 4-7 ดำเนินการ/ซ่อม</button>
+      <button class="nav-tab ${currentJobTab === 'qc' ? 'active' : ''}" data-tab="qc">📸 8-9 รอตรวจ QC</button>
+      <button class="nav-tab ${currentJobTab === 'rework' ? 'active' : ''}" data-tab="rework">⚠️ 10 ลูกค้าสั่งแก้ (Accountability)</button>
+      <button class="nav-tab ${currentJobTab === 'completed' ? 'active' : ''}" data-tab="completed">🟢 10 เสร็จสิ้น/มีประกัน</button>
     </div>
 
     <!-- Date Filters -->
@@ -672,8 +687,13 @@ async function refreshJobsTable() {
   let filtered = window._allJobs.filter(j => {
     if (currentJobTab === 'active') {
       if (!['assigned', 'traveling', 'in_progress'].includes(j.status)) return false;
+      if (j.workflowStatus === 'tech_submitted' || j.workflowStatus === 'rework_needed') return false;
     } else if (currentJobTab === 'pending') {
       if (j.status !== 'pending_review') return false;
+    } else if (currentJobTab === 'qc') {
+      if (j.workflowStatus !== 'tech_submitted' && j.workflowStatus !== 'customer_review') return false;
+    } else if (currentJobTab === 'rework') {
+      if (j.workflowStatus !== 'rework_needed') return false;
     } else if (currentJobTab === 'completed') {
       if (j.status !== 'completed') return false;
     }
@@ -692,7 +712,7 @@ async function refreshJobsTable() {
     return true;
   });
 
-  const showStatusCol = (currentJobTab === 'active' || currentJobTab === 'pending');
+  const showStatusCol = true;
 
   let tableHtml = `
     <table class="catalog-table">
@@ -701,11 +721,11 @@ async function refreshJobsTable() {
           <th style="width: 100px;"># รหัสงาน</th>
           <th style="width: 140px;">วัน/เวลานัดหมาย</th>
           <th>รายการงานซ่อม</th>
-          ${showStatusCol ? '<th style="width: 130px; text-align:center;">สถานะงาน</th>' : ''}
-          <th style="width: 160px;">ลูกค้า</th>
+          <th style="width: 150px; text-align:center;">สถานะงาน (10 Steps)</th>
+          <th style="width: 150px;">ลูกค้า</th>
           <th style="width: 160px;">สถานที่ / โซน</th>
-          <th style="width: 140px;">ช่างผู้รับผิดชอบ</th>
-          <th style="width: 110px;">ราคาประเมิน</th>
+          <th style="width: 160px;">ช่างผู้รับผิดชอบ</th>
+          <th style="width: 110px;">ราคารวมสุทธิ</th>
           <th style="width: 70px; text-align: center;">จัดการ</th>
         </tr>
       </thead>
@@ -713,7 +733,7 @@ async function refreshJobsTable() {
   `;
 
   if (filtered.length === 0) {
-    tableHtml += `<tr><td colspan="${showStatusCol ? 9 : 8}" class="meta" style="text-align: center;">ไม่พบข้อมูลคิวงานซ่อม</td></tr>`;
+    tableHtml += `<tr><td colspan="9" class="meta" style="text-align: center;">ไม่พบข้อมูลคิวงานซ่อมในหมวดนี้</td></tr>`;
   } else {
     for (const j of filtered) {
       const category = CATEGORIES[j.category] || { name: j.category, icon: '🔧' };
@@ -721,6 +741,22 @@ async function refreshJobsTable() {
       const dateStr = dateObj.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       const address = j.addressId ? await resolveAddress(j.addressId) : '(ไม่มีที่อยู่)';
       const step = STATUS_STEPS.find((s) => s.value === j.status) || STATUS_STEPS[0];
+      
+      const assignedTech = j.assignedTeamId ? getTechnicianById(j.assignedTeamId) : null;
+      const techDisplay = assignedTech
+        ? `[${assignedTech.id}] ${assignedTech.nickname || assignedTech.name}`
+        : (j.assignedTechName ? `[${j.assignedTeamId}] ${j.assignedTechName}` : (j.assignedTeamId || 'รอการยืนยัน'));
+
+      let statusBadgeHtml = `<span class="badge ${step.badge}" style="font-size: 11px;">${step.label}</span>`;
+      if (j.workflowStatus === 'rework_needed') {
+        statusBadgeHtml = `<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 11px; border: 1px solid #fca5a5;">⚠️ สั่งแก้ไข (Accountability)</span>`;
+      } else if (j.workflowStatus === 'tech_submitted') {
+        statusBadgeHtml = `<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 11px; border: 1px solid #fde68a;">📥 ช่างส่งงาน (รอตรวจ)</span>`;
+      } else if (j.workflowStatus === 'customer_review') {
+        statusBadgeHtml = `<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; border: 1px solid #bae6fd;">👤 ส่งต่อลูกค้าตรวจ</span>`;
+      } else if (j.status === 'completed') {
+        statusBadgeHtml = `<span class="badge" style="background: #dcfce7; color: #166534; font-size: 11px; border: 1px solid #86efac;">✅ เสร็จสิ้น/มีประกัน</span>`;
+      }
       
       tableHtml += `
         <tr class="service-row" id="job-row-${j.id}">
@@ -730,13 +766,24 @@ async function refreshJobsTable() {
             <div style="font-weight: 600; color: var(--gray-900);">${category.icon} ${category.name}</div>
             <div style="font-size: 11px; color: var(--gray-600);">${escapeHtml(j.title || '-')}</div>
           </td>
-          ${showStatusCol ? `<td style="text-align:center;"><span class="badge ${step.badge}" style="font-size: 11px;">${step.label}</span></td>` : ''}
+          <td style="text-align:center;">${statusBadgeHtml}</td>
           <td style="font-size: 12px;">${escapeHtml(j.customerId?.slice(0, 15) || '-')}</td>
           <td style="font-size: 12px; color: var(--gray-600); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
-          <td style="font-size: 12px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(j.assignedTeamId || 'รอการยืนยัน')}</td>
+          <td style="font-size: 12px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(techDisplay)}</td>
           <td style="font-weight: 600; color: var(--navy);">฿${(j.price || 0).toLocaleString()}</td>
           <td style="text-align: center;">
-            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" title="[📋 ใบงาน] ตรวจสอบ/แก้ไข" style="font-size: 14px; padding: 4px 8px;">📋</button>
+            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" title="[📋 ใบงาน] ตรวจสอบ/จัดการ 10 สเต็ป" style="font-size: 14px; padding: 4px 8px;">📋</button>
+          </td>
+        </tr>
+      `;
+    }
+  }
+          <td style="font-size: 12px;">${escapeHtml(j.customerId?.slice(0, 15) || '-')}</td>
+          <td style="font-size: 12px; color: var(--gray-600); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
+          <td style="font-size: 12px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(techDisplay)}</td>
+          <td style="font-weight: 600; color: var(--navy);">฿${(j.price || 0).toLocaleString()}</td>
+          <td style="text-align: center;">
+            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" title="[📋 ใบงาน] ตรวจสอบ/มอบหมายช่าง" style="font-size: 14px; padding: 4px 8px;">📋</button>
           </td>
         </tr>
       `;
@@ -766,90 +813,665 @@ async function openJobModal(job) {
   const address = job.addressId ? await resolveAddress(job.addressId) : '(ไม่มีที่อยู่)';
   const dateStr = new Date(job.scheduledDate || job.createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+  // Calculate 10-step workflow position
+  let currentStepNum = 2; // Default: Step 2 เราเห็น
+  if (job.status === 'completed') {
+    currentStepNum = 10;
+  } else if (job.workflowStatus === 'rework_needed') {
+    currentStepNum = 6; // Looped back to step 6 (เราประสานงาน) per Cherd's Law
+  } else if (job.workflowStatus === 'customer_review') {
+    currentStepNum = 10;
+  } else if (job.workflowStatus === 'tech_submitted') {
+    currentStepNum = 9;
+  } else if (job.status === 'in_progress') {
+    currentStepNum = 7;
+  } else if (job.status === 'traveling') {
+    currentStepNum = 5;
+  } else if (job.status === 'assigned') {
+    currentStepNum = 6;
+  } else if (job.assignedTeamId) {
+    currentStepNum = 3;
+  }
+
+  // Warranty standard calculation by category
+  let defaultWarrantyDays = 30;
+  if (['air_con', 'appliance_ventilation', 'electrical', 'plumbing'].includes(job.category)) {
+    defaultWarrantyDays = 90;
+  } else if (job.category === 'roof_structure') {
+    defaultWarrantyDays = 180;
+  }
+
+  // Get technician candidates
+  const matchedTechs = getTechniciansForCategory(job.category);
+  const allTechs = getTechnicians();
+  const otherTechs = allTechs.filter(t => !matchedTechs.some(m => m.id === t.id));
+
+  let currentSelectedTechId = job.assignedTechId || job.assignedTeamId || '';
+  if (!currentSelectedTechId && job.customerSelectedTech) {
+    const found = allTechs.find(t => t.name.includes(job.customerSelectedTech) || t.id === job.customerSelectedTech);
+    if (found) currentSelectedTechId = found.id;
+  }
+  if (!currentSelectedTechId && job.aiRecommendedTech) {
+    const found = allTechs.find(t => t.name.includes(job.aiRecommendedTech) || t.id === job.aiRecommendedTech);
+    if (found) currentSelectedTechId = found.id;
+  }
+
+  const isPendingReview = job.status === 'pending_review';
+  const isSubmittedForReview = job.workflowStatus === 'tech_submitted';
+  const isCustomerReview = job.workflowStatus === 'customer_review';
+  const isRework = job.workflowStatus === 'rework_needed';
+  const isCompleted = job.status === 'completed';
+
   modalContainer.innerHTML = `
     <div class="modal-backdrop" id="job-modal-backdrop" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;">
-      <div class="modal-dialog card" style="width: 650px; max-width: 90%; max-height: 90vh; overflow-y: auto; padding: 24px; position: relative;">
-        <button class="modal-close-btn" id="job-modal-close" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
+      <div class="modal-dialog card" style="width: 820px; max-width: 95%; max-height: 92vh; overflow-y: auto; padding: 24px; position: relative;">
+        <button class="modal-close-btn" id="job-modal-close" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--gray-600);">✕</button>
         
-        <div style="margin-bottom: 20px; border-bottom: 1px solid var(--gray-200); padding-bottom: 16px;">
-          <div style="font-size: 12px; color: var(--gray-600); font-family: monospace;">รหัสงาน: ${job.id}</div>
-          <h2 style="margin: 4px 0 8px 0;">${category.icon} ${category.name}</h2>
-          <span class="badge ${step.badge}" style="font-size: 13px;">สถานะ: ${step.label}</span>
-        </div>
-
-        <div style="margin-bottom: 16px;">
-          <h4 style="margin: 0 0 8px 0; color: var(--navy);">รายละเอียดอาการเสีย / หมายเหตุ</h4>
-          <p style="margin: 0; font-size: 14px; color: var(--gray-700); background: var(--gray-50); padding: 12px; border-radius: var(--radius-sm);">${escapeHtml(job.title || 'ไม่มีรายละเอียด')}</p>
-        </div>
-
-        <div style="margin-bottom: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div>
-            <h4 style="margin: 0 0 8px 0; color: var(--navy);">ข้อมูลการนัดหมาย</h4>
-            <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: var(--gray-700);">
-              <li><strong>เวลานัดหมาย:</strong> ${dateStr}</li>
-              <li><strong>ลูกค้า:</strong> ${escapeHtml(job.customerId || '-')}</li>
-            </ul>
+        <!-- Header -->
+        <div style="margin-bottom: 16px; border-bottom: 1px solid var(--gray-200); padding-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; color: var(--gray-600); font-family: monospace;">รหัสงาน: ${job.id}</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span class="badge ${step.badge}" style="font-size: 12px;">สถานะหลัก: ${step.label}</span>
+              ${isRework ? '<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 12px; font-weight: 700;">⚠️ วนกลับสเต็ป 6 (ลูกค้าขอแก้ไข)</span>' : ''}
+              ${isSubmittedForReview ? '<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700;">📸 สเต็ป 9: รอ Ops ตรวจ QC</span>' : ''}
+              ${isCustomerReview ? '<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 700;">👤 สเต็ป 10: ส่งต่อลูกค้าตรวจรับ</span>' : ''}
+              ${isCompleted ? '<span class="badge" style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700;">🛡️ รับประกันดิจิทัลเปิดใช้งาน</span>' : ''}
+            </div>
           </div>
-          <div>
-            <h4 style="margin: 0 0 8px 0; color: var(--navy);">สถานที่ & โซน</h4>
-            <div style="font-size: 14px; color: var(--gray-700);">${escapeHtml(address)}</div>
+          <h2 style="margin: 0; color: var(--navy); display: flex; align-items: center; gap: 8px;">
+            <span>${category.icon}</span> ${category.name}
+            <span style="font-size: 14px; font-weight: normal; color: var(--gray-600);">— ศูนย์บัญชาการงานซ่อมส่วนกลาง (Ops Command Center)</span>
+          </h2>
+        </div>
+
+        <!-- 10-Step Interactive Workflow Pipeline Stepper -->
+        <div class="workflow-pipeline" title="ขั้นตอนปฏิบัติงาน 10 สเต็ปตามกฎคุณเชิด">
+          <div class="pipeline-step ${currentStepNum >= 1 ? 'done' : ''} ${currentStepNum === 1 ? 'active' : ''}">1. ลูกค้าจ้าง</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 2 ? 'done' : ''} ${currentStepNum === 2 ? 'active' : ''}">2. เราเห็น</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 3 ? 'done' : ''} ${currentStepNum === 3 ? 'active' : ''}">3. ส่งช่างรับ</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 4 ? 'done' : ''} ${currentStepNum === 4 ? 'active' : ''}">4. พักเงิน PPT</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 5 ? 'done' : ''} ${currentStepNum === 5 ? 'active' : ''}">5. ช่างรับงาน</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 6 ? 'done' : ''} ${currentStepNum === 6 ? 'active' : ''}">6. เราประสานงาน</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 7 ? 'done' : ''} ${currentStepNum === 7 ? 'active' : ''}">7. เราสั่งเริ่มงาน</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 8 ? 'done' : ''} ${currentStepNum === 8 ? 'active' : ''}">8. ช่างส่งงาน</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 9 ? 'done' : ''} ${currentStepNum === 9 ? 'active' : ''}">9. เราตรวจ QC</div>
+          <span class="pipeline-arrow">➔</span>
+          <div class="pipeline-step ${currentStepNum >= 10 ? 'done' : ''} ${currentStepNum === 10 ? 'active' : ''}">10. ลูกค้ารับงาน/ประกัน</div>
+        </div>
+
+        <!-- Accountability Banner (Cherd's Law: เกิดข้อบกพร่องร่วม เมื่อลูกค้าไม่รับงานหลัง Ops ผ่าน QC) -->
+        ${(isRework || job.accountability) ? `
+          <div class="accountability-banner">
+            <div class="accountability-title">⚠️ บันทึกความรับผิดชอบร่วม (Internal Accountability Penalty Flag)</div>
+            <div class="accountability-desc">
+              ลูกค้าไม่รับงานและขอให้แก้ไขตามเหตุผล: <em>"${escapeHtml(job.accountability?.rejectionReason || 'พบจุดบกพร่องที่ต้องแก้ไขเพิ่มเติมหน้างาน')}"</em><br>
+              📌 <strong>บันทึกความบกพร่องร่วมตามกฎคุณเชิด:</strong> ผู้ตรวจ Ops ที่ตรวจผ่านในสเต็ป 9 (<code>${escapeHtml(job.accountability?.penalizedInspector || 'ทีมตรวจ PPT')}</code>) และช่างผู้ปฏิบัติงาน (<code>${escapeHtml(job.assignedTeamId || '-')}</code>)<br>
+              🔄 <strong>ระบบวนลูปกลับมาที่:</strong> <strong>ขั้นตอนที่ 6 (เราประสานงาน)</strong> เพื่อตรวจสอบอะไหล่และนัดหมายแก้ไขให้ลูกค้าโดยด่วน
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Digital Warranty Banner (ถ้าจบงานแล้ว) -->
+        ${isCompleted ? `
+          <div class="warranty-card">
+            <div class="warranty-header">
+              <span class="warranty-title">🛡️ ความคุ้มครองการรับประกันดิจิทัลเปิดใช้งานแล้ว</span>
+              <span class="badge" style="background: #10b981; color: #fff; font-size: 11px;">Active Warranty</span>
+            </div>
+            <div style="font-size: 13px; color: #065f46; line-height: 1.6;">
+              <div>• <strong>ระยะเวลารับประกัน:</strong> ${job.warranty?.days || defaultWarrantyDays} วัน (ครอบคลุมงานฝีมือและชิ้นส่วนที่เปลี่ยน)</div>
+              <div>• <strong>วันเริ่มต้น - สิ้นสุด:</strong> ${job.warranty?.startDate ? new Date(job.warranty.startDate).toLocaleDateString('th-TH') : '-'} ถึง <strong>${job.warranty?.endDate ? new Date(job.warranty.endDate).toLocaleDateString('th-TH') : '-'}</strong></div>
+              <div>• <strong>สถานะการเงิน:</strong> ปลดล็อกยอดโอนเงินให้ช่าง (Payout Unlocked) สมบูรณ์</div>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Dual-Sided Panel: Customer Side vs Technician & Ops Side -->
+        <div class="dual-container">
+          <!-- ฝั่งซ้าย: ข้อมูลลูกค้า (Customer Side 👤) -->
+          <div class="dual-panel">
+            <div class="dual-panel-header">
+              <h4 class="dual-panel-title">👤 ฝั่งลูกค้า (Customer Details)</h4>
+              <span style="font-size: 11px; color: var(--gray-500);">ฝั่งที่ 1</span>
+            </div>
+
+            <div style="font-size: 13px; color: var(--gray-700); line-height: 1.6;">
+              <div><strong>รหัสลูกค้า:</strong> ${escapeHtml(job.customerId || '-')}</div>
+              <div><strong>วันเวลานัดหมาย:</strong> ${dateStr}</div>
+              <div>
+                <strong>สถานที่:</strong> ${escapeHtml(address)}
+                <div style="margin-top: 4px;">
+                  <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" style="color: #0284c7; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    📍 เปิดพิกัด Google Maps ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div style="background: #fff; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); font-size: 13px;">
+              <strong style="color: var(--navy);">📋 รายการแจ้งซ่อม & อาการเสีย:</strong>
+              <div style="color: var(--gray-800); margin-top: 4px; line-height: 1.4;">${escapeHtml(job.title || 'ไม่มีรายละเอียด')}</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+              <span style="font-size: 13px; color: var(--gray-600);">ราคารวมสุทธิ (ไร้สูตรคำนวณ):</span>
+              <span style="font-size: 16px; font-weight: 700; color: var(--navy);">฿${(job.price || 0).toLocaleString()}</span>
+            </div>
+
+            <!-- Escrow Held Badge (Step 4) -->
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 10px; font-size: 12px; color: #065f46;">
+              <div style="font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                <span>🛡️ ขั้นตอนที่ 4: พักเงินในบัญชี PPT เรียบร้อย</span>
+              </div>
+              <div style="margin-top: 2px; color: #047857;">
+                ยอด ฿${(job.price || 0).toLocaleString()} ผ่าน Thai QR PromptPay บัญชี บจก. เพียบพร้อมทำ (พักเงินรอไว้ — รอปลดล็อกเมื่อตรวจรับงาน)
+              </div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--gray-600); border-top: 1px dashed var(--gray-200); padding-top: 6px;">
+              <span>ความประสงค์เรื่องช่าง: <strong>${job.technicianPreference === 'ai' ? '🤖 ให้ระบบจัดหาให้อัตโนมัติ' : '👤 ลูกค้าประสงค์เลือกช่างเอง'}</strong></span>
+            </div>
+          </div>
+
+          <!-- ฝั่งขวา: ข้อมูลช่าง & เรา (Technician & Ops Side 🔧🏛️) -->
+          <div class="dual-panel">
+            <div class="dual-panel-header">
+              <h4 class="dual-panel-title">🔧 ฝั่งช่าง & เรา (Technician & Ops)</h4>
+              <span style="font-size: 11px; color: var(--gray-500);">ฝั่งที่ 2</span>
+            </div>
+
+            <!-- Dropdown Pro Technicians 15 Candidates -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="font-weight: 600; color: var(--navy); font-size: 13px; margin: 0;">
+                  👷‍♂️ ช่าง Pro ผู้รับผิดชอบ (ขั้นตอนที่ 3)
+                </label>
+                <span style="font-size: 11px; background: #bbf7d0; color: #14532d; padding: 2px 6px; border-radius: 10px; font-weight: 600;">
+                  ✓ ทะเบียนช่าง Pro 15 คน
+                </span>
+              </div>
+
+              <select id="modal-assign-tech-select" class="form-input select-input" style="width: 100%; font-size: 12px; margin-bottom: 8px;">
+                <option value="">-- กรุณาเลือกช่าง Pro จากทะเบียนช่าง --</option>
+                <optgroup label="⭐ ช่างแนะนำที่ตรงกับหมวดงาน (${category.name})">
+                  ${matchedTechs.map(t => `
+                    <option value="${t.id}" ${currentSelectedTechId === t.id ? 'selected' : ''}>
+                      [${t.id}] ${t.name} (${t.nickname}) ⭐${t.customerRating} — ${t.tradeName} [${t.status === 'active' ? '🟢 ว่าง' : '🟡 ไม่ว่าง'}]
+                    </option>
+                  `).join('')}
+                </optgroup>
+                ${otherTechs.length > 0 ? `
+                  <optgroup label="🛠️ ช่าง Pro สาขาอื่นๆ ในทำเนียบ">
+                    ${otherTechs.map(t => `
+                      <option value="${t.id}" ${currentSelectedTechId === t.id ? 'selected' : ''}>
+                        [${t.id}] ${t.name} (${t.nickname}) ⭐${t.customerRating} — ${t.tradeName} [${t.status === 'active' ? '🟢 ว่าง' : '🟡 ไม่ว่าง'}]
+                      </option>
+                    `).join('')}
+                  </optgroup>
+                ` : ''}
+              </select>
+
+              <!-- Dynamic Technician Live Preview Card -->
+              <div id="tech-live-preview" style="background: #ffffff; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 10px; font-size: 12px;">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- Technician Portal Quick Link -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
+              <span style="font-size: 12px; color: var(--gray-600);">📱 หน้าจอมือถือช่าง:</span>
+              <a href="/tech.html?techId=${currentSelectedTechId || 'RPS-T01'}" target="_blank" style="color: var(--mint-600); font-weight: 600; text-decoration: none; font-size: 12px;">
+                เปิดหน้าจอมือถือช่าง (Tech Portal) ↗
+              </a>
+            </div>
+
+            <!-- Dispatch Button if not yet assigned -->
+            ${isPendingReview ? `
+              <button class="btn-mint" id="btn-assign-and-send" style="width: 100%; font-weight: 600; padding: 10px; font-size: 13px;">
+                📤 ขั้นตอนที่ 3: ส่งงานให้ช่างรับ (Dispatch)
+              </button>
+            ` : ''}
           </div>
         </div>
 
-        <div style="margin-bottom: 24px; background: var(--gray-50); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
-          <h4 style="margin: 0 0 12px 0; color: var(--navy);">ข้อมูลความประสงค์เรื่องช่าง</h4>
+        <!-- ขั้นตอนที่ 6: เราประสานงาน (อะไหล่ + ช่าง + ลูกค้า) (Ops 3-Way Coordination Box) -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4 style="margin: 0; color: var(--navy); font-size: 13px; font-weight: 600;">
+              ⚙️ ขั้นตอนที่ 6: เราประสานงาน (อะไหล่แท้ + ช่าง + ลูกค้า)
+            </h4>
+            <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px;">Ops 3-Way Coordination</span>
+          </div>
           
-          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--gray-300); padding-bottom: 8px;">
-              <span style="font-weight: 600; color: var(--gray-700);">🎯 ความประสงค์ของลูกค้า:</span>
-              <span style="color: var(--navy);">${job.technicianPreference === 'ai' ? '[🤖 ให้ระบบ AI จัดหาช่างให้อัตโนมัติ]' : '[👤 ลูกค้าประสงค์เลือกช่างเอง]'}</span>
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--gray-700); margin-bottom: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="chk-parts" ${job.coordination?.partsChecked ? 'checked' : ''}>
+              <span>🔍 ตรวจสอบอะไหล่แท้/อุปกรณ์มาตรฐานครบถ้วน (ไม่ใช้อะไหล่เทียบหรืออะไหล่ดัดแปลง)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="chk-tech-ready" ${job.coordination?.techReadyChecked ? 'checked' : ''}>
+              <span>👷 ช่างยืนยันความพร้อม คิวเวลาเดินทาง และอุปกรณ์ความปลอดภัย</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="chk-customer-confirm" ${job.coordination?.customerConfirmChecked ? 'checked' : ''}>
+              <span>📞 โทรยืนยันวันเวลานัดหมายและพิกัดหน้างานกับลูกค้าเรียบร้อย</span>
+            </label>
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="input-coord-notes" class="form-input" placeholder="บันทึกการประสานงาน (เช่น ยืนยันเบิกคอมเพรสเซอร์แท้ศูนย์, ช่างเข้า 10:00 น.)..." value="${escapeHtml(job.coordination?.notes || '')}" style="margin-bottom: 0; flex: 1; font-size: 12px;">
+            <button class="secondary btn-sm" id="btn-save-coord" style="white-space: nowrap;">💾 บันทึกประสานงาน</button>
+          </div>
+        </div>
+
+        <!-- ขั้นตอนที่ 7: เราให้ช่างเริ่มงาน (Authorize Start) -->
+        ${(job.status === 'assigned' || job.status === 'traveling' || isRework) ? `
+          <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="color: #1e40af; font-size: 13px;">🚀 ขั้นตอนที่ 7: เราอนุญาตให้ช่างเริ่มทำงานให้ลูกค้า</strong>
+              <div style="font-size: 12px; color: #1e3a8a; margin-top: 2px;">เมื่อการประสานงานอะไหล่และความพร้อมเรียบร้อย ให้กดอนุญาตเพื่อให้ช่างลงมือซ่อมหน้างานได้</div>
+            </div>
+            <button class="btn-mint" id="btn-authorize-start" style="font-weight: 600; white-space: nowrap; padding: 8px 16px;">
+              🚀 อนุญาตให้ช่างเริ่มงาน
+            </button>
+          </div>
+        ` : ''}
+
+        <!-- ขั้นตอนที่ 8 & 9: ช่างส่งงาน & เราตรวจส่งต่อลูกค้า (QC Gate 1) -->
+        ${(isSubmittedForReview || isCustomerReview || job.beforePhotos || job.afterPhotos || isCompleted) ? `
+          <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4 style="margin: 0; color: var(--navy); font-size: 14px; font-weight: 600;">
+                📸 ขั้นตอนที่ 8 & 9: ผลงานช่าง & เราตรวจงานส่งต่อลูกค้า (QC Gate 1)
+              </h4>
+              <span class="badge" style="background: #dbeafe; color: #1e40af; font-size: 11px;">Quality Inspection</span>
             </div>
             
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed var(--gray-300); padding-bottom: 8px;">
-              <span style="font-weight: 600; color: var(--gray-700);">👤 ช่างที่ลูกค้าเลือก:</span>
-              <span style="color: var(--gray-900);">${job.technicianPreference === 'ai' ? '<span style="color: var(--gray-500); font-style: italic;">ลูกค้าให้ระบบจัดให้</span>' : escapeHtml(job.customerSelectedTech || 'ไม่ได้ระบุ')}</span>
+            <div class="qc-compare-grid" style="margin-bottom: 12px;">
+              <div class="qc-photo-box">
+                <div class="qc-photo-title">📷 รูปก่อนทำ (Before)</div>
+                ${(job.beforePhotos && job.beforePhotos.length > 0) ? `
+                  <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                    ${job.beforePhotos.map(url => `
+                      <img src="${url}" style="max-height: 130px; max-width: 100%; border-radius: 4px; object-fit: cover; border: 1px solid #cbd5e1;" alt="Before" />
+                    `).join('')}
+                  </div>
+                ` : '<div style="color: var(--gray-400); font-size: 12px; padding: 24px 0;">ไม่มีรูปภาพ Before</div>'}
+              </div>
+
+              <div class="qc-photo-box">
+                <div class="qc-photo-title">📷 รูปหลังทำเสร็จ (After)</div>
+                ${(job.afterPhotos && job.afterPhotos.length > 0) ? `
+                  <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                    ${job.afterPhotos.map(url => `
+                      <img src="${url}" style="max-height: 130px; max-width: 100%; border-radius: 4px; object-fit: cover; border: 1px solid #cbd5e1;" alt="After" />
+                    `).join('')}
+                  </div>
+                ` : '<div style="color: var(--gray-400); font-size: 12px; padding: 24px 0;">ไม่มีรูปภาพ After</div>'}
+              </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; padding-bottom: 4px;">
-              <span style="font-weight: 600; color: var(--gray-700);">🤖 ช่างที่ AI จับคู่:</span>
-              <span style="color: var(--mint-600); font-weight: 600;">${job.aiRecommendedTech ? `${escapeHtml(job.aiRecommendedTech)} (Match: ${job.aiMatchScore || 95}%)` : '<span style="color: var(--gray-500); font-style: italic; font-weight: normal;">กำลังประมวลผล...</span>'}</span>
+            ${job.techNotes ? `
+              <div style="background: #fff; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); font-size: 12px; margin-bottom: 12px;">
+                <strong>📝 หมายเหตุจากช่างหน้างาน:</strong> ${escapeHtml(job.techNotes)}
+              </div>
+            ` : ''}
+
+            <!-- Inspection Actions for QC Gate 1 -->
+            ${isSubmittedForReview ? `
+              <div style="background: #fff; padding: 12px; border-radius: var(--radius-sm); border: 1px solid #93c5fd; display: flex; flex-direction: column; gap: 10px;">
+                <div style="font-weight: 600; font-size: 13px; color: var(--navy);">
+                  🔍 ด่านตรวจเรา (QC Gate 1): ตรวจสอบความถูกต้องก่อนส่งให้ลูกค้าตรวจรับ
+                </div>
+                <input type="text" id="qc-inspector-notes" class="form-input" placeholder="ความเห็นผู้ตรวจ PPT (เช่น ล้างสะอาดเรียบร้อย เช็คแรงดันน้ำยาแอร์ปกติ)..." style="margin-bottom: 0; font-size: 12px;">
+                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                  <button class="secondary btn-sm" id="btn-reject-qc1" style="color: #b91c1c; border-color: #fca5a5;">
+                    ❌ ไม่ผ่าน QC - ตีกลับให้ช่างแก้ไข
+                  </button>
+                  <button class="btn-mint btn-sm" id="btn-pass-qc1" style="font-weight: 600;">
+                    ✅ ผ่าน QC เรา - ส่งต่อลูกค้าตรวจรับ (ไปสเต็ป 10)
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
+
+        <!-- ขั้นตอนที่ 10: ลูกค้าตรวจรับงาน หรือไม่รับงานและขอแก้ไข (QC Gate 2 Gatekeeper) -->
+        ${(isCustomerReview || (job.status === 'in_progress' && (job.qcPassedAt || job.afterPhotos))) ? `
+          <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 style="margin: 0; color: #166534; font-size: 13px; font-weight: 600;">
+                🎯 ขั้นตอนที่ 10: ลูกค้าตรวจรับงาน (QC Gate 2 & เริ่มนับประกัน)
+              </h4>
+              <span class="badge" style="background: #bbf7d0; color: #14532d; font-size: 11px;">Customer Sign-off</span>
             </div>
+            <p style="font-size: 12px; color: #15803d; margin: 0 0 10px 0;">
+              ลูกค้ารับชมผลงาน: หากลูกค้ายอมรับงาน จะเริ่มนับประกันดิจิทัล ${defaultWarrantyDays} วันทันที / หากลูกค้าไม่รับงาน จะวนลูปกลับไปข้อ 6 พร้อมบันทึก Accountability Penalty
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+              <button class="secondary" id="btn-customer-reject" style="color: #991b1b; border-color: #f87171; font-weight: 600;">
+                ⚠️ ลูกค้าไม่รับงาน & ขอแก้ไข (วนกลับไปข้อ 6)
+              </button>
+              <button class="btn-mint" id="btn-customer-accept" style="font-weight: 600;">
+                🎉 ลูกค้ารับงานสมบูรณ์ (เริ่มนับประกันดิจิทัล)
+              </button>
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Footer Bar with Manual Override & Close -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gray-200); padding-top: 14px; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12px; color: var(--gray-600);">ปรับสถานะแมนนวล:</span>
+            <select id="modal-override-status" class="form-input select-input" style="font-size: 12px; margin-bottom: 0; width: 150px;">
+              ${STATUS_STEPS.map(s => `
+                <option value="${s.value}" ${job.status === s.value ? 'selected' : ''}>${s.label}</option>
+              `).join('')}
+            </select>
+            <button class="secondary btn-sm" id="btn-save-assign-change">บันทึก</button>
           </div>
           
-          <div style="margin-top: 16px;">
-            <label class="form-label">ช่างผู้รับผิดชอบงานนี้ (Assigned Technician)</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="text" id="modal-assign-tech" class="form-input" placeholder="พิมพ์ชื่อช่างที่ต้องการมอบหมาย..." value="${escapeHtml(job.assignedTeamId || '')}" style="margin-bottom: 0; flex: 1;">
-            </div>
+          <div>
+            <button class="secondary" id="modal-btn-close">ปิดหน้าต่าง</button>
           </div>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--gray-200); padding-top: 16px;">
-          <button class="secondary" id="btn-save-assign">💾 บันทึกผู้รับผิดชอบ</button>
-          ${step.action ? `<button class="btn-mint" id="btn-advance-status">${step.action} (ขั้นถัดไป)</button>` : ''}
         </div>
       </div>
     </div>
   `;
 
-  document.getElementById('job-modal-close').onclick = () => {
-    modalContainer.innerHTML = '';
-  };
-  document.getElementById('job-modal-backdrop').onclick = (e) => {
-    if (e.target.id === 'job-modal-backdrop') modalContainer.innerHTML = '';
+  // Dynamic preview function
+  const selectElem = document.getElementById('modal-assign-tech-select');
+  const previewContainer = document.getElementById('tech-live-preview');
+
+  function renderSelectedTechPreview(techId) {
+    if (!previewContainer) return;
+    const tech = getTechnicianById(techId);
+    if (!tech) {
+      previewContainer.innerHTML = `
+        <div style="color: var(--gray-400); text-align: center; padding: 6px;">
+          ยังไม่ได้เลือกช่าง — กรุณาเลือกช่าง Pro จาก Dropdown ด้านบน
+        </div>
+      `;
+      return;
+    }
+
+    const firstReview = tech.customerReviews && tech.customerReviews[0];
+
+    previewContainer.innerHTML = `
+      <div style="display: flex; gap: 10px; align-items: flex-start;">
+        <div style="width: 38px; height: 38px; border-radius: 50%; background: #e0f2fe; color: #0369a1; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; font-weight: bold;">
+          👷
+        </div>
+        <div style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 700; color: var(--navy); font-size: 13px;">
+              ${tech.name} ${tech.nickname ? `(${tech.nickname})` : ''}
+              <span style="font-family: monospace; font-size: 11px; color: var(--gray-500); font-weight: normal;">[${tech.id}]</span>
+            </div>
+            <span class="badge" style="${tech.status === 'active' ? 'background: #dcfce7; color: #15803d;' : 'background: #fef3c7; color: #b45309;'} font-size: 11px;">
+              ${tech.status === 'active' ? '🟢 พร้อมรับงาน' : '🟡 กำลังทำงาน'}
+            </span>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 4px; font-size: 11px; color: var(--gray-600); flex-wrap: wrap;">
+            <span>📞 <strong>${tech.phone}</strong></span>
+            <span>📍 บริการ: <strong>${tech.coverageArea}</strong></span>
+            <span>🏆 ผ่านงาน: <strong>${tech.completedJobs} งาน</strong></span>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 4px; font-size: 11px; align-items: center;">
+            <span style="color: #b45309; font-weight: 600;">⭐ ลูกค้า: ${tech.customerRating} / 5.0 (${tech.reviewCount} รีวิว)</span>
+            <span style="color: #0369a1; font-weight: 600;">🛡️ PPT Audit: ${tech.companyScore}% (ตรงเวลา ${tech.companyAudit?.punctuality || 98}%)</span>
+          </div>
+
+          ${firstReview ? `
+            <div style="margin-top: 6px; font-size: 11px; background: #f8fafc; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #10b981; color: var(--gray-700);">
+              💬 <em>"${firstReview.comment}"</em> — <span style="color: var(--gray-500);">${firstReview.customer}</span>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // Initial preview
+  if (currentSelectedTechId) {
+    selectElem.value = currentSelectedTechId;
+    renderSelectedTechPreview(currentSelectedTechId);
+  } else {
+    renderSelectedTechPreview('');
+  }
+
+  // Change handler
+  selectElem.onchange = (e) => {
+    renderSelectedTechPreview(e.target.value);
   };
 
-  document.getElementById('btn-save-job-modal').onclick = async () => {
-    const val = document.getElementById('modal-assign-tech').value.trim();
-    const newStatus = document.getElementById('modal-update-status').value;
-    try {
-      await updateDoc(doc(db, 'jobs', job.id), { assignedTeamId: val, status: newStatus });
-      modalContainer.innerHTML = '';
-      showToast('บันทึกข้อมูลและอัปเดตสถานะเรียบร้อย', 'success');
-    } catch (e) {
-      alert(`อัปเดตไม่สำเร็จ: ${e.message}`);
-    }
+  // Close handlers
+  const closeModal = () => { modalContainer.innerHTML = ''; };
+  document.getElementById('job-modal-close').onclick = closeModal;
+  document.getElementById('modal-btn-close').onclick = closeModal;
+  document.getElementById('job-modal-backdrop').onclick = (e) => {
+    if (e.target.id === 'job-modal-backdrop') closeModal();
   };
+
+  // Step 3 Action: Assign and send to technician
+  const btnAssignAndSend = document.getElementById('btn-assign-and-send');
+  if (btnAssignAndSend) {
+    btnAssignAndSend.onclick = async () => {
+      const selectedId = selectElem.value;
+      if (!selectedId) {
+        alert('กรุณาเลือกช่าง Pro จาก Dropdown ก่อนทำการมอบหมายงานค่ะ');
+        return;
+      }
+      const tech = getTechnicianById(selectedId);
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          assignedTeamId: tech.id,
+          assignedTechId: tech.id,
+          assignedTechName: tech.name,
+          assignedTechPhone: tech.phone,
+          status: 'assigned', // Safe 1-of-5 status
+          workflowStep: 3,
+          workflowStatus: 'assigned',
+          assignedAt: new Date().toISOString(),
+        });
+        closeModal();
+        showToast(`มอบหมายงานให้ [${tech.id}] ${tech.name} เรียบร้อยแล้ว (ขั้นตอนที่ 3)`, 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาดในการมอบหมายช่าง: ${err.message}`);
+      }
+    };
+  }
+
+  // Step 6 Action: Save 3-Way Coordination
+  const btnSaveCoord = document.getElementById('btn-save-coord');
+  if (btnSaveCoord) {
+    btnSaveCoord.onclick = async () => {
+      const partsChecked = document.getElementById('chk-parts')?.checked || false;
+      const techReadyChecked = document.getElementById('chk-tech-ready')?.checked || false;
+      const customerConfirmChecked = document.getElementById('chk-customer-confirm')?.checked || false;
+      const notes = document.getElementById('input-coord-notes')?.value.trim() || '';
+
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          coordination: {
+            partsChecked,
+            techReadyChecked,
+            customerConfirmChecked,
+            notes,
+            coordinatedAt: new Date().toISOString(),
+            coordinator: auth.currentUser?.email || 'admin@ppt.com',
+          },
+          workflowStep: 6,
+        });
+        showToast('บันทึกข้อมูลการประสานงาน 3 ฝ่ายเรียบร้อยแล้ว', 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาดในการบันทึกประสานงาน: ${err.message}`);
+      }
+    };
+  }
+
+  // Step 7 Action: Authorize Start
+  const btnAuthorizeStart = document.getElementById('btn-authorize-start');
+  if (btnAuthorizeStart) {
+    btnAuthorizeStart.onclick = async () => {
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          status: 'in_progress', // Safe 1-of-5 status
+          workflowStep: 7,
+          workflowStatus: 'in_progress',
+          opsAuthorizedStart: true,
+          opsAuthorizedAt: new Date().toISOString(),
+        });
+        closeModal();
+        showToast('อนุมัติให้ช่างเริ่มปฏิบัติงานหน้างานเรียบร้อยแล้ว (ขั้นตอนที่ 7)', 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
+    };
+  }
+
+  // Step 9 QC Gate 1: Pass QC and send to Customer Review
+  const btnPassQc1 = document.getElementById('btn-pass-qc1');
+  if (btnPassQc1) {
+    btnPassQc1.onclick = async () => {
+      const qcNotes = document.getElementById('qc-inspector-notes')?.value.trim() || 'ตรวจงานผ่านเกณฑ์มาตรฐาน PPT';
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          status: 'in_progress', // Safe 1-of-5 status
+          workflowStep: 9,
+          workflowStatus: 'customer_review',
+          qcInspector: auth.currentUser?.email || 'admin@ppt.com',
+          qcNotes,
+          qcPassedAt: new Date().toISOString(),
+        });
+        closeModal();
+        showToast('ผ่าน QC ด่านเราเรียบร้อย ส่งต่อลูกค้าตรวจรับ (ขั้นตอนที่ 9)', 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
+    };
+  }
+
+  // Step 9 QC Gate 1: Reject QC and send back to Tech for on-site revision
+  const btnRejectQc1 = document.getElementById('btn-reject-qc1');
+  if (btnRejectQc1) {
+    btnRejectQc1.onclick = async () => {
+      const qcNotes = prompt('ระบุจุดที่ช่างต้องแก้ไขหน้างาน:');
+      if (!qcNotes) return;
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          status: 'in_progress', // Safe 1-of-5 status
+          workflowStep: 8,
+          workflowStatus: 'tech_revision_required',
+          qcRejectionNotes: qcNotes,
+          qcRejectedAt: new Date().toISOString(),
+        });
+        closeModal();
+        showToast('ตีกลับให้ช่างแก้ไขหน้างานเรียบร้อยแล้ว', 'info');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
+    };
+  }
+
+  // Step 10 QC Gate 2: Customer Accepts Job & Activate Digital Warranty
+  const btnCustomerAccept = document.getElementById('btn-customer-accept');
+  if (btnCustomerAccept) {
+    btnCustomerAccept.onclick = async () => {
+      const now = new Date();
+      const end = new Date();
+      end.setDate(now.getDate() + defaultWarrantyDays);
+
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          status: 'completed', // Safe 1-of-5 status
+          workflowStep: 10,
+          workflowStatus: 'completed',
+          completedAt: now.toISOString(),
+          payoutStatus: 'unlocked',
+          warranty: {
+            days: defaultWarrantyDays,
+            startDate: now.toISOString(),
+            endDate: end.toISOString(),
+            status: 'active',
+          },
+        });
+        closeModal();
+        showToast(`ลูกค้ารับงานเรียบร้อย เริ่มนับประกันดิจิทัล ${defaultWarrantyDays} วัน ปิดงานสำเร็จ 🎉`, 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
+    };
+  }
+
+  // Step 10 QC Gate 2: Customer Rejects Job -> Trigger Accountability Penalty & Loopback to Step 6
+  const btnCustomerReject = document.getElementById('btn-customer-reject');
+  if (btnCustomerReject) {
+    btnCustomerReject.onclick = async () => {
+      const reason = prompt('ระบุเหตุผลที่ลูกค้าไม่รับงานและขอแก้ไข (ข้อบกพร่องหน้างาน):');
+      if (!reason) return;
+
+      const inspectorEmail = job.qcInspector || auth.currentUser?.email || 'ทีมตรวจ PPT';
+      const techId = job.assignedTeamId || 'ช่างผู้ปฏิบัติงาน';
+
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          status: 'in_progress', // Safe 1-of-5 status
+          workflowStep: 6, // Loopback to Step 6 (เราประสานงาน)
+          workflowStatus: 'rework_needed',
+          accountability: {
+            penalizedInspector: inspectorEmail,
+            penalizedTechnician: techId,
+            rejectionReason: reason,
+            penaltyFlag: true,
+            rejectedAt: new Date().toISOString(),
+          },
+        });
+        closeModal();
+        showToast(`ลูกค้าไม่รับงาน: บันทึก Accountability โทษคู่ (${inspectorEmail} + ${techId}) และวนกลับไปขั้นตอนที่ 6 ทันที`, 'info');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
+    };
+  }
+
+  // Manual Override Button
+  const btnSaveChange = document.getElementById('btn-save-assign-change');
+  if (btnSaveChange) {
+    btnSaveChange.onclick = async () => {
+      const selectedId = selectElem.value;
+      const newStatus = document.getElementById('modal-override-status').value;
+      const tech = selectedId ? getTechnicianById(selectedId) : null;
+      try {
+        const updatePayload = {
+          status: newStatus,
+        };
+        if (tech) {
+          updatePayload.assignedTeamId = tech.id;
+          updatePayload.assignedTechId = tech.id;
+          updatePayload.assignedTechName = tech.name;
+          updatePayload.assignedTechPhone = tech.phone;
+        }
+        await updateDoc(doc(db, 'jobs', job.id), updatePayload);
+        closeModal();
+        showToast('บันทึกการเปลี่ยนแปลงสถานะแมนนวลเรียบร้อยแล้ว', 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      }
+    };
+  }
 }
 
 

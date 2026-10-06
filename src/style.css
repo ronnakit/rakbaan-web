@@ -1236,3 +1236,152 @@ button.btn-sm {
     break-inside: avoid;
   }
 }
+
+/* ============================================================
+   Dual-Sided Ops Command Center & 10-Step Workflow Styles
+   ============================================================ */
+.dual-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .dual-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dual-panel {
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dual-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.dual-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+/* 10-Step Workflow Stepper */
+.workflow-pipeline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px 4px 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--gray-100);
+  color: var(--gray-600);
+  white-space: nowrap;
+}
+
+.pipeline-step.active {
+  background: var(--navy-100);
+  color: var(--navy);
+  font-weight: 600;
+  border: 1px solid #93c5fd;
+}
+
+.pipeline-step.done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pipeline-arrow {
+  color: var(--gray-400);
+  font-size: 10px;
+}
+
+/* QC Compare Side-by-Side */
+.qc-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.qc-photo-box {
+  background: #fff;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  padding: 10px;
+  text-align: center;
+}
+
+.qc-photo-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+/* Accountability Banner */
+.accountability-banner {
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.accountability-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 4px;
+}
+
+.accountability-desc {
+  font-size: 12px;
+  color: #7f1d1d;
+  line-height: 1.5;
+}
+
+/* Digital Warranty Box */
+.warranty-card {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.warranty-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.warranty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #065f46;
+}
