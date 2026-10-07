@@ -8,6 +8,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         tech: resolve(__dirname, 'tech.html'),
         customer: resolve(__dirname, 'customer.html'),
+        cockpit: resolve(__dirname, 'cockpit.html'),
       },
     },
   },

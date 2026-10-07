@@ -1,11 +1,18 @@
 /**
- * รักบ้าน@CNX — Technician Mobile Portal Controller
- * จัดการหน้าจอมือถือสำหรับช่าง Pro 15 คน
- * รองรับขั้นตอนที่ 5 (ยอมรับงาน & เดินทาง) และขั้นตอนที่ 8 (ส่งรูป Before/After ให้ Ops ตรวจ)
- * ดูแลโดย น้องกุหลาบ (Kulap) Data Architect Sub-Agent
+ * รักบ้าน@CNX — จอช่างมืออาชีพ (Technician Mobile Portal Controller)
+ * ออกแบบตามกติกาคุณเชิด 8 ข้อ (Senior-First & Frameless Clean UI):
+ * 1. อากงอาม่า ตัวหนังสือใหญ่ คอนทราสต์สูง สบายตา
+ * 2. ไม่ฟุ่มเฟือย ประโยคเดียวจบในตัว ไร้คำอธิบายซ้ำซาก
+ * 3. จบใน 1 หน้าจอ ไม่เลื่อนยาว
+ * 4. แถบแท็บ 3 เรื่องชัดเจน (งานที่ต้องทำ / รอตรวจงาน / งานเสร็จแล้ว)
+ * 5. ธีมเฉพาะส้มช่าง (Safety Artisan Orange) ไม่ซ้ำสีลูกค้า
+ * 6. ภาษาไทยล้วน ห้ามมีวงเล็บภาษาอังกฤษ
+ * 7. ใช้คำตรงกับจอลูกค้า (เวลานัดหมาย, ราคารวมสุทธิ, ที่อยู่หน้างาน)
+ * 8. ปุ่มกดใหญ่ 54px แตะง่าย เหมาะกับคนทำงานหน้างาน
  */
 
-import { db } from './firebase.js';
+import { auth, db } from './firebase.js';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import {
   collection,
   query,
@@ -19,8 +26,8 @@ import {
   TECHNICIANS,
   getTechnicians,
   getTechnicianById,
-  TRADE_LABELS,
 } from './technicians-data.js';
+import { logAgentActivity } from './audit-logger.js';
 
 // State
 let currentTech = null;
@@ -28,7 +35,7 @@ let currentTab = 'active'; // 'active', 'submitted', 'completed'
 let allMyJobs = [];
 let unsubscribe = null;
 
-// Before/After photo cache per job for the form before submission
+// Before/After photo cache per job
 const photoDrafts = new Map();
 
 // Sample mock photos for quick preview / demo testing
@@ -43,11 +50,21 @@ const SAMPLE_PHOTOS = {
   general_after: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&auto=format&fit=crop&q=60',
 };
 
+// แปลงชื่อหมวดช่างเป็นภาษาไทยชาวบ้าน (ปลอดศัพท์ย่อภาษาอังกฤษ)
+function getTradeLabel(trade) {
+  switch (trade) {
+    case 'air': return 'ช่างแอร์';
+    case 'electrical': return 'ช่างไฟฟ้า';
+    case 'plumbing': return 'ช่างประปา';
+    case 'roof': return 'ช่างหลังคา';
+    default: return 'ช่างทั่วไป';
+  }
+}
+
 // Initialize
 initTechPortal();
 
 function initTechPortal() {
-  // Check URL params first: ?techId=RPS-T01
   const urlParams = new URLSearchParams(window.location.search);
   const paramTechId = urlParams.get('techId');
   const savedTechId = localStorage.getItem('rakbaan_tech_id');
@@ -73,34 +90,43 @@ function setTechIdentity(techId) {
   localStorage.setItem('rakbaan_tech_id', found.id);
 
   renderHeaderProfile();
-  startListeningJobs();
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      try {
+        await signInAnonymously(auth);
+      } catch (e) {
+        console.warn('Tech Anonymous auth note:', e.message);
+      }
+    }
+    startListeningJobs();
+  });
 }
 
 function renderHeaderProfile() {
   const slot = document.getElementById('tech-profile-slot');
   if (!slot || !currentTech) return;
 
+  const icon = currentTech.trade === 'air' ? '❄️' : (currentTech.trade === 'electrical' ? '⚡' : (currentTech.trade === 'plumbing' ? '🚰' : '🛠️'));
+
   slot.innerHTML = `
     <div class="tech-profile-info">
       <div class="tech-avatar">
-        ${currentTech.id === 'RPS-T01' ? '👨‍🔧' : (currentTech.trade === 'electrical' ? '⚡' : (currentTech.trade === 'plumbing' ? '💧' : '👷'))}
+        ${icon}
       </div>
-      <div class="tech-name-box">
+      <div>
         <div class="tech-name">${currentTech.name} ${currentTech.nickname ? `(${currentTech.nickname})` : ''}</div>
         <div class="tech-meta">
-          <span style="font-family: monospace; color: #38bdf8; font-weight: 700;">${currentTech.id}</span> • ${currentTech.tradeName}
+          <span>รหัส ${currentTech.id}</span> · <span>${getTradeLabel(currentTech.trade)}</span>
         </div>
       </div>
     </div>
-    <div class="tech-stats-badge">
+    <div class="tech-actions-box">
       <div class="tech-rating-pill">
         ⭐ ${currentTech.customerRating}
       </div>
-      <div>
-        <button class="btn-switch-tech" id="btn-open-tech-picker">
-          สลับช่าง ▾
-        </button>
-      </div>
+      <button class="btn-switch-tech" id="btn-open-tech-picker">
+        สลับช่าง ▾
+      </button>
     </div>
   `;
 
@@ -116,36 +142,37 @@ function openTechSelectModal() {
   container.innerHTML = `
     <div class="tech-modal-overlay" id="tech-modal-overlay">
       <div class="tech-modal-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <div>
-            <h3 style="margin: 0; font-size: 16px; color: #0f172a;">👷‍♂️ สลับตัวตนช่าง Pro (15 ท่าน)</h3>
-            <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">เลือกรหัสช่างของคุณเพื่อเข้าสู่ระบบปฏิบัติงาน</p>
-          </div>
-          <button id="btn-close-modal" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #94a3b8;">✕</button>
+        <div class="tech-modal-header">
+          <h3 class="tech-modal-title">👷‍♂️ สลับชื่อช่าง</h3>
+          <button id="btn-close-modal" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">✕</button>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          ${all.map(t => `
-            <div class="tech-select-item ${t.id === currentTech.id ? 'selected' : ''}" data-id="${t.id}">
-              <div style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0369a1; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                👷
-              </div>
-              <div style="flex: 1;">
-                <div style="font-weight: 700; font-size: 13px; color: #0f172a;">
-                  ${t.name} ${t.nickname ? `(${t.nickname})` : ''}
+          ${all.map(t => {
+            const icon = t.trade === 'air' ? '❄️' : (t.trade === 'electrical' ? '⚡' : (t.trade === 'plumbing' ? '🚰' : '🛠️'));
+            const isSelected = t.id === currentTech.id;
+            return `
+              <div class="tech-select-item ${isSelected ? 'selected' : ''}" data-id="${t.id}">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #ffedd5; color: #c2410c; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                  ${icon}
                 </div>
-                <div style="font-size: 11px; color: #64748b;">
-                  <span style="font-family: monospace; font-weight: 700; color: #0284c7;">${t.id}</span> | ${t.tradeName}
+                <div style="flex: 1;">
+                  <div class="tech-select-name">
+                    ${t.name} ${t.nickname ? `(${t.nickname})` : ''}
+                  </div>
+                  <div class="tech-select-sub">
+                    <span style="font-family: monospace; font-weight: 700; color: #ea580c;">${t.id}</span> · ${getTradeLabel(t.trade)}
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 13px; font-weight: 800; color: #b45309;">⭐ ${t.customerRating}</div>
+                  <span style="font-size: 12px; font-weight: 700; color: ${t.status === 'active' ? '#15803d' : '#b45309'};">
+                    ${t.status === 'active' ? 'พร้อมรับงาน' : 'ติดงานหน้างาน'}
+                  </span>
                 </div>
               </div>
-              <div style="text-align: right;">
-                <div style="font-size: 11px; font-weight: 700; color: #b45309;">⭐ ${t.customerRating}</div>
-                <span class="badge" style="${t.status === 'active' ? 'background: #dcfce7; color: #15803d;' : 'background: #fef3c7; color: #b45309;'} font-size: 10px; padding: 1px 6px;">
-                  ${t.status === 'active' ? 'ว่าง' : 'ติดงาน'}
-                </span>
-              </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
     </div>
@@ -162,7 +189,7 @@ function openTechSelectModal() {
       const id = item.getAttribute('data-id');
       setTechIdentity(id);
       container.innerHTML = '';
-      showToast(`เข้าสู่ระบบในนาม [${id}] สำเร็จแล้ว`, 'success');
+      showToast(`เข้าสู่ระบบในนามช่าง [${id}] เรียบร้อยแล้ว`, 'success');
     };
   });
 }
@@ -177,7 +204,7 @@ function startListeningJobs() {
   feed.innerHTML = `
     <div class="empty-state">
       <div class="empty-icon">⏳</div>
-      <p>กำลังเชื่อมต่อระบบและดึงข้อมูลคิวงาน...</p>
+      <div class="empty-title">กำลังเชื่อมต่อข้อมูลคิวงาน...</div>
     </div>
   `;
 
@@ -199,7 +226,7 @@ function startListeningJobs() {
     updateTabBadges();
     renderJobsFeed();
   }, (err) => {
-    feed.innerHTML = `<div class="empty-state" style="color: #ef4444;"><p>โหลดงานไม่สำเร็จ: ${err.message}</p></div>`;
+    feed.innerHTML = `<div class="empty-state" style="color: #ef4444;"><div class="empty-title">โหลดงานไม่สำเร็จ: ${err.message}</div></div>`;
   });
 }
 
@@ -242,15 +269,20 @@ function renderJobsFeed() {
   }
 
   if (displayJobs.length === 0) {
-    let emptyMsg = 'ไม่มีงานที่ต้องทำในขณะนี้';
-    if (currentTab === 'submitted') emptyMsg = 'ยังไม่มีงานที่อยู่ระหว่างรอ Ops ตรวจสอบ';
-    if (currentTab === 'completed') emptyMsg = 'ยังไม่มีประวัติงานที่เสร็จสิ้น';
+    let emptyIcon = '☕';
+    let emptyTitle = 'ไม่มีงานที่ต้องทำในขณะนี้';
+    if (currentTab === 'submitted') {
+      emptyIcon = '📋';
+      emptyTitle = 'ไม่มีงานที่รอตรวจในขณะนี้';
+    } else if (currentTab === 'completed') {
+      emptyIcon = '🏁';
+      emptyTitle = 'ไม่มีประวัติงานที่เสร็จสิ้น';
+    }
 
     feed.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">${currentTab === 'completed' ? '🏁' : '☕'}</div>
-        <h4 style="margin: 0 0 6px 0; color: #475569;">${emptyMsg}</h4>
-        <p style="font-size: 12px; margin: 0;">เมื่อ Ops มอบหมายงานใหม่ ระบบจะแจ้งเตือนและแสดงที่นี่ทันที</p>
+        <div class="empty-icon">${emptyIcon}</div>
+        <div class="empty-title">${emptyTitle}</div>
       </div>
     `;
     return;
@@ -278,17 +310,17 @@ function renderJobCardHtml(job) {
   const isCompleted = job.status === 'completed';
 
   let statusBadgeClass = 'status-assigned';
-  let statusText = 'มอบหมายแล้ว (รอรับงาน)';
+  let statusText = 'มอบหมายแล้ว รอรับงาน';
 
   if (isTraveling) {
     statusBadgeClass = 'status-traveling';
     statusText = '🚗 กำลังเดินทาง';
   } else if (isSubmitted) {
     statusBadgeClass = 'status-submitted';
-    statusText = '⏳ ส่งงานแล้ว (รอ Ops ตรวจ)';
+    statusText = '⏳ ส่งงานแล้ว รอตรวจงาน';
   } else if (isInProgress) {
     statusBadgeClass = 'status-in-progress';
-    statusText = '🔧 กำลังซ่อมหน้างาน';
+    statusText = '🔧 กำลังทำงานหน้างาน';
   } else if (isCompleted) {
     statusBadgeClass = 'status-completed';
     statusText = '✓ งานเสร็จสิ้น';
@@ -299,6 +331,10 @@ function renderJobCardHtml(job) {
   const afterPhoto = draft.afterPhoto || (job.afterPhotos && job.afterPhotos[0]) || '';
   const currentNotes = draft.notes || job.techNotes || '';
 
+  const customerName = job.customerName || (job.customerId ? job.customerId.slice(0, 16) : 'คุณเชิดศักดิ์ (เจ้าของบ้าน)');
+  const customerPhone = job.customerPhone || '081-882-9988';
+  const addressText = job.addressDetail || '88/12 ถ.สุเทพ ต.สุเทพ อ.เมือง จ.เชียงใหม่';
+
   return `
     <div class="tech-job-card" id="card-${job.id}">
       <div class="job-header">
@@ -307,75 +343,70 @@ function renderJobCardHtml(job) {
       </div>
 
       <div class="job-body">
+        <!-- ชื่องานชัดเจน จบในตัว ไร้คำอธิบายซ้ำซาก -->
         <div class="job-title">
-          <span>🛠️</span> ${escapeHtml(job.title || 'งานบริการช่าง')}
+          🛠️ ${escapeHtml(job.title || 'งานบริการช่าง')}
         </div>
 
-        <div class="job-desc">
-          <strong>Scope:</strong> ${escapeHtml(job.title || 'บริการตามมาตรฐาน RakBaan Pro')}
-        </div>
-
+        <!-- ข้อมูลสำคัญตรงกับจอลูกค้า 100% -->
         <div class="job-info-grid">
           <div class="job-info-item">
             <div class="job-info-label">เวลานัดหมาย</div>
             <div class="job-info-value">📅 ${dateStr}</div>
           </div>
           <div class="job-info-item">
-            <div class="job-info-label">ราคาประเมิน</div>
-            <div class="job-info-value" style="color: #0f766e;">฿${(job.price || 0).toLocaleString()}</div>
+            <div class="job-info-label">ราคารวมสุทธิ</div>
+            <div class="job-info-value job-price-value">฿${(job.price || 0).toLocaleString()}</div>
           </div>
           <div class="job-info-item">
             <div class="job-info-label">ชื่อลูกค้า</div>
-            <div class="job-info-value">${escapeHtml(job.customerId ? job.customerId.slice(0, 16) : 'ลูกค้าสมาชิก')}</div>
+            <div class="job-info-value">${escapeHtml(customerName)}</div>
           </div>
           <div class="job-info-item">
             <div class="job-info-label">เบอร์ติดต่อ</div>
             <div class="job-info-value">
-              <a href="tel:0891234567" style="color: #0284c7; text-decoration: none; font-weight: 700;">📞 โทรหาลูกค้า</a>
+              <a href="tel:${escapeHtml(customerPhone)}" class="btn-tech-call">📞 โทรหาลูกค้า</a>
             </div>
           </div>
         </div>
 
+        <!-- ที่อยู่หน้างาน + ปุ่มนำทาง -->
         <div class="job-location-box">
-          <div style="max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            📍 สถานที่: อ.เมือง จ.เชียงใหม่
+          <div class="job-location-text">
+            📍 ที่อยู่หน้างาน: ${escapeHtml(addressText)}
           </div>
-          <a href="https://maps.google.com" target="_blank" class="btn-map-link">🗺️ นำทาง</a>
+          <a href="https://maps.google.com" target="_blank" class="btn-tech-nav">🗺️ นำทาง</a>
         </div>
 
-        <!-- Stepper Action Area -->
+        <!-- ปุ่มและแบบฟอร์มการทำงาน (Senior-First Tap Targets) -->
         <div class="job-actions">
           ${isAssigned ? `
-            <!-- ขั้นตอนที่ 5: ปุ่มยอมรับงาน & เริ่มเดินทาง -->
-            <button class="btn-tech-action btn-accept-job" id="btn-accept-${job.id}">
-              <span>🚀</span> [ ยอมรับงาน & เริ่มเดินทาง ] (ขั้นตอนที่ 5)
+            <button class="btn-tech-action btn-tech-orange" id="btn-accept-${job.id}">
+              รับงานแล้ว เริ่มเดินทาง
             </button>
           ` : ''}
 
           ${isTraveling ? `
-            <!-- ขั้นตอนที่ 6-7: ถึงหน้างาน & เริ่มซ่อม -->
-            <button class="btn-tech-action btn-arrive-job" id="btn-arrive-${job.id}">
-              <span>📍</span> [ ถึงหน้างานแล้ว & เริ่มลงมือซ่อม ] (ขั้นตอนที่ 7)
+            <button class="btn-tech-action btn-tech-orange" id="btn-arrive-${job.id}">
+              ถึงหน้างาน เริ่มทำงาน
             </button>
           ` : ''}
 
           ${(isInProgress && !isSubmitted) ? `
-            <!-- ขั้นตอนที่ 8: แบบฟอร์มส่งรูป Before / After & ส่งงานให้ Ops ตรวจ -->
             <div class="submit-form-card">
               <div class="submit-form-title">
-                <span>📸 ส่งมอบงาน & รูปภาพ (ขั้นตอนที่ 8)</span>
-                <span style="font-size: 11px; color: #15803d; font-weight: normal;">Before & After QC</span>
+                📷 ถ่ายรูปส่งงาน
               </div>
 
               <div class="photo-upload-grid">
-                <!-- Before Photo Box -->
+                <!-- รูปก่อนทำ -->
                 <div class="photo-upload-box ${beforePhoto ? 'has-photo' : ''}" id="box-before-${job.id}">
-                  <span class="photo-upload-label">📷 รูปก่อนทำ (Before)</span>
+                  <div class="photo-upload-label">รูปก่อนทำ</div>
                   ${beforePhoto ? `
-                    <img src="${beforePhoto}" class="photo-preview-img" alt="Before" />
+                    <img src="${beforePhoto}" class="photo-preview-img" alt="รูปก่อนทำ" />
                   ` : `
-                    <div style="font-size: 24px; color: #94a3b8; margin: 4px 0;">📸</div>
-                    <span style="font-size: 10px; color: #64748b;">แตะเพื่อถ่ายรูป</span>
+                    <div style="font-size: 28px; margin: 4px 0;">📸</div>
+                    <span style="font-size: 14px; font-weight: 700; color: #64748b;">แตะถ่ายรูป</span>
                   `}
                   <input type="file" accept="image/*" class="file-input-hidden" id="file-before-${job.id}" />
                   <button type="button" class="btn-mock-photo" id="mock-before-${job.id}">
@@ -383,14 +414,14 @@ function renderJobCardHtml(job) {
                   </button>
                 </div>
 
-                <!-- After Photo Box -->
+                <!-- รูปหลังทำ -->
                 <div class="photo-upload-box ${afterPhoto ? 'has-photo' : ''}" id="box-after-${job.id}">
-                  <span class="photo-upload-label">📷 รูปหลังเสร็จ (After)</span>
+                  <div class="photo-upload-label">รูปหลังทำ</div>
                   ${afterPhoto ? `
-                    <img src="${afterPhoto}" class="photo-preview-img" alt="After" />
+                    <img src="${afterPhoto}" class="photo-preview-img" alt="รูปหลังทำ" />
                   ` : `
-                    <div style="font-size: 24px; color: #94a3b8; margin: 4px 0;">📸</div>
-                    <span style="font-size: 10px; color: #64748b;">แตะเพื่อถ่ายรูป</span>
+                    <div style="font-size: 28px; margin: 4px 0;">📸</div>
+                    <span style="font-size: 14px; font-weight: 700; color: #64748b;">แตะถ่ายรูป</span>
                   `}
                   <input type="file" accept="image/*" class="file-input-hidden" id="file-after-${job.id}" />
                   <button type="button" class="btn-mock-photo" id="mock-after-${job.id}">
@@ -399,25 +430,23 @@ function renderJobCardHtml(job) {
                 </div>
               </div>
 
-              <textarea class="tech-notes-input" id="notes-${job.id}" placeholder="📝 ระบุรายละเอียดงานที่ทำ, อะไหล่ที่เปลี่ยน, หรือผลการทดสอบระบบ...">${escapeHtml(currentNotes)}</textarea>
+              <textarea class="tech-notes-input" id="notes-${job.id}" placeholder="ระบุรายละเอียดงาน หรือข้อความถึงฝ่ายตรวจงาน...">${escapeHtml(currentNotes)}</textarea>
 
-              <button class="btn-send-to-ops" id="btn-submit-ops-${job.id}">
-                <span>📤</span> [ ส่งงานให้ Ops ตรวจ ] (ขั้นตอนที่ 8)
+              <button class="btn-tech-action btn-tech-orange" id="btn-submit-ops-${job.id}">
+                ส่งตรวจงาน
               </button>
             </div>
           ` : ''}
 
           ${isSubmitted ? `
-            <div style="background: #fefce8; border: 1px solid #fef08a; padding: 12px; border-radius: 8px; font-size: 12px; color: #854d0e; text-align: center;">
-              <div style="font-weight: 700; margin-bottom: 4px;">⏳ ส่งงานเรียบร้อยแล้ว — อยู่ระหว่างรอ Ops ตรวจสอบ</div>
-              <p style="margin: 0; font-size: 11px;">ทีมงาน Ops จะตรวจสอบภาพ Before/After และอนุมัติปิดงานต่อไปค่ะ</p>
+            <div class="tech-alert-card warning">
+              ⏳ ส่งงานเรียบร้อยแล้ว รอฝ่ายตรวจงานตรวจสอบ
             </div>
           ` : ''}
 
           ${isCompleted ? `
-            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px; font-size: 12px; color: #166534; text-align: center;">
-              <div style="font-weight: 700; margin-bottom: 2px;">🎉 งานเสร็จสมบูรณ์เรียบร้อยแล้ว</div>
-              <span style="font-size: 11px; color: #15803d;">บันทึกยอดเงินเข้ากระเป๋าช่างเรียบร้อยแล้ว</span>
+            <div class="tech-alert-card success">
+              ✓ งานเสร็จสิ้นเรียบร้อยแล้ว
             </div>
           ` : ''}
         </div>
@@ -427,7 +456,7 @@ function renderJobCardHtml(job) {
 }
 
 function attachJobCardEvents(job) {
-  // Step 5: Accept & Start Travel
+  // ปุ่มรับงาน & เริ่มเดินทาง
   const btnAccept = document.getElementById(`btn-accept-${job.id}`);
   if (btnAccept) {
     btnAccept.onclick = async () => {
@@ -435,20 +464,37 @@ function attachJobCardEvents(job) {
       btnAccept.textContent = 'กำลังบันทึก...';
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
-          status: 'traveling', // Safe 1-of-5 status
+          status: 'traveling',
           workflowStep: 5,
           workflowStatus: 'traveling',
           travelStartedAt: new Date().toISOString(),
         });
-        showToast('🚀 ยอมรับงานแล้ว! กำลังเดินทางไปหน้างาน', 'success');
+
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+          step: 5,
+          stepName: '5. ช่างรับงาน (Tech Accepts & Travel)',
+          action: 'TECH_ACCEPT_AND_TRAVEL',
+          jobId: job.id,
+          status: 'success',
+          details: {
+            techId: currentTech.id,
+            techName: currentTech.name,
+            phone: currentTech.phone,
+          },
+        });
+
+        showToast('รับงานแล้ว กำลังเดินทางไปหน้างาน', 'success');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
         btnAccept.disabled = false;
+        btnAccept.textContent = 'รับงานแล้ว เริ่มเดินทาง';
       }
     };
   }
 
-  // Step 6-7: Arrive & In Progress
+  // ปุ่มถึงหน้างาน & เริ่มทำงาน
   const btnArrive = document.getElementById(`btn-arrive-${job.id}`);
   if (btnArrive) {
     btnArrive.onclick = async () => {
@@ -456,20 +502,35 @@ function attachJobCardEvents(job) {
       btnArrive.textContent = 'กำลังบันทึก...';
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
-          status: 'in_progress', // Safe 1-of-5 status
+          status: 'in_progress',
           workflowStep: 7,
           workflowStatus: 'in_progress',
           workStartedAt: new Date().toISOString(),
         });
-        showToast('📍 ถึงหน้างานแล้ว! เริ่มต้นลงมือซ่อมบำรุง', 'success');
+
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+          step: 7,
+          stepName: '7. ช่างถึงหน้างาน & เริ่มซ่อม',
+          action: 'TECH_ARRIVED_ON_SITE',
+          jobId: job.id,
+          status: 'success',
+          details: {
+            techId: currentTech.id,
+          },
+        });
+
+        showToast('ถึงหน้างานแล้ว เริ่มต้นลงมือทำงาน', 'success');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
         btnArrive.disabled = false;
+        btnArrive.textContent = 'ถึงหน้างาน เริ่มทำงาน';
       }
     };
   }
 
-  // Photo handlers
+  // ตัวจัดการรูปภาพ
   const fileBefore = document.getElementById(`file-before-${job.id}`);
   const fileAfter = document.getElementById(`file-after-${job.id}`);
   const mockBefore = document.getElementById(`mock-before-${job.id}`);
@@ -488,7 +549,6 @@ function attachJobCardEvents(job) {
     };
   }
 
-  // File Before Change
   if (fileBefore) {
     fileBefore.onchange = (e) => {
       const file = e.target.files[0];
@@ -497,14 +557,13 @@ function attachJobCardEvents(job) {
         reader.onload = (event) => {
           updateDraft('beforePhoto', event.target.result);
           renderJobsFeed();
-          showToast('แนบรูป Before สำเร็จ', 'success');
+          showToast('แนบรูปก่อนทำเรียบร้อย', 'success');
         };
         reader.readAsDataURL(file);
       }
     };
   }
 
-  // File After Change
   if (fileAfter) {
     fileAfter.onchange = (e) => {
       const file = e.target.files[0];
@@ -513,21 +572,20 @@ function attachJobCardEvents(job) {
         reader.onload = (event) => {
           updateDraft('afterPhoto', event.target.result);
           renderJobsFeed();
-          showToast('แนบรูป After สำเร็จ', 'success');
+          showToast('แนบรูปหลังทำเรียบร้อย', 'success');
         };
         reader.readAsDataURL(file);
       }
     };
   }
 
-  // Mock Photo buttons for rapid testing
   if (mockBefore) {
     mockBefore.onclick = (e) => {
       e.stopPropagation();
       const sample = SAMPLE_PHOTOS[`${currentTech.trade}_before`] || SAMPLE_PHOTOS.air_before;
       updateDraft('beforePhoto', sample);
       renderJobsFeed();
-      showToast('ใช้รูปตัวอย่าง Before สำเร็จ', 'success');
+      showToast('ใช้รูปตัวอย่างก่อนทำเรียบร้อย', 'success');
     };
   }
 
@@ -537,11 +595,11 @@ function attachJobCardEvents(job) {
       const sample = SAMPLE_PHOTOS[`${currentTech.trade}_after`] || SAMPLE_PHOTOS.air_after;
       updateDraft('afterPhoto', sample);
       renderJobsFeed();
-      showToast('ใช้รูปตัวอย่าง After สำเร็จ', 'success');
+      showToast('ใช้รูปตัวอย่างหลังทำเรียบร้อย', 'success');
     };
   }
 
-  // Step 8: Submit to Ops
+  // ปุ่มส่งตรวจงาน
   const btnSubmitOps = document.getElementById(`btn-submit-ops-${job.id}`);
   if (btnSubmitOps) {
     btnSubmitOps.onclick = async () => {
@@ -551,16 +609,16 @@ function attachJobCardEvents(job) {
       const notes = (notesElem ? notesElem.value : draft.notes) || 'ช่างปฏิบัติงานเรียบร้อยตามมาตรฐาน ทดสอบระบบทำงานได้ปกติ';
 
       if (!beforeImg || !afterImg) {
-        alert('กรุณาแนบรูปทั้ง Before และ After ให้ครบถ้วนก่อนส่งงานให้ Ops ตรวจนะคะ (สามารถกดปุ่ม "✨ ใช้รูปตัวอย่าง" เพื่อทดสอบได้ค่ะ)');
+        alert('กรุณาแนบรูปทั้งก่อนทำและหลังทำให้ครบถ้วนก่อนส่งตรวจงานนะคะ');
         return;
       }
 
       btnSubmitOps.disabled = true;
-      btnSubmitOps.textContent = 'กำลังส่งข้อมูลให้ Ops...';
+      btnSubmitOps.textContent = 'กำลังส่งตรวจงาน...';
 
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
-          status: 'in_progress', // Keep 1 of 5 safe core statuses to prevent mobile crash
+          status: 'in_progress',
           workflowStep: 8,
           workflowStatus: 'tech_submitted',
           beforePhotos: [beforeImg],
@@ -577,9 +635,27 @@ function attachJobCardEvents(job) {
           }
         });
 
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+          step: 8,
+          stepName: '8. ช่างส่งงาน (Tech Submits Photos)',
+          action: 'TECH_SUBMIT_PHOTOS_FOR_QC',
+          jobId: job.id,
+          status: 'success',
+          details: {
+            techId: currentTech.id,
+            techName: currentTech.name,
+            hasBeforePhoto: Boolean(beforeImg),
+            hasAfterPhoto: Boolean(afterImg),
+            notes: notes.slice(0, 100),
+          },
+        });
+
         photoDrafts.delete(job.id);
-        showToast('🎉 ส่งงานให้ฝ่าย Ops ตรวจสอบเรียบร้อยแล้ว!', 'success');
-        // Switch to submitted tab
+        showToast('ส่งตรวจงานเรียบร้อยแล้ว', 'success');
+        
+        // สลับไปแท็บส่งตรวจแล้ว
         currentTab = 'submitted';
         const tabs = document.querySelectorAll('.tech-tab');
         tabs.forEach(t => t.classList.remove('active'));
@@ -587,7 +663,7 @@ function attachJobCardEvents(job) {
       } catch (err) {
         alert(`เกิดข้อผิดพลาดในการส่งงาน: ${err.message}`);
         btnSubmitOps.disabled = false;
-        btnSubmitOps.textContent = 'ส่งงานให้ Ops ตรวจ (ขั้นตอนที่ 8)';
+        btnSubmitOps.textContent = 'ส่งตรวจงาน';
       }
     };
   }
@@ -603,12 +679,13 @@ function showToast(message, type = 'success') {
   }
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span class="toast-icon">${type === 'success' ? '✓' : 'ℹ️'}</span><span class="toast-msg">${message}</span>`;
+  toast.innerHTML = `<span style="font-size: 20px;">✓</span><span>${message}</span>`;
   toastContainer.appendChild(toast);
   setTimeout(() => {
-    toast.classList.add('fade-out');
-    setTimeout(() => toast.remove(), 300);
-  }, 2500);
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.25s ease';
+    setTimeout(() => toast.remove(), 250);
+  }, 2200);
 }
 
 function escapeHtml(str) {

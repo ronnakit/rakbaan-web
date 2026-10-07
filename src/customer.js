@@ -18,6 +18,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { getTechnicians } from './technicians-data.js';
+import { logAgentActivity } from './audit-logger.js';
 
 // ข้อมูลจำลองผู้ใช้งานประจำ (คุณเชิดศักดิ์)
 const CUSTOMER_ID = 'customer_cherd';
@@ -1036,6 +1037,25 @@ async function handleSubmitRepairOrder() {
     };
 
     const docRef = await addDoc(collection(db, 'jobs'), newJobPayload);
+
+    // Agent-1 Audit Log: บันทึกร่องรอยการสั่งงาน
+    await logAgentActivity({
+      agentId: 'agent-1-customer',
+      agentName: 'Agent-1: ลูกค้า 👤',
+      step: 1,
+      stepName: '1. ลูกค้าจ้าง (Customer Books)',
+      action: 'SUBMIT_REPAIR_ORDER',
+      jobId: docRef.id,
+      status: 'success',
+      details: {
+        title: newJobPayload.title,
+        grandTotal: grandTotal,
+        urgencySla: selectedSla,
+        selectedTech: selectedTechChoice,
+        carePlus: hasCarePlus,
+      },
+    });
+
     alert(`🎉 แจ้งซ่อมบ้านสำเร็จแล้วค่ะ!\nรหัสงาน: ${docRef.id.slice(0, 8).toUpperCase()}\nระบบกำลังเชื่อมต่อไปยังส่วนกลาง (เราเห็น)`);
 
     // Switch to Tracking Tab
@@ -1245,6 +1265,22 @@ async function handleCustomerAcceptJob(job) {
         status: 'active',
       },
     });
+
+    // Agent-1 Audit Log: ลูกค้าตรวจรับงานสมบูรณ์
+    await logAgentActivity({
+      agentId: 'agent-1-customer',
+      agentName: 'Agent-1: ลูกค้า 👤',
+      step: 10,
+      stepName: '10. ลูกค้ารับงาน/ประกัน (Customer Accepts)',
+      action: 'CUSTOMER_ACCEPT_JOB',
+      jobId: job.id,
+      status: 'success',
+      details: {
+        warrantyDays,
+        payoutUnlocked: true,
+      },
+    });
+
     alert(`🎉 ขอบพระคุณค่ะ!\nท่านได้ตรวจรับงานเรียบร้อยแล้ว\nความคุ้มครองรับประกันดิจิทัล ${warrantyDays} วัน เริ่มต้นนับแล้วค่ะ`);
   } catch (err) {
     alert(`เกิดข้อผิดพลาด: ${err.message}`);
@@ -1268,6 +1304,24 @@ async function handleCustomerRejectJob(job) {
         penaltyFlag: true,
       },
     });
+
+    // Agent-1 Audit Log: ลูกค้าไม่รับงาน & สั่งแก้ไขหน้างาน (วนกลับข้อ 6 พร้อม Accountability Flag)
+    await logAgentActivity({
+      agentId: 'agent-1-customer',
+      agentName: 'Agent-1: ลูกค้า 👤',
+      step: 10,
+      stepName: '10. ลูกค้าสั่งแก้ไขงาน (Accountability Triggered)',
+      action: 'CUSTOMER_REJECT_JOB_REWORK',
+      jobId: job.id,
+      status: 'warning',
+      details: {
+        rejectionReason: reason,
+        loopbackToStep: 6,
+        penalizedInspector: job.qcInspector || 'ทีมตรวจ PPT',
+        penalizedTechnician: job.assignedTeamId || 'ช่างผู้ปฏิบัติงาน',
+      },
+    });
+
     alert(`⚠️ รับเรื่องแก้ไขเรียบร้อยแล้วค่ะ!\nระบบได้ส่งเรื่องกลับไปยังขั้นตอนที่ 6 (เราประสานงาน) เพื่อตรวจสอบและส่งช่างเข้าแก้ไขให้ท่านโดยด่วนค่ะ`);
   } catch (err) {
     alert(`เกิดข้อผิดพลาด: ${err.message}`);

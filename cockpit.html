@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รักบ้าน@CNX — ศูนย์ควบคุม 3 หน้าจอ (ยุทธศาสตร์ 3 จอ)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --navy: #002B49;
+      --mint: #00A86B;
+      --mint-glow: rgba(0, 168, 107, 0.25);
+      --amber: #f59e0b;
+      --blue: #0284c7;
+      --rose: #f43f5e;
+      --purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Cockpit Header */
+    .cockpit-header {
+      background: #0d1322;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 26px;
+      background: rgba(0, 168, 107, 0.15);
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--mint);
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Agent Status Chips */
+    .agent-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .agent-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s;
+    }
+
+    .agent-chip.active {
+      box-shadow: 0 0 10px rgba(0, 168, 107, 0.4);
+      border-color: var(--mint);
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+    }
+
+    /* Controls */
+    .cockpit-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-action {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    .btn-run-sim {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-run-sim:hover {
+      background: linear-gradient(135deg, #047857 0%, #059669 100%);
+      transform: translateY(-1px);
+    }
+
+    /* Main Multi-Screen Grid */
+    .screens-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 410px 1fr 400px;
+      gap: 10px;
+      padding: 10px 14px;
+      min-height: 0;
+      background: #080c14;
+    }
+
+    .screen-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    .screen-header {
+      padding: 8px 12px;
+      background: #131d2e;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .screen-title {
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .screen-tools {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+
+    .btn-icon:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .screen-iframe-wrapper {
+      flex: 1;
+      position: relative;
+      background: #fff;
+    }
+
+    .screen-iframe-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Bottom Live Audit Log Stream */
+    .audit-stream-bar {
+      height: 160px;
+      background: #090d16;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .audit-bar-header {
+      padding: 6px 16px;
+      background: #0e1524;
+      border-bottom: 1px solid #1a2333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .audit-feed-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 16px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+    }
+
+    .audit-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 4px;
+      border-left: 3px solid #64748b;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .audit-time { color: #64748b; font-size: 11px; white-space: nowrap; }
+    .audit-agent-tag { font-weight: 700; white-space: nowrap; }
+    .audit-step-tag {
+      background: rgba(255,255,255,0.08);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+    .audit-action-tag { font-weight: 700; color: #38bdf8; white-space: nowrap; }
+    .audit-details-text { color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .audit-status-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .status-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .status-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Cockpit Header -->
+  <header class="cockpit-header">
+    <div class="brand-section">
+      <div class="brand-icon">🏡</div>
+      <div>
+        <div class="brand-title">
+          รักบ้าน@CNX — ศูนย์ควบคุม 3 หน้าจอ
+          <span style="font-size: 11px; background: rgba(0, 168, 107, 0.2); color: #4ade80; border: 1px solid var(--mint); padding: 1px 8px; border-radius: 10px; font-weight: 700;">
+            ระบบ 3 จอสมบูรณ์
+          </span>
+        </div>
+        <div class="brand-subtitle">
+          ควบคุมโดย น้องมะลิ 👩‍💼 — คำสั่งการคุณเชิด (ยุทธศาสตร์ 3 จอเสถียร 100%)
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Agents Badges -->
+    <div class="agent-chips">
+      <div class="agent-chip" style="border-color: #0284c7;">
+        <span class="chip-dot" style="background: #0284c7;"></span>
+        <span>Agent-1: ลูกค้า 👤</span>
+      </div>
+      <div class="agent-chip" style="border-color: #16a34a;">
+        <span class="chip-dot" style="background: #16a34a;"></span>
+        <span>Agent-3: การบริหารรักบ้าน 🏛️</span>
+      </div>
+      <div class="agent-chip" style="border-color: #d97706;">
+        <span class="chip-dot" style="background: #d97706;"></span>
+        <span>Agent-2: ช่างมืออาชีพ 🔧</span>
+      </div>
+      <div class="agent-chip" style="border-color: #9333ea;">
+        <span class="chip-dot" style="background: #9333ea;"></span>
+        <span>Agent-4: ตรวจงาน 🔍</span>
+      </div>
+      <div class="agent-chip" style="border-color: #f43f5e;">
+        <span class="chip-dot" style="background: #f43f5e;"></span>
+        <span>น้องมะลิ: ผู้ดูแลโครงการ 👩‍💼</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="cockpit-controls">
+      <button class="btn-action btn-run-sim" id="btn-trigger-simulation">
+        <span>⚡</span> รัน 10 ขั้นตอน (ผ่านฉลุย)
+      </button>
+      <button class="btn-action" id="btn-trigger-rework" style="background: linear-gradient(135deg, #b91c1c 0%, #ea580c 100%); border: none; color: #fff; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
+        <span>⚠️</span> จำลองขั้นตอน 10 สั่งแก้ (วนกลับข้อ 6 + โทษร่วม)
+      </button>
+      <button class="btn-action" id="btn-reload-all">
+        <span>🔄</span> รีเฟรชทั้ง 3 จอ
+      </button>
+      <a href="/" target="_blank" class="btn-action" style="text-decoration: none;">
+        <span>↗</span> เปิดการบริหารเต็มจอ
+      </a>
+    </div>
+  </header>
+
+  <!-- 3-Screen Live Grid -->
+  <main class="screens-container">
+    
+    <!-- Screen 1: Customer Web (Agent-1) -->
+    <section class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title" style="color: #38bdf8;">
+          <span>👤</span> Agent-1: จอลูกค้า (รักบ้าน@CNX)
+        </div>
+        <div class="screen-tools">
+          <button class="btn-icon" id="btn-reload-cust" title="รีเฟรชจอลูกค้า">🔄</button>
+          <a href="http://localhost:8080" target="_blank" class="btn-icon" title="เปิดแท็บใหม่">↗</a>
+        </div>
+      </div>
+      <div class="screen-iframe-wrapper">
+        <iframe src="http://localhost:8080" id="frame-customer"></iframe>
+      </div>
+    </section>
+
+    <!-- Screen 2: Ops Admin Hub (Agent-3 & Agent-4) -->
+    <section class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title" style="color: #4ade80;">
+          <span>🏛️</span> Agent-3 & 4: การบริหารรักบ้าน & ตรวจงาน
+        </div>
+        <div class="screen-tools">
+          <button class="btn-icon" id="btn-reload-ops" title="รีเฟรชการบริหารรักบ้าน">🔄</button>
+          <a href="/" target="_blank" class="btn-icon" title="เปิดแท็บใหม่">↗</a>
+        </div>
+      </div>
+      <div class="screen-iframe-wrapper">
+        <iframe src="/?devAdmin=true" id="frame-ops"></iframe>
+      </div>
+    </section>
+
+    <!-- Screen 3: Technician Portal (Agent-2) -->
+    <section class="screen-card">
+      <div class="screen-header">
+        <div class="screen-title" style="color: #fbbf24;">
+          <span>🔧</span> Agent-2: จอช่างมืออาชีพ (15 ท่าน)
+        </div>
+        <div class="screen-tools">
+          <button class="btn-icon" id="btn-reload-tech" title="รีเฟรชจอช่าง">🔄</button>
+          <a href="/tech.html?techId=RPS-T01" target="_blank" class="btn-icon" title="เปิดแท็บใหม่">↗</a>
+        </div>
+      </div>
+      <div class="screen-iframe-wrapper">
+        <iframe src="/tech.html?techId=RPS-T01" id="frame-tech"></iframe>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Live Audit Log Stream -->
+  <footer class="audit-stream-bar">
+    <div class="audit-bar-header">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-weight: 800; color: #fff;">📡 Live Audit Trail Stream (ร่องรอยการทำงานตามกฎข้อ 6)</span>
+        <span style="color: #22c55e; font-size: 11px;">● กำลังดักฟังกิจกรรมสด</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span id="log-count" style="color: var(--text-muted);">0 รายการ</span>
+        <button class="btn-icon" id="btn-clear-logs" style="font-size: 11px; padding: 2px 6px;">ล้างหน้าจอ</button>
+      </div>
+    </div>
+    <div class="audit-feed-list" id="audit-feed-list">
+      <!-- Live logs append here -->
+      <div class="audit-row" style="border-color: #f43f5e;">
+        <span class="audit-time">READY</span>
+        <span class="audit-agent-tag" style="color: #f43f5e;">น้องมะลิ: แม่ทัพ 👩‍💼</span>
+        <span class="audit-step-tag">Init</span>
+        <span class="audit-action-tag">SYSTEM_COCKPIT_READY</span>
+        <span class="audit-details-text">สถาปัตยกรรม 5 Agents พร้อมทำงานเต็มรูปแบบตามคำสั่งการของคุณเชิด</span>
+        <span class="audit-status-badge status-success">ACTIVE</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { subscribeToAuditLogs, logAgentActivity } from './src/audit-logger.js';
+    import { db, auth } from './src/firebase.js';
+    import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+    import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+
+    // Ensure anonymous auth for Firestore permissions
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (e) {
+          console.warn('Cockpit anonymous auth note:', e.message);
+        }
+      }
+    });
+
+    const feedList = document.getElementById('audit-feed-list');
+    const logCountElem = document.getElementById('log-count');
+    let totalLogs = 1;
+
+    // 1. Subscribe to Audit Logs
+    subscribeToAuditLogs((log) => {
+      appendAuditRow(log);
+    });
+
+    function appendAuditRow(log) {
+      totalLogs++;
+      logCountElem.textContent = `${totalLogs} รายการ`;
+
+      const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString('th-TH') : new Date().toLocaleTimeString('th-TH');
+      const statusClass = `status-${log.status || 'info'}`;
+
+      const row = document.createElement('div');
+      row.className = 'audit-row';
+      row.style.borderLeftColor = log.agentColor || '#64748b';
+
+      let detailsStr = '';
+      if (log.details) {
+        try {
+          detailsStr = Object.entries(log.details).map(([k, v]) => `${k}: ${v}`).join(' | ');
+        } catch(e) { detailsStr = JSON.stringify(log.details); }
+      }
+
+      row.innerHTML = `
+        <span class="audit-time">${timeStr}</span>
+        <span class="audit-agent-tag" style="color: ${log.agentColor || '#cbd5e1'};">${log.agentName || log.agentId}</span>
+        <span class="audit-step-tag">สเต็ป ${log.step}: ${log.stepName || ''}</span>
+        <span class="audit-action-tag">${log.action}</span>
+        <span class="audit-details-text">${log.jobId ? `[${log.jobId.slice(0, 8)}] ` : ''}${detailsStr}</span>
+        <span class="audit-status-badge ${statusClass}">${(log.status || 'INFO').toUpperCase()}</span>
+      `;
+
+      feedList.prepend(row);
+    }
+
+    // 2. Clear Logs
+    document.getElementById('btn-clear-logs').onclick = () => {
+      feedList.innerHTML = '';
+      totalLogs = 0;
+      logCountElem.textContent = '0 รายการ';
+    };
+
+    // 3. Reload frames
+    const frameCust = document.getElementById('frame-customer');
+    const frameOps = document.getElementById('frame-ops');
+    const frameTech = document.getElementById('frame-tech');
+
+    document.getElementById('btn-reload-cust').onclick = () => frameCust.src = frameCust.src;
+    document.getElementById('btn-reload-ops').onclick = () => frameOps.src = frameOps.src;
+    document.getElementById('btn-reload-tech').onclick = () => frameTech.src = frameTech.src;
+
+    document.getElementById('btn-reload-all').onclick = () => {
+      frameCust.src = frameCust.src;
+      frameOps.src = frameOps.src;
+      frameTech.src = frameTech.src;
+    };
+
+    // 4. Automated Multi-Agent 10-Step Simulation Runner
+    const btnSim = document.getElementById('btn-trigger-simulation');
+    btnSim.onclick = async () => {
+      btnSim.disabled = true;
+      btnSim.innerHTML = '<span>⏳</span> กำลังรัน Multi-Agent 10 สเต็ป...';
+
+      try {
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 0,
+          stepName: 'Simulation Kickoff',
+          action: 'START_CLOSED_LOOP_TEST',
+          status: 'info',
+          details: { note: 'เริ่มต้นทดสอบการส่งต่องาน 5 Agents ครบ 10 ขั้นตอน' },
+        });
+
+        // Step 1: Agent-1 Customer Books Job
+        await new Promise(r => setTimeout(r, 1200));
+        const sampleJob = {
+          customerId: 'customer_cherd',
+          customerName: 'คุณเชิดศักดิ์ (เจ้าของบ้าน)',
+          customerPhone: '081-882-9988',
+          title: 'ล้างแอร์ทั่วไป (ติดผนัง) (ห้องรับแขก)',
+          category: 'air_con',
+          price: 600,
+          status: 'pending_review',
+          workflowStep: 1,
+          workflowStatus: 'new_booking',
+          urgencySla: 'normal',
+          urgencyFee: 0,
+          carePlus: false,
+          addressDetail: '88/12 ถ.สุเทพ ต.สุเทพ อ.เมือง จ.เชียงใหม่',
+          createdAt: new Date().toISOString(),
+          escrowStatus: 'held_ppt',
+        };
+
+        const docRef = await addDoc(collection(db, 'jobs'), sampleJob);
+        const jobId = docRef.id;
+
+        await logAgentActivity({
+          agentId: 'agent-1-customer',
+          agentName: 'Agent-1: ลูกค้า 👤',
+          step: 1,
+          stepName: '1. ลูกค้าจ้าง (Customer Books)',
+          action: 'SUBMIT_REPAIR_ORDER',
+          jobId: jobId,
+          status: 'success',
+          details: { title: sampleJob.title, price: 600, sla: 'normal' },
+        });
+
+        // Step 2: Agent-3 Ops Acknowledges (เราเห็น)
+        await new Promise(r => setTimeout(r, 1200));
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 2,
+          stepName: '2. เราเห็น (Ops Acknowledges)',
+          action: 'OPS_RECEIVE_JOB_ALERT',
+          jobId: jobId,
+          status: 'success',
+          details: { message: 'ระบบ Ops ตรวจพบคำขอแจ้งซ่อมใหม่ ขึ้นการ์ดคิวงานสด' },
+        });
+
+        // Step 3: Agent-3 Dispatches Pro Tech (RPS-T01 ช่างสมศักดิ์ แอร์)
+        await new Promise(r => setTimeout(r, 1200));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          assignedTeamId: 'RPS-T01',
+          assignedTechId: 'RPS-T01',
+          assignedTechName: 'นายสมศักดิ์ มั่นคง',
+          assignedTechPhone: '081-234-5678',
+          status: 'assigned',
+          workflowStep: 3,
+          workflowStatus: 'assigned',
+          assignedAt: new Date().toISOString(),
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 3,
+          stepName: '3. ส่งช่างรับ (Dispatch Pro Tech)',
+          action: 'DISPATCH_PRO_TECH',
+          jobId: jobId,
+          status: 'success',
+          details: { techId: 'RPS-T01', techName: 'นายสมศักดิ์ มั่นคง (ช่างแอร์อันดับ 1)' },
+        });
+
+        // Step 4: Step 4 Escrow Held Notice
+        await new Promise(r => setTimeout(r, 800));
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 4,
+          stepName: '4. พักเงิน PPT (Escrow Held)',
+          action: 'VERIFY_ESCROW_HOLD',
+          jobId: jobId,
+          status: 'success',
+          details: { escrowAmount: 600, account: 'บจก. เพียบพร้อมทำ (PPT)', status: 'held' },
+        });
+
+        // Step 5: Agent-2 Tech Accepts and Starts Travel
+        await new Promise(r => setTimeout(r, 1200));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'traveling',
+          workflowStep: 5,
+          workflowStatus: 'traveling',
+          travelStartedAt: new Date().toISOString(),
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 5,
+          stepName: '5. ช่างรับงาน (Tech Accepts & Travel)',
+          action: 'TECH_ACCEPT_AND_TRAVEL',
+          jobId: jobId,
+          status: 'success',
+          details: { techId: 'RPS-T01', etaMinutes: 20 },
+        });
+
+        // Step 6: Agent-3 Ops 3-Way Coordination
+        await new Promise(r => setTimeout(r, 1000));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          coordination: {
+            partsChecked: true,
+            techReadyChecked: true,
+            customerConfirmChecked: true,
+            notes: 'ตรวจน้ำยาแอร์ R32 แท้ และโทรยืนยันคุณเชิดศักดิ์เรียบร้อย',
+            coordinatedAt: new Date().toISOString(),
+          },
+          workflowStep: 6,
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 6,
+          stepName: '6. เราประสานงาน (Ops 3-Way Coordination)',
+          action: 'OPS_COORDINATE_3WAY',
+          jobId: jobId,
+          status: 'success',
+          details: { parts: 'R32 แท้ศูนย์', scheduleConfirmed: true },
+        });
+
+        // Step 7: Agent-2 Arrives & Ops Authorizes Work
+        await new Promise(r => setTimeout(r, 1200));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'in_progress',
+          workflowStep: 7,
+          workflowStatus: 'in_progress',
+          workStartedAt: new Date().toISOString(),
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 7,
+          stepName: '7. ช่างถึงหน้างาน & เราสั่งเริ่มงาน',
+          action: 'TECH_ARRIVED_START_WORK',
+          jobId: jobId,
+          status: 'success',
+          details: { location: 'ถึงหน้างาน ถ.สุเทพ เรียบร้อย' },
+        });
+
+        // Step 8: Agent-2 Submits Before/After Photos
+        await new Promise(r => setTimeout(r, 1400));
+        const sampleBefore = 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60';
+        const sampleAfter = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60';
+
+        await updateDoc(doc(db, 'jobs', jobId), {
+          workflowStep: 8,
+          workflowStatus: 'tech_submitted',
+          beforePhotos: [sampleBefore],
+          afterPhotos: [sampleAfter],
+          techNotes: 'ล้างคอยล์เย็น โฟมฆ่าเชื้อ ล้างคอยล์ร้อน เช็คน้ำยาแอร์เย็นฉ่ำ 21 องศา',
+          techSubmittedAt: new Date().toISOString(),
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 8,
+          stepName: '8. ช่างส่งงาน (Tech Submits Photos)',
+          action: 'TECH_SUBMIT_PHOTOS_FOR_QC',
+          jobId: jobId,
+          status: 'success',
+          details: { hasBefore: true, hasAfter: true, notes: 'ล้างแอร์สะอาดเรียบร้อย' },
+        });
+
+        // Step 9: Agent-4 QC Inspector Passes QC
+        await new Promise(r => setTimeout(r, 1400));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          workflowStep: 9,
+          workflowStatus: 'customer_review',
+          qcInspector: 'qc-inspector@ppt.com',
+          qcNotes: 'ตรวจสอบภาพ Before/After ผ่านมาตรฐานความสะอาด 100%',
+          qcPassedAt: new Date().toISOString(),
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-4-qc',
+          agentName: 'Agent-4: ผู้ตรวจ QC 🔍',
+          step: 9,
+          stepName: '9. เราตรวจ QC (Ops/QC Inspects)',
+          action: 'QC_INSPECTION_PASSED',
+          jobId: jobId,
+          status: 'success',
+          details: { qcScore: '100%', note: 'รูปคมชัด มาตรฐานผ่านเกณฑ์ ส่งต่อลูกค้า' },
+        });
+
+        // Step 10: Agent-1 Customer Accepts & Activates Digital Warranty
+        await new Promise(r => setTimeout(r, 1400));
+        const now = new Date();
+        const end = new Date();
+        end.setDate(now.getDate() + 90);
+
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'completed',
+          workflowStep: 10,
+          workflowStatus: 'completed',
+          completedAt: now.toISOString(),
+          customerAcceptedAt: now.toISOString(),
+          payoutStatus: 'unlocked',
+          warranty: {
+            days: 90,
+            startDate: now.toISOString(),
+            endDate: end.toISOString(),
+            status: 'active',
+          },
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-1-customer',
+          agentName: 'Agent-1: ลูกค้า 👤',
+          step: 10,
+          stepName: '10. ลูกค้ารับงาน/ประกัน (Customer Accepts)',
+          action: 'CUSTOMER_ACCEPT_JOB',
+          jobId: jobId,
+          status: 'success',
+          details: { warrantyDays: 90, payoutUnlocked: true, review: 'แอร์เย็นเจี๊ยบ บริการดีมาก ⭐⭐⭐⭐⭐' },
+        });
+
+        // Mali Summary
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 10,
+          stepName: 'Closed-Loop Complete',
+          action: 'SIMULATION_SUCCESS_100',
+          status: 'success',
+          details: { jobId, message: 'การจำลอง 5 Agents วิ่งครบ 10 ขั้นตอนสำเร็จสมบูรณ์ ไร้ข้อผิดพลาด!' },
+        });
+
+        // Refresh frames so they show the final state
+        frameOps.contentWindow?.location?.reload();
+        frameTech.contentWindow?.location?.reload();
+        frameCust.contentWindow?.location?.reload();
+
+      } catch (err) {
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 0,
+          stepName: 'Error Handling',
+          action: 'SIMULATION_ERROR',
+          status: 'error',
+          error: err.message,
+        });
+      } finally {
+        btnSim.disabled = false;
+        btnSim.innerHTML = '<span>⚡</span> รัน 10 สเต็ป (ผ่านฉลุย)';
+      }
+    };
+
+    // 5. Automated Rework & Accountability Loop Simulation
+    const btnRework = document.getElementById('btn-trigger-rework');
+    btnRework.onclick = async () => {
+      btnRework.disabled = true;
+      btnSim.disabled = true;
+      btnRework.innerHTML = '<span>⏳</span> กำลังทดสอบ Loop สั่งแก้ & ปรับโทษร่วม...';
+
+      try {
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 0,
+          stepName: 'Rework Test Kickoff',
+          action: 'START_REWORK_LOOP_TEST',
+          status: 'warning',
+          details: { note: 'เริ่มต้นทดสอบกรณีลูกค้าไม่รับงานในสเต็ป 10 วนกลับสเต็ป 6 พร้อมธงโทษร่วม' },
+        });
+
+        // Step 1: Customer Books
+        await new Promise(r => setTimeout(r, 1000));
+        const sampleJob = {
+          customerId: 'customer_cherd',
+          customerName: 'คุณเชิดศักดิ์ (เจ้าของบ้าน)',
+          customerPhone: '081-882-9988',
+          title: 'ซ่อมท่อประปารั่วซึม / ก๊อกหัก (ห้องน้ำชั้นล่าง)',
+          category: 'plumbing',
+          price: 550,
+          status: 'pending_review',
+          workflowStep: 1,
+          workflowStatus: 'new_booking',
+          urgencySla: 'normal',
+          urgencyFee: 0,
+          carePlus: false,
+          addressDetail: '88/12 ถ.สุเทพ ต.สุเทพ อ.เมือง จ.เชียงใหม่',
+          createdAt: new Date().toISOString(),
+          escrowStatus: 'held_ppt',
+        };
+
+        const docRef = await addDoc(collection(db, 'jobs'), sampleJob);
+        const jobId = docRef.id;
+
+        await logAgentActivity({
+          agentId: 'agent-1-customer',
+          agentName: 'Agent-1: ลูกค้า 👤',
+          step: 1,
+          stepName: '1. ลูกค้าจ้าง (Customer Books)',
+          action: 'SUBMIT_REPAIR_ORDER',
+          jobId: jobId,
+          status: 'success',
+          details: { title: sampleJob.title, price: 550, category: 'plumbing' },
+        });
+
+        // Step 2: Ops Acknowledges
+        await new Promise(r => setTimeout(r, 1000));
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 2,
+          stepName: '2. เราเห็น (Ops Acknowledges)',
+          action: 'OPS_RECEIVE_JOB_ALERT',
+          jobId: jobId,
+          status: 'success',
+          details: { message: 'ระบบ Ops ตรวจพบงานซ่อมประปาใหม่' },
+        });
+
+        // Step 3: Dispatch Pro Tech
+        await new Promise(r => setTimeout(r, 1000));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          assignedTeamId: 'RPS-T01',
+          assignedTechId: 'RPS-T01',
+          assignedTechName: 'นายสมศักดิ์ มั่นคง',
+          status: 'assigned',
+          workflowStep: 3,
+          workflowStatus: 'assigned',
+          assignedAt: new Date().toISOString(),
+        });
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 3,
+          stepName: '3. ส่งช่างรับ (Dispatch Pro Tech)',
+          action: 'DISPATCH_PRO_TECH',
+          jobId: jobId,
+          status: 'success',
+          details: { techId: 'RPS-T01', techName: 'นายสมศักดิ์ มั่นคง' },
+        });
+
+        // Step 4: PPT Escrow
+        await new Promise(r => setTimeout(r, 800));
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 4,
+          stepName: '4. พักเงิน PPT (Escrow Held)',
+          action: 'VERIFY_ESCROW_HOLD',
+          jobId: jobId,
+          status: 'success',
+          details: { escrowAmount: 550, account: 'บจก. เพียบพร้อมทำ (PPT)', status: 'held' },
+        });
+
+        // Step 5: Tech Accepts & Travels
+        await new Promise(r => setTimeout(r, 1000));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'traveling',
+          workflowStep: 5,
+          workflowStatus: 'traveling',
+        });
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 5,
+          stepName: '5. ช่างรับงาน (Tech Accepts & Travel)',
+          action: 'TECH_ACCEPT_AND_TRAVEL',
+          jobId: jobId,
+          status: 'success',
+          details: { etaMinutes: 15 },
+        });
+
+        // Step 6: Coordination
+        await new Promise(r => setTimeout(r, 1000));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          coordination: { partsChecked: true, scheduleConfirmed: true, coordinatedAt: new Date().toISOString() },
+          workflowStep: 6,
+        });
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 6,
+          stepName: '6. เราประสานงาน (Ops Coordination)',
+          action: 'OPS_COORDINATE_3WAY',
+          jobId: jobId,
+          status: 'success',
+          details: { parts: 'ข้อต่อและกาว PVC มาตรฐาน มอก.' },
+        });
+
+        // Step 7: Arrive & Start Work
+        await new Promise(r => setTimeout(r, 1000));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'in_progress',
+          workflowStep: 7,
+          workflowStatus: 'in_progress',
+        });
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 7,
+          stepName: '7. ช่างถึงหน้างาน & เราสั่งเริ่มงาน',
+          action: 'TECH_ARRIVED_START_WORK',
+          jobId: jobId,
+          status: 'success',
+          details: { location: 'ถึงหน้างานเรียบร้อย' },
+        });
+
+        // Step 8: Tech Submits Initial Photos
+        await new Promise(r => setTimeout(r, 1200));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          workflowStep: 8,
+          workflowStatus: 'tech_submitted',
+          beforePhotos: ['https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&auto=format&fit=crop&q=60'],
+          afterPhotos: ['https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=500&auto=format&fit=crop&q=60'],
+          techNotes: 'เปลี่ยนข้อต่อท่อประปาเรียบร้อย',
+        });
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 8,
+          stepName: '8. ช่างส่งงาน (Tech Submits Photos)',
+          action: 'TECH_SUBMIT_PHOTOS_FOR_QC',
+          jobId: jobId,
+          status: 'success',
+          details: { note: 'ส่งรูปภาพและรายงานผล' },
+        });
+
+        // Step 9: QC Passes
+        await new Promise(r => setTimeout(r, 1200));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          workflowStep: 9,
+          workflowStatus: 'customer_review',
+          qcInspector: 'qc-inspector@ppt.com',
+          qcNotes: 'รูปภาพเบื้องต้นครบถ้วน ส่งให้ลูกค้าตรวจสอบ',
+        });
+        await logAgentActivity({
+          agentId: 'agent-4-qc',
+          agentName: 'Agent-4: ผู้ตรวจ QC 🔍',
+          step: 9,
+          stepName: '9. เราตรวจ QC (Ops/QC Inspects)',
+          action: 'QC_INSPECTION_PASSED',
+          jobId: jobId,
+          status: 'success',
+          details: { qcInspector: 'qc-inspector@ppt.com', note: 'ส่งต่อลูกค้าตรวจหน้างาน' },
+        });
+
+        // Step 10 TRIGGER: Customer Rejects (Accountability Triggered!)
+        await new Promise(r => setTimeout(r, 1500));
+        const reworkReason = 'ยังมีน้ำหยดซึมที่เกลียวท่อประปาด้านใน และเก็บเศษท่อยังไม่เรียบร้อย';
+        
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'in_progress',
+          workflowStep: 6,
+          workflowStatus: 'rework_needed',
+          accountability: {
+            penalizedInspector: 'qc-inspector@ppt.com (ผู้ตรวจ QC)',
+            penalizedTechnician: 'RPS-T01 นายสมศักดิ์ มั่นคง (ช่าง Pro)',
+            rejectionReason: reworkReason,
+            rejectedAt: new Date().toISOString(),
+            penaltyFlag: true,
+          },
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-1-customer',
+          agentName: 'Agent-1: ลูกค้า 👤',
+          step: 10,
+          stepName: '10. ลูกค้าสั่งแก้ไขงาน (Accountability Triggered)',
+          action: 'CUSTOMER_REJECT_JOB_REWORK',
+          jobId: jobId,
+          status: 'warning',
+          details: {
+            reason: reworkReason,
+            loopbackStep: 6,
+            penalizedInspector: 'qc-inspector@ppt.com',
+            penalizedTech: 'RPS-T01',
+          },
+        });
+
+        // Mali Logs Root Cause & Penalty Flag
+        await new Promise(r => setTimeout(r, 1000));
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 6,
+          stepName: 'Dual Accountability Audit',
+          action: 'APPLY_MUTUAL_PENALTY_FLAG',
+          jobId: jobId,
+          status: 'warning',
+          details: {
+            law: "Cherd's Mutual Accountability Law (กฎความรับผิดชอบร่วม 2 ฝ่าย)",
+            inspectorPenalty: 'บันทึกประวัติ QC บกพร่อง (Flagged)',
+            technicianPenalty: 'ส่งกลับแก้ไขหน้างานโดยไม่มีค่าใช้จ่ายเพิ่ม',
+          },
+        });
+
+        // Ops Coordinates Urgent Recall (Step 6)
+        await new Promise(r => setTimeout(r, 1200));
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 6,
+          stepName: '6. เราประสานงาน (Urgent Rework Recall)',
+          action: 'OPS_DISPATCH_URGENT_REWORK',
+          jobId: jobId,
+          status: 'warning',
+          details: { action: 'โทรสั่งช่าง RPS-T01 วกกลับเข้าแก้เกลียวท่อประปาทันที' },
+        });
+
+        // Tech Fixes (Step 7)
+        await new Promise(r => setTimeout(r, 1200));
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 7,
+          stepName: '7. ช่างเข้าแก้ไขหน้างาน (Rework Fix)',
+          action: 'TECH_APPLY_REWORK_FIX',
+          jobId: jobId,
+          status: 'success',
+          details: { fix: 'พันเทปเกลียวเพิ่ม 15 รอบ อัดกาวหนาแน่น เช็ดทำความสะอาดเรียบร้อย' },
+        });
+
+        // Tech Resubmits (Step 8)
+        await new Promise(r => setTimeout(r, 1000));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          workflowStep: 8,
+          workflowStatus: 'tech_submitted',
+          reworkCompletedAt: new Date().toISOString(),
+        });
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: 'Agent-2: ช่าง [RPS-T01] สมศักดิ์ 🔧',
+          step: 8,
+          stepName: '8. ช่างส่งงานรอบแก้ไข (Tech Resubmit)',
+          action: 'TECH_RESUBMIT_QC',
+          jobId: jobId,
+          status: 'success',
+          details: { test: 'เปิดน้ำแรงสุด 10 นาที แห้งสนิท 100%' },
+        });
+
+        // QC Re-Inspects (Step 9)
+        await new Promise(r => setTimeout(r, 1200));
+        await updateDoc(doc(db, 'jobs', jobId), {
+          workflowStep: 9,
+          workflowStatus: 'customer_review',
+          recheckPassed: true,
+        });
+        await logAgentActivity({
+          agentId: 'agent-4-qc',
+          agentName: 'Agent-4: ผู้ตรวจ QC 🔍',
+          step: 9,
+          stepName: '9. เราตรวจ QC (Re-inspection Passed)',
+          action: 'QC_REINSPECTION_PASSED',
+          jobId: jobId,
+          status: 'success',
+          details: { note: 'ตรวจซ้ำละเอียด น้ำไม่หยดแล้ว ผ่านเกณฑ์มาตรฐาน' },
+        });
+
+        // Customer Accepts Finally (Step 10)
+        await new Promise(r => setTimeout(r, 1400));
+        const now = new Date();
+        const end = new Date();
+        end.setDate(now.getDate() + 90);
+
+        await updateDoc(doc(db, 'jobs', jobId), {
+          status: 'completed',
+          workflowStep: 10,
+          workflowStatus: 'completed',
+          completedAt: now.toISOString(),
+          customerAcceptedAt: now.toISOString(),
+          payoutStatus: 'unlocked',
+          warranty: { days: 90, startDate: now.toISOString(), endDate: end.toISOString(), status: 'active' },
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-1-customer',
+          agentName: 'Agent-1: ลูกค้า 👤',
+          step: 10,
+          stepName: '10. ลูกค้ารับงาน/ประกัน (Customer Accepts After Rework)',
+          action: 'CUSTOMER_ACCEPT_JOB',
+          jobId: jobId,
+          status: 'success',
+          details: { warrantyDays: 90, review: 'กลับมาแก้งานรวดเร็ว ประทับใจความรับผิดชอบค่ะ ⭐⭐⭐⭐⭐' },
+        });
+
+        // Mali Final Summary
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 10,
+          stepName: 'Rework Loop Complete',
+          action: 'REWORK_SIMULATION_SUCCESS_100',
+          status: 'success',
+          details: { jobId, message: 'การทดสอบระบบแก้ไขงาน (Rework Loop) และกฎความรับผิดชอบร่วมเสร็จสมบูรณ์ 100%!' },
+        });
+
+        // Refresh frames
+        frameOps.contentWindow?.location?.reload();
+        frameTech.contentWindow?.location?.reload();
+        frameCust.contentWindow?.location?.reload();
+
+      } catch (err) {
+        await logAgentActivity({
+          agentId: 'mali-lead',
+          agentName: 'น้องมะลิ: แม่ทัพ 👩‍💼',
+          step: 0,
+          stepName: 'Error Handling',
+          action: 'REWORK_SIMULATION_ERROR',
+          status: 'error',
+          error: err.message,
+        });
+      } finally {
+        btnRework.disabled = false;
+        btnSim.disabled = false;
+        btnRework.innerHTML = '<span>⚠️</span> จำลองสเต็ป 10 สั่งแก้ (วนกลับข้อ 6 + โทษร่วม)';
+      }
+    };
+
+    // Auto-trigger on query params
+    const qParams = new URLSearchParams(window.location.search);
+    if (qParams.get('autoSim') === 'true') {
+      setTimeout(() => btnSim.click(), 1200);
+    } else if (qParams.get('autoRework') === 'true') {
+      setTimeout(() => btnRework.click(), 1200);
+    }
+  </script>
+</body>
+</html>
