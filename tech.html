@@ -699,6 +699,219 @@
         from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: translateY(0); }
       }
+
+      /* ป้ายเตือนกฎเหล็กห้ามรับเงินสด (Zero-Cash Banner) */
+      .zero-cash-banner {
+        background: #fee2e2;
+        border-bottom: 2px solid #ef4444;
+        color: #991b1b;
+        padding: 8px 12px;
+        font-size: 13.5px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        line-height: 1.35;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+      }
+
+      .tech-trust-badge {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+      }
+
+      /* โมดอลด่านตรวจบังคับ 3 ข้อก่อนเริ่มงาน (Preflight Modal) */
+      .preflight-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(4px);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .preflight-modal-card {
+        background: #fff;
+        border-radius: 18px;
+        max-width: 460px;
+        width: 100%;
+        padding: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        border: 2px solid var(--tech-primary);
+        animation: toastIn 0.2s ease;
+      }
+
+      .preflight-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .preflight-title {
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--tech-navy);
+      }
+
+      .preflight-item {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .preflight-item:hover {
+        background: #fff7ed;
+        border-color: var(--tech-primary-border);
+      }
+
+      .preflight-item input[type="checkbox"] {
+        width: 22px;
+        height: 22px;
+        accent-color: var(--tech-primary);
+        margin-top: 2px;
+        cursor: pointer;
+      }
+
+      .preflight-text-title {
+        font-size: 15.5px;
+        font-weight: 700;
+        color: var(--tech-navy);
+      }
+
+      .preflight-text-desc {
+        font-size: 13.5px;
+        color: #64748b;
+        margin-top: 2px;
+      }
+
+      /* โมดอลคู่มือช่าง (Tech Playbook Modal - Aviation SOP) */
+      .playbook-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(6px);
+        z-index: 3100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .playbook-card {
+        background: #fff;
+        border-radius: 20px;
+        max-width: 490px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 22px;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        border: 2px solid var(--tech-primary);
+        animation: toastIn 0.25s ease;
+      }
+
+      .playbook-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+      }
+
+      .playbook-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--tech-navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .playbook-close-btn {
+        background: #f1f5f9;
+        border: none;
+        color: #475569;
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+
+      .playbook-close-btn:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+
+      .playbook-section {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+      }
+
+      .playbook-section-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--tech-navy);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .playbook-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .playbook-list li {
+        font-size: 15px;
+        color: #334155;
+        margin-bottom: 8px;
+        line-height: 1.45;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .playbook-badge-step {
+        background: #ea580c;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 6px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
     </style>
   </head>
   <body>
@@ -714,7 +927,10 @@
               <div class="tech-brand-badge">เชียงใหม่</div>
             </div>
           </div>
-          <div>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" id="btn-open-tech-playbook" class="tech-link-btn" style="background: rgba(249, 115, 22, 0.3); border-color: #f97316; color: #ffedd5; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+              📖 คู่มือช่าง
+            </button>
             <a href="/" target="_blank" class="tech-link-btn">
               ศูนย์กลาง ↗
             </a>
@@ -726,6 +942,12 @@
           <div style="font-size: 15px; color: #cbd5e1;">กำลังโหลดข้อมูลช่าง...</div>
         </div>
       </header>
+
+      <!-- ป้ายเตือนกฎเหล็กห้ามรับเงินสด (Zero-Cash Rule) -->
+      <div class="zero-cash-banner">
+        <span style="font-size: 18px;">🚫</span>
+        <span><strong>กฎเหล็ก:</strong> ห้ามรับเงินสดหน้างานทุกกรณี (โอนผ่านระบบ Escrow เพียบพร้อมทำ เท่านั้น)</span>
+      </div>
 
       <!-- แถบ 3 แท็บหลัก (จบในหน้าจอ ไม่ฟุ่มเฟือย) -->
       <nav class="tech-tabs">
@@ -757,6 +979,12 @@
 
     <!-- โมดอลสลับชื่อช่าง -->
     <div id="tech-login-modal-container"></div>
+
+    <!-- โมดอลด่านตรวจบังคับ 3 ข้อก่อนเริ่มงาน (Preflight Checklist Modal) -->
+    <div id="preflight-modal-container"></div>
+
+    <!-- โมดอลคู่มือช่าง (Aviation SOP Playbook) -->
+    <div id="tech-playbook-modal-container"></div>
 
     <script type="module" src="/src/tech.js"></script>
   </body>

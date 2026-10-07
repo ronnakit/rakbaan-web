@@ -82,6 +82,12 @@ function initTechPortal() {
       renderJobsFeed();
     };
   });
+
+  // ปุ่มเปิดคู่มือช่าง (Aviation SOP Playbook)
+  const btnPlaybook = document.getElementById('btn-open-tech-playbook');
+  if (btnPlaybook) {
+    btnPlaybook.onclick = openTechPlaybookModal;
+  }
 }
 
 function setTechIdentity(techId) {
@@ -107,6 +113,8 @@ function renderHeaderProfile() {
   if (!slot || !currentTech) return;
 
   const icon = currentTech.trade === 'air' ? '❄️' : (currentTech.trade === 'electrical' ? '⚡' : (currentTech.trade === 'plumbing' ? '🚰' : '🛠️'));
+  const score = Math.round(currentTech.companyScore || 96);
+  const tier = score >= 95 ? 'เกรด A' : (score >= 80 ? 'เกรด B' : 'เกรด C');
 
   slot.innerHTML = `
     <div class="tech-profile-info">
@@ -117,6 +125,9 @@ function renderHeaderProfile() {
         <div class="tech-name">${currentTech.name} ${currentTech.nickname ? `(${currentTech.nickname})` : ''}</div>
         <div class="tech-meta">
           <span>รหัส ${currentTech.id}</span> · <span>${getTradeLabel(currentTech.trade)}</span>
+        </div>
+        <div class="tech-trust-badge">
+          🛡️ วินัย ${score}/100 (${tier})
         </div>
       </div>
     </div>
@@ -393,9 +404,41 @@ function renderJobCardHtml(job) {
           ` : ''}
 
           ${(isInProgress && !isSubmitted) ? `
+            <!-- ด่านเช็กลิสต์กัปตัน: ระยะที่ 2 ขณะปฏิบัติงาน -->
+            <div style="background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;">
+              <div style="font-size: 15px; font-weight: 800; color: #c2410c; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <span>⚡</span> <span>ขณะปฏิบัติงาน (มาตรฐานความปลอดภัย)</span>
+              </div>
+              <div style="font-size: 13.5px; color: #7c2d12; line-height: 1.45;">
+                • ดับเบรกเกอร์/ปิดวาล์วน้ำหลักก่อนลงมือทุกครั้ง<br>
+                • ใช้อะไหล่แท้ตรงรุ่นมาตรฐาน (ห้ามดัดแปลง)<br>
+                • ถ่ายรูปชำรุดก่อนลงมือซ่อม (รูปก่อนทำ)
+              </div>
+            </div>
+
+            <!-- ด่านเช็กลิสต์กัปตัน: ระยะที่ 3 หลังปฏิบัติงาน & ส่งตรวจงาน -->
             <div class="submit-form-card">
               <div class="submit-form-title">
-                📷 ถ่ายรูปส่งงาน
+                <span>🏁</span> <span>ด่านตรวจหลังปฏิบัติงาน (ก่อนส่งงาน)</span>
+              </div>
+
+              <!-- เช็กลิสต์บังคับ 3 ข้อ -->
+              <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px 12px; margin-bottom: 14px;">
+                <div style="font-size: 13.5px; font-weight: 700; color: #475569; margin-bottom: 8px;">
+                  ยืนยันการปฏิบัติ 3 ข้อตามคู่มือช่าง:
+                </div>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; margin-bottom: 8px; cursor: pointer;">
+                  <input type="checkbox" id="post-chk-clean-${job.id}" style="width: 18px; height: 18px; accent-color: var(--tech-primary);" />
+                  <span>1. ทำความสะอาดพื้นที่ & ม้วนเก็บผ้ายางเรียบร้อย</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; margin-bottom: 8px; cursor: pointer;">
+                  <input type="checkbox" id="post-chk-demo-${job.id}" style="width: 18px; height: 18px; accent-color: var(--tech-primary);" />
+                  <span>2. ทดสอบระบบการทำงานต่อหน้าลูกค้าแล้ว</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; cursor: pointer;">
+                  <input type="checkbox" id="post-chk-nocash-${job.id}" style="width: 18px; height: 18px; accent-color: var(--tech-primary);" />
+                  <span>3. ยืนยันไม่รับเงินสดหน้างาน (ระบบ Escrow)</span>
+                </label>
               </div>
 
               <div class="photo-upload-grid">
@@ -433,7 +476,7 @@ function renderJobCardHtml(job) {
               <textarea class="tech-notes-input" id="notes-${job.id}" placeholder="ระบุรายละเอียดงาน หรือข้อความถึงฝ่ายตรวจงาน...">${escapeHtml(currentNotes)}</textarea>
 
               <button class="btn-tech-action btn-tech-orange" id="btn-submit-ops-${job.id}">
-                ส่งตรวจงาน
+                ส่งตรวจงาน ➔
               </button>
             </div>
           ` : ''}
@@ -494,39 +537,11 @@ function attachJobCardEvents(job) {
     };
   }
 
-  // ปุ่มถึงหน้างาน & เริ่มทำงาน
+  // ปุ่มถึงหน้างาน & ด่านตรวจความพร้อม 3 ข้อ
   const btnArrive = document.getElementById(`btn-arrive-${job.id}`);
   if (btnArrive) {
-    btnArrive.onclick = async () => {
-      btnArrive.disabled = true;
-      btnArrive.textContent = 'กำลังบันทึก...';
-      try {
-        await updateDoc(doc(db, 'jobs', job.id), {
-          status: 'in_progress',
-          workflowStep: 7,
-          workflowStatus: 'in_progress',
-          workStartedAt: new Date().toISOString(),
-        });
-
-        await logAgentActivity({
-          agentId: 'agent-2-tech',
-          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
-          step: 7,
-          stepName: '7. ช่างถึงหน้างาน & เริ่มซ่อม',
-          action: 'TECH_ARRIVED_ON_SITE',
-          jobId: job.id,
-          status: 'success',
-          details: {
-            techId: currentTech.id,
-          },
-        });
-
-        showToast('ถึงหน้างานแล้ว เริ่มต้นลงมือทำงาน', 'success');
-      } catch (err) {
-        alert(`เกิดข้อผิดพลาด: ${err.message}`);
-        btnArrive.disabled = false;
-        btnArrive.textContent = 'ถึงหน้างาน เริ่มทำงาน';
-      }
+    btnArrive.onclick = () => {
+      openPreflightModal(job);
     };
   }
 
@@ -608,6 +623,15 @@ function attachJobCardEvents(job) {
       const afterImg = draft.afterPhoto || (job.afterPhotos && job.afterPhotos[0]);
       const notes = (notesElem ? notesElem.value : draft.notes) || 'ช่างปฏิบัติงานเรียบร้อยตามมาตรฐาน ทดสอบระบบทำงานได้ปกติ';
 
+      const chkClean = document.getElementById(`post-chk-clean-${job.id}`);
+      const chkDemo = document.getElementById(`post-chk-demo-${job.id}`);
+      const chkNocash = document.getElementById(`post-chk-nocash-${job.id}`);
+
+      if ((chkClean && !chkClean.checked) || (chkDemo && !chkDemo.checked) || (chkNocash && !chkNocash.checked)) {
+        alert('กรุณายืนยันการปฏิบัติงานครบทั้ง 3 ข้อ (ทำความสะอาด / ทดสอบระบบ / ไม่รับเงินสด) ก่อนส่งตรวจงานนะคะ');
+        return;
+      }
+
       if (!beforeImg || !afterImg) {
         alert('กรุณาแนบรูปทั้งก่อนทำและหลังทำให้ครบถ้วนก่อนส่งตรวจงานนะคะ');
         return;
@@ -625,6 +649,12 @@ function attachJobCardEvents(job) {
           afterPhotos: [afterImg],
           techNotes: notes,
           techSubmittedAt: new Date().toISOString(),
+          postFlightChecklist: {
+            cleanArea: true,
+            demoTested: true,
+            noCashConfirmed: true,
+            confirmedAt: new Date().toISOString(),
+          },
           qcData: {
             beforePhoto: beforeImg,
             afterPhoto: afterImg,
@@ -669,6 +699,123 @@ function attachJobCardEvents(job) {
   }
 }
 
+function openPreflightModal(job) {
+  const container = document.getElementById('preflight-modal-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="preflight-overlay" id="preflight-overlay">
+      <div class="preflight-modal-card">
+        <div class="preflight-header">
+          <span style="font-size: 28px;">🛡️</span>
+          <div>
+            <div class="preflight-title">ด่านตรวจความพร้อม 3 ข้อ</div>
+            <div style="font-size: 13.5px; color: #64748b;">(ตามมาตรฐานรักบ้าน@CNX ก่อนเริ่มงาน)</div>
+          </div>
+        </div>
+
+        <p style="font-size: 14.5px; color: #334155; margin-bottom: 14px; line-height: 1.4;">
+          เพื่อรักษามาตรฐานคะแนนความประพฤติ (Trust Score) กรุณายืนยันการปฏิบัติ 3 ข้อ:
+        </p>
+
+        <label class="preflight-item">
+          <input type="checkbox" id="chk-uniform" />
+          <div>
+            <div class="preflight-text-title">1. สวมเสื้อยูนิฟอร์มรักบ้านเรียบร้อย</div>
+            <div class="preflight-text-desc">แต่งกายสุภาพ พร้อมป้ายชื่อช่างและอุปกรณ์ความปลอดภัย</div>
+          </div>
+        </label>
+
+        <label class="preflight-item">
+          <input type="checkbox" id="chk-dropcloth" />
+          <div>
+            <div class="preflight-text-title">2. ปูผ้ายางกันเปื้อนหน้างานแล้ว</div>
+            <div class="preflight-text-desc">รองผ้ายางใต้เครื่องมือ ป้องกันพื้นบ้านลูกค้าเป็นรอยหรือเปรอะเปื้อน</div>
+          </div>
+        </label>
+
+        <label class="preflight-item">
+          <input type="checkbox" id="chk-scope" />
+          <div>
+            <div class="preflight-text-title">3. ทบทวนราคาสุทธิและขอบเขตงานกับลูกค้าแล้ว</div>
+            <div class="preflight-text-desc">ยืนยันงาน "${escapeHtml(job.title)}" ไม่มีเรียกเก็บเงินสดหน้างาน</div>
+          </div>
+        </label>
+
+        <div style="display: flex; gap: 10px; margin-top: 18px;">
+          <button type="button" class="btn-tech-action" id="btn-preflight-cancel" style="background: #e2e8f0; color: #334155; flex: 1;">
+            ยกเลิก
+          </button>
+          <button type="button" class="btn-tech-action btn-tech-orange" id="btn-preflight-confirm" style="flex: 2;" disabled>
+            ยืนยันเริ่มปฏิบัติงาน ➔
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const chk1 = document.getElementById('chk-uniform');
+  const chk2 = document.getElementById('chk-dropcloth');
+  const chk3 = document.getElementById('chk-scope');
+  const btnConfirm = document.getElementById('btn-preflight-confirm');
+  const btnCancel = document.getElementById('btn-preflight-cancel');
+
+  const checkValidation = () => {
+    btnConfirm.disabled = !(chk1.checked && chk2.checked && chk3.checked);
+  };
+
+  chk1.onchange = checkValidation;
+  chk2.onchange = checkValidation;
+  chk3.onchange = checkValidation;
+
+  btnCancel.onclick = () => {
+    container.innerHTML = '';
+  };
+
+  btnConfirm.onclick = async () => {
+    btnConfirm.disabled = true;
+    btnConfirm.textContent = 'กำลังเริ่มงาน...';
+    try {
+      await updateDoc(doc(db, 'jobs', job.id), {
+        status: 'in_progress',
+        workflowStep: 7,
+        workflowStatus: 'in_progress',
+        workStartedAt: new Date().toISOString(),
+        preflightChecklist: {
+          uniform: true,
+          dropCloth: true,
+          scopeConfirmed: true,
+          confirmedAt: new Date().toISOString(),
+          techId: currentTech.id,
+        }
+      });
+
+      await logAgentActivity({
+        agentId: 'agent-2-tech',
+        agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+        step: 7,
+        stepName: '7. ช่างถึงหน้างาน & ผ่านเกณฑ์ปูผ้ายาง',
+        action: 'TECH_CONFIRMED_PREFLIGHT_CHECKLIST',
+        jobId: job.id,
+        status: 'success',
+        details: {
+          techId: currentTech.id,
+          uniformChecked: true,
+          dropClothChecked: true,
+          scopeChecked: true,
+        },
+      });
+
+      container.innerHTML = '';
+      showToast('ผ่านด่านตรวจความพร้อม เริ่มต้นลงมือทำงานได้', 'success');
+    } catch (err) {
+      alert(`เกิดข้อผิดพลาด: ${err.message}`);
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'ยืนยันเริ่มปฏิบัติงาน ➔';
+    }
+  };
+}
+
 function showToast(message, type = 'success') {
   let toastContainer = document.getElementById('toast-container');
   if (!toastContainer) {
@@ -697,3 +844,116 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+function openTechPlaybookModal() {
+  const container = document.getElementById('tech-playbook-modal-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="playbook-overlay" id="playbook-overlay">
+      <div class="playbook-card">
+        <div class="playbook-header">
+          <div>
+            <div class="playbook-title">
+              <span>📖</span>
+              <span>คู่มือช่างรักบ้าน (SOP กัปตัน)</span>
+            </div>
+            <div style="font-size: 13.5px; color: #64748b; margin-top: 2px;">
+              มาตรฐานปฏิบัติงาน 3 ระยะ ปลอดภัย โปร่งใส วินัยเต็มร้อย
+            </div>
+          </div>
+          <button type="button" class="playbook-close-btn" id="btn-playbook-close">✕</button>
+        </div>
+
+        <!-- หมวดที่ 1: เช็กลิสต์กัปตัน 3 ระยะ -->
+        <div class="playbook-section" style="border-left: 4px solid var(--tech-primary);">
+          <div class="playbook-section-title">
+            <span>✈️</span> <span>1. เช็กลิสต์กัปตัน 3 ระยะ (Flight Checklist)</span>
+          </div>
+          <ul class="playbook-list">
+            <li>
+              <span class="playbook-badge-step">ระยะ 1</span>
+              <div>
+                <strong>ก่อนเริ่มงาน (Pre-Flight):</strong> สวมยูนิฟอร์ม + ป้ายชื่อช่าง, ปูผ้ายางกันเปื้อนรองเครื่องมือ 100%, ทบทวนราคาสุทธิกับลูกค้า (ย้ำไม่รับเงินสด)
+              </div>
+            </li>
+            <li>
+              <span class="playbook-badge-step" style="background: #d97706;">ระยะ 2</span>
+              <div>
+                <strong>ขณะปฏิบัติงาน (In-Flight):</strong> ดับเบรกเกอร์/ปิดวาล์วน้ำเพื่อความปลอดภัย, ใช้อะไหล่แท้ตรงรุ่นมาตรฐาน, ถ่ายรูปสภาพชำรุดก่อนแก้ไข (รูปก่อนทำ)
+              </div>
+            </li>
+            <li>
+              <span class="playbook-badge-step" style="background: #16a34a;">ระยะ 3</span>
+              <div>
+                <strong>หลังปฏิบัติงาน (Post-Flight):</strong> ทำความสะอาดพื้นที่ & เก็บผ้ายาง, ทดสอบระบบให้ลูกค้าดูต่อหน้า, ถ่ายรูปหลังทำ, ส่งมอบงานผ่านแอป
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- หมวดที่ 2: วินัย Trust Score 100 แต้ม -->
+        <div class="playbook-section" style="border-left: 4px solid #0284c7;">
+          <div class="playbook-section-title">
+            <span>🛡️</span> <span>2. วินัยช่าง 100 แต้ม (Trust Score)</span>
+          </div>
+          <ul class="playbook-list">
+            <li>
+              <span>🟢</span>
+              <div><strong>เกรด A (90–100 แต้ม):</strong> ช่างแถวหน้า รับสิทธิ์จ่ายงานด่วนและงานเหมาพรีเมียมก่อน</div>
+            </li>
+            <li>
+              <span>🟡</span>
+              <div><strong>เกรด B (80–89 แต้ม):</strong> ช่างมาตรฐาน รับงานตามคิวงานปกติ</div>
+            </li>
+            <li>
+              <span>🟠</span>
+              <div><strong>เกรด C (70–79 แต้ม):</strong> ติดทัณฑ์บน ต้องเข้าอบรมทบทวนมาตรฐาน</div>
+            </li>
+            <li>
+              <span>🔴</span>
+              <div><strong>เกรด F (&lt; 70 แต้ม):</strong> พักงานทันที ระบบล็อกไม่จ่ายงานให้เด็ดขาด</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- หมวดที่ 3: กฎเหล็กห้ามรับเงินสดเด็ดขาด -->
+        <div class="playbook-section" style="border-left: 4px solid #ef4444; background: #fef2f2;">
+          <div class="playbook-section-title" style="color: #991b1b;">
+            <span>🚫</span> <span>3. กฎเหล็กเงินสดเป็นศูนย์ (Zero Cash Escrow)</span>
+          </div>
+          <p style="font-size: 14.5px; color: #7f1d1d; line-height: 1.5; margin-bottom: 6px;">
+            • <strong>ห้ามรับเงินสดจากลูกค้าหน้างานทุกกรณี</strong> ไม่ว่าจะเป็นค่าบริการ ค่าอะไหล่ หรือค่าน้ำชา<br>
+            • เงินทุกบาทลูกค้าชำระเข้าบัญชี Escrow บจก. เพียบพร้อมทำ แล้ว<br>
+            • ระบบจะโอนเงินค่าจ้างเข้าบัญชีช่างโดยตรงหลังผ่านการตรวจ QC ภายใน 24 ชม.
+          </p>
+        </div>
+
+        <button type="button" class="btn-tech-action btn-tech-orange" id="btn-playbook-ok" style="margin-top: 8px;">
+          เข้าใจและพร้อมปฏิบัติตามมาตรฐาน ➔
+        </button>
+      </div>
+    </div>
+  `;
+
+  const overlay = document.getElementById('playbook-overlay');
+  const btnClose = document.getElementById('btn-playbook-close');
+  const btnOk = document.getElementById('btn-playbook-ok');
+
+  const close = () => {
+    container.innerHTML = '';
+  };
+
+  if (btnClose) btnClose.onclick = close;
+  if (btnOk) btnOk.onclick = close;
+  if (overlay) {
+    overlay.onclick = (e) => {
+      if (e.target === overlay) close();
+    };
+  }
+}
+
+// Window exports for dev & automation testing
+window.openTechPlaybookModal = openTechPlaybookModal;
+window.openPreflightModal = openPreflightModal;
+

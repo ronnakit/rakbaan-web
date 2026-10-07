@@ -230,7 +230,10 @@ function renderDashboard(user, role) {
           <button class="nav-item ${activeTab === 'finance' ? 'active' : ''}" id="nav-finance">
             💰 สรุปการเงิน
           </button>
-          <a href="/cockpit.html" target="_blank" class="nav-item" style="text-decoration: none; color: #fff; margin-top: 14px; background: linear-gradient(135deg, #059669 0%, #0d9488 100%); border-radius: var(--radius-md); font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">
+          <button class="nav-item" id="nav-ops-playbook" style="margin-top: 14px; background: #ecfdf5; border: 1.5px solid #10b981; color: #047857; font-weight: 700; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
+            <span>📖</span> <span>คู่มือแอดมิน (SOP)</span>
+          </button>
+          <a href="/cockpit.html" target="_blank" class="nav-item" style="text-decoration: none; color: #fff; margin-top: 8px; background: linear-gradient(135deg, #059669 0%, #0d9488 100%); border-radius: var(--radius-md); font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">
             🚀 ศูนย์ควบคุม 3 หน้าจอ ↗
           </a>
           <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: #d97706; margin-top: 6px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: var(--radius-md); font-size: 13px;">
@@ -262,6 +265,7 @@ function renderDashboard(user, role) {
   `;
 
   document.getElementById('signout').onclick = () => signOut(auth);
+  document.getElementById('nav-ops-playbook').onclick = openOpsPlaybookModal;
 
   const tabs = ['jobs', 'catalog', 'technicians', 'customers', 'finance'];
   const switchTab = (tab) => {
@@ -396,7 +400,7 @@ function renderTechniciansView(container) {
               <td style="text-align: center; font-weight: 600; color: var(--navy);">${t.completedJobs} งาน</td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
-                  <span style="color: #0284c7;">🛡️ บริษัท: <strong>${t.companyScore}%</strong></span>
+                  <span style="color: #0284c7;">🛡️ วินัย Trust: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</strong></span>
                   <span style="color: #d97706;">⭐ ลูกค้า: <strong>${t.customerRating}</strong> (${t.reviewCount})</span>
                 </div>
               </td>
@@ -1268,7 +1272,7 @@ async function openJobModal(job) {
 
           <div style="display: flex; gap: 10px; margin-top: 4px; font-size: 11px; align-items: center;">
             <span style="color: #b45309; font-weight: 600;">⭐ ลูกค้า: ${tech.customerRating} / 5.0 (${tech.reviewCount} รีวิว)</span>
-            <span style="color: #0369a1; font-weight: 600;">🛡️ PPT Audit: ${tech.companyScore}% (ตรงเวลา ${tech.companyAudit?.punctuality || 98}%)</span>
+            <span style="color: #0369a1; font-weight: 600;">🛡️ วินัย Trust: ${Math.round(tech.companyScore || 95)}/100 (${Math.round(tech.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</span>
           </div>
 
           ${firstReview ? `
@@ -1666,3 +1670,93 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 300);
   }, 2500);
 }
+
+function openOpsPlaybookModal() {
+  let modalContainer = document.getElementById('ops-playbook-modal-container');
+  if (!modalContainer) {
+    modalContainer = document.createElement('div');
+    modalContainer.id = 'ops-playbook-modal-container';
+    document.body.appendChild(modalContainer);
+  }
+
+  modalContainer.innerHTML = `
+    <div style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: #fff; border-radius: 18px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.4); border: 2px solid #10b981; animation: toastIn 0.25s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 18px;">
+          <div>
+            <div style="font-size: 21px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+              <span>📖</span> <span>คู่มือปฏิบัติการส่วนกลาง (Ops SOP Hub)</span>
+            </div>
+            <div style="font-size: 14px; color: #64748b; margin-top: 2px;">
+              ระเบียบปฏิบัติ 4 กะเวลาประจำวัน • สูตรจ่ายงาน 5D • รับมือเหตุฉุกเฉิน
+            </div>
+          </div>
+          <button type="button" id="btn-ops-playbook-close" style="background: #f1f5f9; border: none; font-size: 20px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; color: #475569;">✕</button>
+        </div>
+
+        <!-- กะเวลา 4 ช่วง -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <span>⏰</span> <span>1. จังหวะทำงาน 4 ช่วงเวลาประจำวัน (Daily Rhythm)</span>
+          </div>
+          <div style="font-size: 14px; color: #334155; line-height: 1.55;">
+            • <strong>07:30 น. (กะเช้า):</strong> ตรวจสอบเคสค้างคืน ยืนยันนัดหมาย และปล่อยช่างรอบแรก<br>
+            • <strong>08:30–17:00 น. (กะกลางวัน):</strong> มอนิเตอร์ Live SLA และแก้ปัญหาช่างล่าช้าเกิน 15 นาที<br>
+            • <strong>17:00–20:00 น. (กะค่ำ):</strong> ปิดรับงานด่วนมาก (Hotline) ตัดรอบงานหลัง 17:00 ไปรอบ 08:00 วันถัดไป<br>
+            • <strong>20:00 น. (ตัดรอบวัน):</strong> ยุติการทำงานช่าง ตรวจสอบยอดเงินพัก (Escrow) บจก.เพียบพร้อมทำ
+          </div>
+        </div>
+
+        <!-- เกณฑ์ 5D -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <span>🎯</span> <span>2. เกณฑ์การจ่ายงาน 5 มิติ (5D Dispatch)</span>
+          </div>
+          <div style="font-size: 14px; color: #334155; line-height: 1.55;">
+            1. <strong>Skill (ทักษะตรงสาย):</strong> ช่างมีใบรับรองและทักษะตรงประเภทงานซ่อม<br>
+            2. <strong>GPS (ระยะทางใกล้สุด):</strong> คิดค่าเดินทางมาตรฐาน (+15฿/กม. เกิน 10 กม.)<br>
+            3. <strong>SLA (เวลาลงตัว):</strong> ไม่จัดคิวงานซ้อนเหลื่อมเวลากัน ป้องกันช่างสาย<br>
+            4. <strong>Trust Score (วินัยสูง):</strong> ช่างเกรด A/B (≥ 80 แต้ม) ได้รับคิวงานก่อน ช่างเกรด F ระบบล็อกอัตโนมัติ<br>
+            5. <strong>Fairness (กระจายงานเป็นธรรม):</strong> เกลี่ยงานให้ช่างอย่างสมดุล ไม่กระจุกตัว
+          </div>
+        </div>
+
+        <!-- Exception Matrix -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <span>🚨</span> <span>3. ตารางรับมือเหตุฉุกเฉิน (Exception Matrix)</span>
+          </div>
+          <div style="font-size: 14px; color: #334155; line-height: 1.55;">
+            • <strong>ช่างไม่ตอบรับเกิน 15 นาที:</strong> จ่ายงานให้ช่างสำรองทันที และตัด 5 คะแนนวินัย<br>
+            • <strong>ลูกค้าไม่อยู่บ้าน:</strong> รอ 15 นาที โทรประสานงาน 2 ครั้ง หากติดต่อไม่ได้ ยกเลิกพร้อมคิดค่าตรวจเช็ค<br>
+            • <strong>หน้างานมีงานงอก/อะไหล่เพิ่ม:</strong> ออกใบเสนอราคาเสริมผ่านระบบ ห้ามช่างเรียกเก็บเงินสดหน้างาน
+          </div>
+        </div>
+
+        <!-- Escrow Rule -->
+        <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;">
+          <div style="font-size: 16px; font-weight: 800; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+            <span>💰</span> <span>4. กฎเงินพัก Escrow บจก. เพียบพร้อมทำ (100% Zero Cash)</span>
+          </div>
+          <div style="font-size: 14px; color: #7f1d1d; line-height: 1.55;">
+            เงินทุกบาทลูกค้าชำระเข้าบัญชีกลาง Escrow ก่อนเริ่มงาน • ปลดล็อกโอนให้ช่างเมื่อผ่าน QC รูปถ่าย และลูกค้ายืนยันตรวจรับงานแล้วเท่านั้น • ตรวจสอบพบรับเงินสดหน้างาน ปรับเงินและตัดสิทธิ์ช่างทันที
+          </div>
+        </div>
+
+        <button type="button" id="btn-ops-playbook-ok" style="width: 100%; background: #10b981; color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 16px; font-weight: 700; cursor: pointer;">
+          เข้าใจและพร้อมปฏิบัติงานตามมาตรฐาน Ops ➔
+        </button>
+      </div>
+    </div>
+  `;
+
+  const close = () => {
+    modalContainer.innerHTML = '';
+  };
+
+  document.getElementById('btn-ops-playbook-close').onclick = close;
+  document.getElementById('btn-ops-playbook-ok').onclick = close;
+}
+
+window.openOpsPlaybookModal = openOpsPlaybookModal;
+
