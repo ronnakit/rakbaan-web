@@ -112,36 +112,16 @@ function renderHeaderProfile() {
   const slot = document.getElementById('tech-profile-slot');
   if (!slot || !currentTech) return;
 
-  const icon = currentTech.trade === 'air' ? '❄️' : (currentTech.trade === 'electrical' ? '⚡' : (currentTech.trade === 'plumbing' ? '🚰' : '🛠️'));
-  const score = Math.round(currentTech.companyScore || 96);
-  const tier = score >= 95 ? 'เกรด A' : (score >= 80 ? 'เกรด B' : 'เกรด C');
-
   slot.innerHTML = `
     <div class="tech-profile-info">
-      <div class="tech-avatar">
-        ${icon}
-      </div>
       <div>
-        <div class="tech-name">${currentTech.name} ${currentTech.nickname ? `(${currentTech.nickname})` : ''}</div>
+        <div class="tech-name">${escapeHtml(currentTech.name)}</div>
         <div class="tech-meta">
-          <span>รหัส ${currentTech.id}</span> · <span>${getTradeLabel(currentTech.trade)}</span>
-        </div>
-        <div class="tech-trust-badge">
-          🛡️ วินัย ${score}/100 (${tier})
+          <span>รหัส ${escapeHtml(currentTech.id)}</span> · <span>${getTradeLabel(currentTech.trade)}</span>
         </div>
       </div>
-    </div>
-    <div class="tech-actions-box">
-      <div class="tech-rating-pill">
-        ⭐ ${currentTech.customerRating}
-      </div>
-      <button class="btn-switch-tech" id="btn-open-tech-picker">
-        สลับช่าง ▾
-      </button>
     </div>
   `;
-
-  document.getElementById('btn-open-tech-picker').onclick = openTechSelectModal;
 }
 
 function openTechSelectModal() {
@@ -154,19 +134,15 @@ function openTechSelectModal() {
     <div class="tech-modal-overlay" id="tech-modal-overlay">
       <div class="tech-modal-box">
         <div class="tech-modal-header">
-          <h3 class="tech-modal-title">👷‍♂️ สลับชื่อช่าง</h3>
-          <button id="btn-close-modal" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b;">✕</button>
+          <h3 class="tech-modal-title">สลับชื่อช่าง</h3>
+          <button id="btn-close-modal" style="background: none; border: none; font-size: 15px; font-weight: 700; cursor: pointer; color: #64748b;">ปิด</button>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
           ${all.map(t => {
-            const icon = t.trade === 'air' ? '❄️' : (t.trade === 'electrical' ? '⚡' : (t.trade === 'plumbing' ? '🚰' : '🛠️'));
             const isSelected = t.id === currentTech.id;
             return `
               <div class="tech-select-item ${isSelected ? 'selected' : ''}" data-id="${t.id}">
-                <div style="width: 44px; height: 44px; border-radius: 50%; background: #ffedd5; color: #c2410c; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
-                  ${icon}
-                </div>
                 <div style="flex: 1;">
                   <div class="tech-select-name">
                     ${t.name} ${t.nickname ? `(${t.nickname})` : ''}
@@ -176,7 +152,6 @@ function openTechSelectModal() {
                   </div>
                 </div>
                 <div style="text-align: right;">
-                  <div style="font-size: 13px; font-weight: 800; color: #b45309;">⭐ ${t.customerRating}</div>
                   <span style="font-size: 12px; font-weight: 700; color: ${t.status === 'active' ? '#15803d' : '#b45309'};">
                     ${t.status === 'active' ? 'พร้อมรับงาน' : 'ติดงานหน้างาน'}
                   </span>
@@ -280,19 +255,15 @@ function renderJobsFeed() {
   }
 
   if (displayJobs.length === 0) {
-    let emptyIcon = '☕';
     let emptyTitle = 'ไม่มีงานที่ต้องทำในขณะนี้';
     if (currentTab === 'submitted') {
-      emptyIcon = '📋';
       emptyTitle = 'ไม่มีงานที่รอตรวจในขณะนี้';
     } else if (currentTab === 'completed') {
-      emptyIcon = '🏁';
       emptyTitle = 'ไม่มีประวัติงานที่เสร็จสิ้น';
     }
 
     feed.innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">${emptyIcon}</div>
         <div class="empty-title">${emptyTitle}</div>
       </div>
     `;
@@ -325,16 +296,16 @@ function renderJobCardHtml(job) {
 
   if (isTraveling) {
     statusBadgeClass = 'status-traveling';
-    statusText = '🚗 กำลังเดินทาง';
+    statusText = 'กำลังเดินทาง';
   } else if (isSubmitted) {
     statusBadgeClass = 'status-submitted';
-    statusText = '⏳ ส่งงานแล้ว รอตรวจงาน';
+    statusText = 'ส่งงานแล้ว รอตรวจงาน';
   } else if (isInProgress) {
     statusBadgeClass = 'status-in-progress';
-    statusText = '🔧 กำลังทำงานหน้างาน';
+    statusText = 'กำลังทำงานหน้างาน';
   } else if (isCompleted) {
     statusBadgeClass = 'status-completed';
-    statusText = '✓ งานเสร็จสิ้น';
+    statusText = 'งานเสร็จสิ้น';
   }
 
   const draft = photoDrafts.get(job.id) || { beforePhoto: '', afterPhoto: '', notes: '' };
@@ -343,7 +314,6 @@ function renderJobCardHtml(job) {
   const currentNotes = draft.notes || job.techNotes || '';
 
   const customerName = job.customerName || (job.customerId ? job.customerId.slice(0, 16) : 'คุณเชิดศักดิ์ (เจ้าของบ้าน)');
-  const customerPhone = job.customerPhone || '081-882-9988';
   const addressText = job.addressDetail || '88/12 ถ.สุเทพ ต.สุเทพ อ.เมือง จ.เชียงใหม่';
 
   return `
@@ -354,42 +324,48 @@ function renderJobCardHtml(job) {
       </div>
 
       <div class="job-body">
-        <!-- ชื่องานชัดเจน จบในตัว ไร้คำอธิบายซ้ำซาก -->
-        <div class="job-title">
-          🛠️ ${escapeHtml(job.title || 'งานบริการช่าง')}
+        <!-- กรอบชื่องาน -->
+        <div class="job-title-box">
+          <div class="job-title">
+            ${escapeHtml(job.title || 'งานบริการช่าง')}
+          </div>
         </div>
 
-        <!-- ข้อมูลสำคัญตรงกับจอลูกค้า 100% -->
+        <!-- กรอบข้อมูลสำคัญตรงกับจอลูกค้า -->
         <div class="job-info-grid">
           <div class="job-info-item">
             <div class="job-info-label">เวลานัดหมาย</div>
-            <div class="job-info-value">📅 ${dateStr}</div>
+            <div class="job-info-value">${dateStr}</div>
           </div>
           <div class="job-info-item">
             <div class="job-info-label">ราคารวมสุทธิ</div>
             <div class="job-info-value job-price-value">฿${(job.price || 0).toLocaleString()}</div>
           </div>
-          <div class="job-info-item">
+          <div class="job-info-item full-width">
             <div class="job-info-label">ชื่อลูกค้า</div>
             <div class="job-info-value">${escapeHtml(customerName)}</div>
           </div>
-          <div class="job-info-item">
-            <div class="job-info-label">เบอร์ติดต่อ</div>
-            <div class="job-info-value">
-              <a href="tel:${escapeHtml(customerPhone)}" class="btn-tech-call">📞 โทรหาลูกค้า</a>
-            </div>
-          </div>
         </div>
 
-        <!-- ที่อยู่หน้างาน + ปุ่มนำทาง -->
+        <!-- กรอบที่อยู่หน้างาน + ปุ่มนำทาง -->
         <div class="job-location-box">
           <div class="job-location-text">
-            📍 ที่อยู่หน้างาน: ${escapeHtml(addressText)}
+            ที่อยู่หน้างาน: ${escapeHtml(addressText)}
           </div>
-          <a href="https://maps.google.com" target="_blank" class="btn-tech-nav">🗺️ นำทาง</a>
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressText)}" target="_blank" class="btn-tech-nav">เปิดแผนที่นำทาง</a>
         </div>
 
-        <!-- ปุ่มและแบบฟอร์มการทำงาน (Senior-First Tap Targets) -->
+        <!-- กรอบแจ้งกลับแอดมินเมื่อติดขัด (ห้ามติดต่อลูกค้าโดยตรง) -->
+        <div class="job-admin-box">
+          <div class="job-admin-text">
+            หากติดขัดหรือพบปัญหาหน้างาน:
+          </div>
+          <button type="button" class="btn-contact-admin" id="btn-admin-${job.id}">
+            แจ้งกลับแอดมิน
+          </button>
+        </div>
+
+        <!-- ปุ่มและแบบฟอร์มการทำงานตามขั้นตอน -->
         <div class="job-actions">
           ${isAssigned ? `
             <button class="btn-tech-action btn-tech-orange" id="btn-accept-${job.id}">
@@ -404,32 +380,32 @@ function renderJobCardHtml(job) {
           ` : ''}
 
           ${(isInProgress && !isSubmitted) ? `
-            <!-- ด่านเช็กลิสต์กัปตัน: ระยะที่ 2 ขณะปฏิบัติงาน -->
-            <div style="background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;">
-              <div style="font-size: 15px; font-weight: 800; color: #c2410c; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-                <span>⚡</span> <span>ขณะปฏิบัติงาน (มาตรฐานความปลอดภัย)</span>
+            <!-- ด่านเช็กลิสต์: ระยะที่ 2 ขณะปฏิบัติงาน -->
+            <div style="background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;">
+              <div style="font-size: 15px; font-weight: 800; color: #c2410c; margin-bottom: 4px;">
+                ขณะปฏิบัติงาน (มาตรฐานความปลอดภัย)
               </div>
               <div style="font-size: 13.5px; color: #7c2d12; line-height: 1.45;">
-                • ดับเบรกเกอร์/ปิดวาล์วน้ำหลักก่อนลงมือทุกครั้ง<br>
-                • ใช้อะไหล่แท้ตรงรุ่นมาตรฐาน (ห้ามดัดแปลง)<br>
-                • ถ่ายรูปชำรุดก่อนลงมือซ่อม (รูปก่อนทำ)
+                • ดับเบรกเกอร์หรือปิดวาล์วน้ำหลักก่อนลงมือทุกครั้ง<br>
+                • ใช้อะไหล่แท้ตรงรุ่นมาตรฐาน ไม่ดัดแปลง<br>
+                • ถ่ายรูปชำรุดก่อนลงมือซ่อม
               </div>
             </div>
 
-            <!-- ด่านเช็กลิสต์กัปตัน: ระยะที่ 3 หลังปฏิบัติงาน & ส่งตรวจงาน -->
+            <!-- ด่านเช็กลิสต์: ระยะที่ 3 หลังปฏิบัติงาน & ส่งตรวจงาน -->
             <div class="submit-form-card">
               <div class="submit-form-title">
-                <span>🏁</span> <span>ด่านตรวจหลังปฏิบัติงาน (ก่อนส่งงาน)</span>
+                ด่านตรวจหลังปฏิบัติงาน (ก่อนส่งงาน)
               </div>
 
               <!-- เช็กลิสต์บังคับ 3 ข้อ -->
-              <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px 12px; margin-bottom: 14px;">
+              <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px;">
                 <div style="font-size: 13.5px; font-weight: 700; color: #475569; margin-bottom: 8px;">
                   ยืนยันการปฏิบัติ 3 ข้อตามคู่มือช่าง:
                 </div>
                 <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; margin-bottom: 8px; cursor: pointer;">
                   <input type="checkbox" id="post-chk-clean-${job.id}" style="width: 18px; height: 18px; accent-color: var(--tech-primary);" />
-                  <span>1. ทำความสะอาดพื้นที่ & ม้วนเก็บผ้ายางเรียบร้อย</span>
+                  <span>1. ทำความสะอาดพื้นที่และม้วนเก็บผ้ายางเรียบร้อย</span>
                 </label>
                 <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; margin-bottom: 8px; cursor: pointer;">
                   <input type="checkbox" id="post-chk-demo-${job.id}" style="width: 18px; height: 18px; accent-color: var(--tech-primary);" />
@@ -437,7 +413,7 @@ function renderJobCardHtml(job) {
                 </label>
                 <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; cursor: pointer;">
                   <input type="checkbox" id="post-chk-nocash-${job.id}" style="width: 18px; height: 18px; accent-color: var(--tech-primary);" />
-                  <span>3. ยืนยันไม่รับเงินสดหน้างาน (ระบบ Escrow)</span>
+                  <span>3. ยืนยันไม่รับเงินสดหน้างาน โอนผ่านระบบเพียบพร้อมทำเท่านั้น</span>
                 </label>
               </div>
 
@@ -448,12 +424,11 @@ function renderJobCardHtml(job) {
                   ${beforePhoto ? `
                     <img src="${beforePhoto}" class="photo-preview-img" alt="รูปก่อนทำ" />
                   ` : `
-                    <div style="font-size: 28px; margin: 4px 0;">📸</div>
-                    <span style="font-size: 14px; font-weight: 700; color: #64748b;">แตะถ่ายรูป</span>
+                    <span style="font-size: 14px; font-weight: 700; color: #64748b; margin: 12px 0;">แตะถ่ายรูป</span>
                   `}
                   <input type="file" accept="image/*" class="file-input-hidden" id="file-before-${job.id}" />
                   <button type="button" class="btn-mock-photo" id="mock-before-${job.id}">
-                    ${beforePhoto ? 'เปลี่ยนรูป' : '✨ ใช้รูปตัวอย่าง'}
+                    ${beforePhoto ? 'เปลี่ยนรูป' : 'ใช้รูปตัวอย่าง'}
                   </button>
                 </div>
 
@@ -463,12 +438,11 @@ function renderJobCardHtml(job) {
                   ${afterPhoto ? `
                     <img src="${afterPhoto}" class="photo-preview-img" alt="รูปหลังทำ" />
                   ` : `
-                    <div style="font-size: 28px; margin: 4px 0;">📸</div>
-                    <span style="font-size: 14px; font-weight: 700; color: #64748b;">แตะถ่ายรูป</span>
+                    <span style="font-size: 14px; font-weight: 700; color: #64748b; margin: 12px 0;">แตะถ่ายรูป</span>
                   `}
                   <input type="file" accept="image/*" class="file-input-hidden" id="file-after-${job.id}" />
                   <button type="button" class="btn-mock-photo" id="mock-after-${job.id}">
-                    ${afterPhoto ? 'เปลี่ยนรูป' : '✨ ใช้รูปตัวอย่าง'}
+                    ${afterPhoto ? 'เปลี่ยนรูป' : 'ใช้รูปตัวอย่าง'}
                   </button>
                 </div>
               </div>
@@ -476,20 +450,20 @@ function renderJobCardHtml(job) {
               <textarea class="tech-notes-input" id="notes-${job.id}" placeholder="ระบุรายละเอียดงาน หรือข้อความถึงฝ่ายตรวจงาน...">${escapeHtml(currentNotes)}</textarea>
 
               <button class="btn-tech-action btn-tech-orange" id="btn-submit-ops-${job.id}">
-                ส่งตรวจงาน ➔
+                ส่งตรวจงาน
               </button>
             </div>
           ` : ''}
 
           ${isSubmitted ? `
             <div class="tech-alert-card warning">
-              ⏳ ส่งงานเรียบร้อยแล้ว รอฝ่ายตรวจงานตรวจสอบ
+              ส่งงานเรียบร้อยแล้ว รอฝ่ายตรวจงานตรวจสอบ
             </div>
           ` : ''}
 
           ${isCompleted ? `
             <div class="tech-alert-card success">
-              ✓ งานเสร็จสิ้นเรียบร้อยแล้ว
+              งานเสร็จสิ้นเรียบร้อยแล้ว
             </div>
           ` : ''}
         </div>
@@ -515,7 +489,7 @@ function attachJobCardEvents(job) {
 
         await logAgentActivity({
           agentId: 'agent-2-tech',
-          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
           step: 5,
           stepName: '5. ช่างรับงาน (Tech Accepts & Travel)',
           action: 'TECH_ACCEPT_AND_TRAVEL',
@@ -542,6 +516,14 @@ function attachJobCardEvents(job) {
   if (btnArrive) {
     btnArrive.onclick = () => {
       openPreflightModal(job);
+    };
+  }
+
+  // ปุ่มแจ้งกลับแอดมิน (ห้ามโทรหาลูกค้าโดยตรง)
+  const btnAdmin = document.getElementById(`btn-admin-${job.id}`);
+  if (btnAdmin) {
+    btnAdmin.onclick = () => {
+      openAdminContactModal(job);
     };
   }
 
@@ -667,7 +649,7 @@ function attachJobCardEvents(job) {
 
         await logAgentActivity({
           agentId: 'agent-2-tech',
-          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
           step: 8,
           stepName: '8. ช่างส่งงาน (Tech Submits Photos)',
           action: 'TECH_SUBMIT_PHOTOS_FOR_QC',
@@ -707,15 +689,14 @@ function openPreflightModal(job) {
     <div class="preflight-overlay" id="preflight-overlay">
       <div class="preflight-modal-card">
         <div class="preflight-header">
-          <span style="font-size: 28px;">🛡️</span>
           <div>
-            <div class="preflight-title">ด่านตรวจความพร้อม 3 ข้อ</div>
-            <div style="font-size: 13.5px; color: #64748b;">(ตามมาตรฐานรักบ้าน@CNX ก่อนเริ่มงาน)</div>
+            <div class="preflight-title">ด่านตรวจความพร้อมก่อนเริ่มงาน</div>
+            <div style="font-size: 13.5px; color: #64748b;">(ตามมาตรฐานรักบ้าน ก่อนเริ่มงาน)</div>
           </div>
         </div>
 
         <p style="font-size: 14.5px; color: #334155; margin-bottom: 14px; line-height: 1.4;">
-          เพื่อรักษามาตรฐานคะแนนความประพฤติ (Trust Score) กรุณายืนยันการปฏิบัติ 3 ข้อ:
+          กรุณายืนยันการปฏิบัติตามมาตรฐาน 3 ข้อก่อนเริ่มงาน:
         </p>
 
         <label class="preflight-item">
@@ -737,8 +718,8 @@ function openPreflightModal(job) {
         <label class="preflight-item">
           <input type="checkbox" id="chk-scope" />
           <div>
-            <div class="preflight-text-title">3. ทบทวนราคาสุทธิและขอบเขตงานกับลูกค้าแล้ว</div>
-            <div class="preflight-text-desc">ยืนยันงาน "${escapeHtml(job.title)}" ไม่มีเรียกเก็บเงินสดหน้างาน</div>
+            <div class="preflight-text-title">3. ทบทวนราคาสุทธิและขอบเขตงานแล้ว</div>
+            <div class="preflight-text-desc">ยืนยันงาน "${escapeHtml(job.title)}" โอนผ่านระบบเพียบพร้อมทำเท่านั้น ไม่มีเรียกเก็บเงินสดหน้างาน</div>
           </div>
         </label>
 
@@ -747,7 +728,7 @@ function openPreflightModal(job) {
             ยกเลิก
           </button>
           <button type="button" class="btn-tech-action btn-tech-orange" id="btn-preflight-confirm" style="flex: 2;" disabled>
-            ยืนยันเริ่มปฏิบัติงาน ➔
+            ยืนยันเริ่มปฏิบัติงาน
           </button>
         </div>
       </div>
@@ -792,7 +773,7 @@ function openPreflightModal(job) {
 
       await logAgentActivity({
         agentId: 'agent-2-tech',
-        agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name} 🔧`,
+        agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
         step: 7,
         stepName: '7. ช่างถึงหน้างาน & ผ่านเกณฑ์ปูผ้ายาง',
         action: 'TECH_CONFIRMED_PREFLIGHT_CHECKLIST',
@@ -811,7 +792,102 @@ function openPreflightModal(job) {
     } catch (err) {
       alert(`เกิดข้อผิดพลาด: ${err.message}`);
       btnConfirm.disabled = false;
-      btnConfirm.textContent = 'ยืนยันเริ่มปฏิบัติงาน ➔';
+      btnConfirm.textContent = 'ยืนยันเริ่มปฏิบัติงาน';
+    }
+  };
+}
+
+function openAdminContactModal(job) {
+  let modalContainer = document.getElementById('tech-login-modal-container');
+  if (!modalContainer) return;
+
+  modalContainer.innerHTML = `
+    <div class="tech-modal-overlay" id="admin-modal-overlay">
+      <div class="tech-modal-box">
+        <div class="tech-modal-header">
+          <h3 class="tech-modal-title">แจ้งกลับแอดมินส่วนกลาง</h3>
+          <button id="btn-close-admin-modal" style="background: none; border: none; font-size: 14px; font-weight: 700; cursor: pointer; color: #64748b;">ปิด</button>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 13.5px; color: #475569; line-height: 1.4;">
+          เพื่อความสะดวกของลูกค้า แอดมินรักบ้านจะเป็นผู้ประสานงานกับลูกค้าให้โดยตรง (ห้ามช่างติดต่อลูกค้าโดยตรง)
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">เลือกปัญหาที่พบ:</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #334155; cursor: pointer;">
+              <input type="radio" name="admin-issue" value="หาบ้านไม่เจอ / เส้นทางติดขัด" checked style="accent-color: var(--tech-primary);" />
+              <span>หาบ้านไม่เจอ หรือเส้นทางติดขัด</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #334155; cursor: pointer;">
+              <input type="radio" name="admin-issue" value="ลูกค้าไม่อยู่บ้าน / เข้าหน้างานไม่ได้" style="accent-color: var(--tech-primary);" />
+              <span>ลูกค้าไม่อยู่บ้าน หรือเข้าหน้างานไม่ได้</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #334155; cursor: pointer;">
+              <input type="radio" name="admin-issue" value="อาการหน้างานไม่ตรงกับที่ระบุ" style="accent-color: var(--tech-primary);" />
+              <span>อาการหน้างานไม่ตรงกับที่ระบุในรายการ</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #334155; cursor: pointer;">
+              <input type="radio" name="admin-issue" value="ต้องการปรึกษาแอดมินด่วน" style="accent-color: var(--tech-primary);" />
+              <span>ต้องการปรึกษาแอดมินด่วน</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <textarea id="admin-issue-notes" class="tech-notes-input" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)..." style="min-height: 60px; margin-bottom: 0;"></textarea>
+        </div>
+
+        <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 13.5px; color: #c2410c; text-align: center;">
+          สายด่วนแอดมินรักบ้าน: <strong>053-222-111</strong>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-tech-action" id="btn-admin-cancel" style="background: #e2e8f0; color: #334155; flex: 1; min-height: 44px; font-size: 15px;">
+            ปิด
+          </button>
+          <button type="button" class="btn-tech-action btn-tech-orange" id="btn-admin-submit" style="flex: 2; min-height: 44px; font-size: 15px;">
+            ส่งแจ้งแอดมิน
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-close-admin-modal').onclick = () => { modalContainer.innerHTML = ''; };
+  document.getElementById('btn-admin-cancel').onclick = () => { modalContainer.innerHTML = ''; };
+  document.getElementById('admin-modal-overlay').onclick = (e) => {
+    if (e.target.id === 'admin-modal-overlay') modalContainer.innerHTML = '';
+  };
+
+  document.getElementById('btn-admin-submit').onclick = async () => {
+    const selectedRadio = document.querySelector('input[name="admin-issue"]:checked');
+    const issueType = selectedRadio ? selectedRadio.value : 'แจ้งปัญหาหน้างาน';
+    const notes = document.getElementById('admin-issue-notes')?.value || '';
+
+    try {
+      await logAgentActivity({
+        agentId: 'agent-2-tech',
+        agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
+        step: 6,
+        stepName: '6. ช่างแจ้งปัญหาหน้างานถึงแอดมิน',
+        action: 'TECH_REPORTED_ISSUE_TO_ADMIN',
+        jobId: job.id,
+        status: 'warning',
+        details: {
+          techId: currentTech.id,
+          techName: currentTech.name,
+          issueType,
+          notes,
+          jobCode: job.id.slice(0, 8).toUpperCase(),
+        },
+      });
+
+      modalContainer.innerHTML = '';
+      showToast('แจ้งแอดมินส่วนกลางเรียบร้อยแล้ว แอดมินจะประสานงานกับลูกค้าให้ทันที', 'success');
+    } catch (e) {
+      alert(`ไม่สามารถส่งข้อความได้: ${e.message}`);
     }
   };
 }
@@ -826,7 +902,7 @@ function showToast(message, type = 'success') {
   }
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span style="font-size: 20px;">✓</span><span>${message}</span>`;
+  toast.innerHTML = `<span>${message}</span>`;
   toastContainer.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = '0';
@@ -855,82 +931,98 @@ function openTechPlaybookModal() {
         <div class="playbook-header">
           <div>
             <div class="playbook-title">
-              <span>📖</span>
-              <span>คู่มือช่างรักบ้าน (SOP กัปตัน)</span>
+              คู่มือช่างรักบ้าน (SOP ปฏิบัติการ)
             </div>
             <div style="font-size: 13.5px; color: #64748b; margin-top: 2px;">
-              มาตรฐานปฏิบัติงาน 3 ระยะ ปลอดภัย โปร่งใส วินัยเต็มร้อย
+              มาตรฐานปฏิบัติงาน ปลอดภัย โปร่งใส วินัยเต็มร้อย
             </div>
           </div>
-          <button type="button" class="playbook-close-btn" id="btn-playbook-close">✕</button>
+          <button type="button" class="playbook-close-btn" id="btn-playbook-close" style="font-size: 14px; font-weight: 700;">ปิด</button>
         </div>
 
-        <!-- หมวดที่ 1: เช็กลิสต์กัปตัน 3 ระยะ -->
+        <!-- หมวดที่ 1: เช็กลิสต์การทำงาน 3 ระยะ -->
         <div class="playbook-section" style="border-left: 4px solid var(--tech-primary);">
           <div class="playbook-section-title">
-            <span>✈️</span> <span>1. เช็กลิสต์กัปตัน 3 ระยะ (Flight Checklist)</span>
+            1. เช็กลิสต์การทำงาน 3 ระยะ
           </div>
           <ul class="playbook-list">
             <li>
               <span class="playbook-badge-step">ระยะ 1</span>
               <div>
-                <strong>ก่อนเริ่มงาน (Pre-Flight):</strong> สวมยูนิฟอร์ม + ป้ายชื่อช่าง, ปูผ้ายางกันเปื้อนรองเครื่องมือ 100%, ทบทวนราคาสุทธิกับลูกค้า (ย้ำไม่รับเงินสด)
+                <strong>ก่อนเริ่มงาน (Pre-Flight):</strong> สวมยูนิฟอร์มและป้ายชื่อช่าง, ปูผ้ายางกันเปื้อนรองเครื่องมือ, ทบทวนราคาสุทธิกับลูกค้า (โอนผ่านระบบเพียบพร้อมทำเท่านั้น)
               </div>
             </li>
             <li>
               <span class="playbook-badge-step" style="background: #d97706;">ระยะ 2</span>
               <div>
-                <strong>ขณะปฏิบัติงาน (In-Flight):</strong> ดับเบรกเกอร์/ปิดวาล์วน้ำเพื่อความปลอดภัย, ใช้อะไหล่แท้ตรงรุ่นมาตรฐาน, ถ่ายรูปสภาพชำรุดก่อนแก้ไข (รูปก่อนทำ)
+                <strong>ขณะปฏิบัติงาน (In-Flight):</strong> ดับเบรกเกอร์หรือปิดวาล์วน้ำเพื่อความปลอดภัย, ใช้อะไหล่แท้ตรงรุ่นมาตรฐาน, ถ่ายรูปสภาพชำรุดก่อนแก้ไข (รูปก่อนทำ)
               </div>
             </li>
             <li>
               <span class="playbook-badge-step" style="background: #16a34a;">ระยะ 3</span>
               <div>
-                <strong>หลังปฏิบัติงาน (Post-Flight):</strong> ทำความสะอาดพื้นที่ & เก็บผ้ายาง, ทดสอบระบบให้ลูกค้าดูต่อหน้า, ถ่ายรูปหลังทำ, ส่งมอบงานผ่านแอป
+                <strong>หลังปฏิบัติงาน (Post-Flight):</strong> ทำความสะอาดพื้นที่และเก็บผ้ายาง, ทดสอบระบบให้ลูกค้าดูต่อหน้า, ถ่ายรูปหลังทำ, ส่งมอบงานผ่านแอป
               </div>
             </li>
           </ul>
         </div>
 
-        <!-- หมวดที่ 2: วินัย Trust Score 100 แต้ม -->
+        <!-- หมวดที่ 2: ข้อบังคับการยินยอมเปิด GPS ติดตามตำแหน่ง -->
         <div class="playbook-section" style="border-left: 4px solid #0284c7;">
           <div class="playbook-section-title">
-            <span>🛡️</span> <span>2. วินัยช่าง 100 แต้ม (Trust Score)</span>
+            2. ข้อบังคับการยินยอมเปิด GPS ติดตามตำแหน่ง
+          </div>
+          <p style="font-size: 14.5px; color: #334155; line-height: 1.5;">
+            • ช่างต้องยินยอมเปิดระบบพิกัดตำแหน่ง (GPS) ตลอดเวลาขณะปฏิบัติงาน เพื่อให้ฝ่ายปฏิบัติการสามารถติดตามการเดินทางและสนับสนุนความปลอดภัยหน้างานได้ทันท่วงที
+          </p>
+        </div>
+
+        <!-- หมวดที่ 3: กฎระเบียบการติดต่อประสานงาน -->
+        <div class="playbook-section" style="border-left: 4px solid #8b5cf6;">
+          <div class="playbook-section-title">
+            3. กฎระเบียบการติดต่อประสานงาน (ห้ามติดต่อลูกค้าโดยตรง)
+          </div>
+          <p style="font-size: 14.5px; color: #334155; line-height: 1.5;">
+            • ห้ามช่างโทรหาหรือติดต่อลูกค้าโดยตรงทุกกรณี เพื่อไม่ให้รบกวนลูกค้าและป้องกันการสื่อสารคลาดเคลื่อน<br>
+            • หากหาบ้านไม่เจอ เข้าหน้างานไม่ได้ หรือเกิดปัญหาหน้างาน ให้แจ้งกลับแอดมินส่วนกลางเท่านั้น แอดมินรักบ้านจะเป็นผู้ประสานงานกับลูกค้าให้ทันที
+          </p>
+        </div>
+
+        <!-- หมวดที่ 4: กฎเหล็กห้ามรับเงินสดหน้างานทุกกรณี -->
+        <div class="playbook-section" style="border-left: 4px solid #ef4444; background: #fef2f2;">
+          <div class="playbook-section-title" style="color: #991b1b;">
+            4. กฎเหล็กห้ามรับเงินสดหน้างานทุกกรณี โอนผ่านระบบเพียบพร้อมทำเท่านั้น
+          </div>
+          <p style="font-size: 14.5px; color: #7f1d1d; line-height: 1.5; margin-bottom: 6px;">
+            • <strong>ห้ามรับเงินสดจากลูกค้าหน้างานทุกกรณี</strong> ไม่ว่าจะเป็นค่าบริการ ค่าอะไหล่ หรือค่าน้ำชา<br>
+            • เงินทุกบาทลูกค้าชำระเข้าบัญชี บจก. เพียบพร้อมทำ เรียบร้อยแล้ว<br>
+            • ระบบจะโอนเงินค่าจ้างเข้าบัญชีช่างโดยตรงหลังผ่านการตรวจงานเรียบร้อย
+          </p>
+        </div>
+
+        <!-- หมวดที่ 5: วินัย Trust Score 100 แต้ม -->
+        <div class="playbook-section" style="border-left: 4px solid #64748b;">
+          <div class="playbook-section-title">
+            5. วินัยช่าง 100 แต้ม (Trust Score)
           </div>
           <ul class="playbook-list">
             <li>
-              <span>🟢</span>
               <div><strong>เกรด A (90–100 แต้ม):</strong> ช่างแถวหน้า รับสิทธิ์จ่ายงานด่วนและงานเหมาพรีเมียมก่อน</div>
             </li>
             <li>
-              <span>🟡</span>
               <div><strong>เกรด B (80–89 แต้ม):</strong> ช่างมาตรฐาน รับงานตามคิวงานปกติ</div>
             </li>
             <li>
-              <span>🟠</span>
               <div><strong>เกรด C (70–79 แต้ม):</strong> ติดทัณฑ์บน ต้องเข้าอบรมทบทวนมาตรฐาน</div>
             </li>
             <li>
-              <span>🔴</span>
               <div><strong>เกรด F (&lt; 70 แต้ม):</strong> พักงานทันที ระบบล็อกไม่จ่ายงานให้เด็ดขาด</div>
             </li>
           </ul>
         </div>
 
-        <!-- หมวดที่ 3: กฎเหล็กห้ามรับเงินสดเด็ดขาด -->
-        <div class="playbook-section" style="border-left: 4px solid #ef4444; background: #fef2f2;">
-          <div class="playbook-section-title" style="color: #991b1b;">
-            <span>🚫</span> <span>3. กฎเหล็กเงินสดเป็นศูนย์ (Zero Cash Escrow)</span>
-          </div>
-          <p style="font-size: 14.5px; color: #7f1d1d; line-height: 1.5; margin-bottom: 6px;">
-            • <strong>ห้ามรับเงินสดจากลูกค้าหน้างานทุกกรณี</strong> ไม่ว่าจะเป็นค่าบริการ ค่าอะไหล่ หรือค่าน้ำชา<br>
-            • เงินทุกบาทลูกค้าชำระเข้าบัญชี Escrow บจก. เพียบพร้อมทำ แล้ว<br>
-            • ระบบจะโอนเงินค่าจ้างเข้าบัญชีช่างโดยตรงหลังผ่านการตรวจ QC ภายใน 24 ชม.
-          </p>
-        </div>
-
         <button type="button" class="btn-tech-action btn-tech-orange" id="btn-playbook-ok" style="margin-top: 8px;">
-          เข้าใจและพร้อมปฏิบัติตามมาตรฐาน ➔
+          เข้าใจและพร้อมปฏิบัติตามมาตรฐาน
         </button>
       </div>
     </div>

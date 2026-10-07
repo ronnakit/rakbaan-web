@@ -1703,7 +1703,7 @@ function openOpsPlaybookModal() {
             • <strong>07:30 น. (กะเช้า):</strong> ตรวจสอบเคสค้างคืน ยืนยันนัดหมาย และปล่อยช่างรอบแรก<br>
             • <strong>08:30–17:00 น. (กะกลางวัน):</strong> มอนิเตอร์ Live SLA และแก้ปัญหาช่างล่าช้าเกิน 15 นาที<br>
             • <strong>17:00–20:00 น. (กะค่ำ):</strong> ปิดรับงานด่วนมาก (Hotline) ตัดรอบงานหลัง 17:00 ไปรอบ 08:00 วันถัดไป<br>
-            • <strong>20:00 น. (ตัดรอบวัน):</strong> ยุติการทำงานช่าง ตรวจสอบยอดเงินพัก (Escrow) บจก.เพียบพร้อมทำ
+            • <strong>20:00 น. (ตัดรอบวัน):</strong> ยุติการทำงานช่าง ตรวจสอบยอดเงินพัก บจก.เพียบพร้อมทำ
           </div>
         </div>
 
@@ -1736,10 +1736,10 @@ function openOpsPlaybookModal() {
         <!-- Escrow Rule -->
         <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;">
           <div style="font-size: 16px; font-weight: 800; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-            <span>💰</span> <span>4. กฎเงินพัก Escrow บจก. เพียบพร้อมทำ (100% Zero Cash)</span>
+            <span>💰</span> <span>4. กฎเงินพัก บจก. เพียบพร้อมทำ ห้ามรับเงินสดหน้างานทุกกรณี</span>
           </div>
           <div style="font-size: 14px; color: #7f1d1d; line-height: 1.55;">
-            เงินทุกบาทลูกค้าชำระเข้าบัญชีกลาง Escrow ก่อนเริ่มงาน • ปลดล็อกโอนให้ช่างเมื่อผ่าน QC รูปถ่าย และลูกค้ายืนยันตรวจรับงานแล้วเท่านั้น • ตรวจสอบพบรับเงินสดหน้างาน ปรับเงินและตัดสิทธิ์ช่างทันที
+            เงินทุกบาทลูกค้าชำระเข้าบัญชีกลาง บจก. เพียบพร้อมทำ ก่อนเริ่มงาน • ปลดล็อกโอนให้ช่างเมื่อผ่าน QC รูปถ่าย และลูกค้ายืนยันตรวจรับงานแล้วเท่านั้น • ตรวจสอบพบรับเงินสดหน้างาน ปรับเงินและตัดสิทธิ์ช่างทันที
           </div>
         </div>
 

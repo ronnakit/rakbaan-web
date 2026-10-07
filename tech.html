@@ -338,33 +338,44 @@
         padding: 16px;
       }
 
-      /* ชื่องานใหญ่ ชัดเจน ไม่เวิ่นเว้อ */
+      /* กรอบชื่องาน */
+      .job-title-box {
+        background: #ffffff;
+        border: 1px solid var(--tech-border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+      }
+
       .job-title {
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 800;
         color: var(--tech-navy);
-        margin-bottom: 14px;
         line-height: 1.35;
       }
 
-      /* ตารางข้อมูลงาน 2 คอลัมน์ — ภาษาตรงกับจอลูกค้า 100% */
+      /* ตารางข้อมูลงาน 2 คอลัมน์ — แบ่งกรอบชัดเจน */
       .job-info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
       }
 
       .job-info-item {
         background: #f8fafc;
-        border: 1px solid #f1f5f9;
+        border: 1px solid var(--tech-border);
         padding: 10px 12px;
-        border-radius: 10px;
+        border-radius: 8px;
+      }
+
+      .job-info-item.full-width {
+        grid-column: span 2;
       }
 
       .job-info-label {
         color: var(--tech-text-muted);
-        font-size: 14px;
+        font-size: 13.5px;
         font-weight: 600;
         margin-bottom: 3px;
       }
@@ -372,22 +383,22 @@
       .job-info-value {
         font-weight: 800;
         color: var(--tech-text-main);
-        font-size: 17px;
+        font-size: 16px;
       }
 
       .job-price-value {
         color: var(--tech-primary);
-        font-size: 21px;
+        font-size: 20px;
         font-weight: 800;
       }
 
       /* แถวที่อยู่หน้างาน + ปุ่มนำทาง */
       .job-location-box {
         background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
+        border: 1px solid var(--tech-border);
+        border-radius: 8px;
         padding: 12px 14px;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -395,7 +406,7 @@
       }
 
       .job-location-text {
-        font-size: 15px;
+        font-size: 14.5px;
         color: var(--tech-text-main);
         font-weight: 600;
         flex: 1;
@@ -408,19 +419,47 @@
         font-size: 14px;
         background: #0284c7;
         padding: 8px 14px;
-        border-radius: 8px;
+        border-radius: 6px;
         white-space: nowrap;
         flex-shrink: 0;
       }
 
-      .btn-tech-call {
-        color: #0284c7;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 15px;
-        display: inline-flex;
+      /* กรอบแจ้งกลับแอดมินเมื่อติดขัด */
+      .job-admin-box {
+        background: #f8fafc;
+        border: 1px solid var(--tech-border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 4px;
+        gap: 10px;
+      }
+
+      .job-admin-text {
+        font-size: 13.5px;
+        color: var(--tech-text-muted);
+        font-weight: 600;
+      }
+
+      .btn-contact-admin {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        font-size: 13.5px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: inherit;
+        white-space: nowrap;
+        transition: all 0.15s;
+      }
+
+      .btn-contact-admin:hover {
+        background: #f1f5f9;
+        color: #0f172a;
       }
 
       /* -----------------------------------------------------------------------
@@ -921,18 +960,17 @@
       <header class="tech-app-bar">
         <div class="tech-header-top">
           <div class="tech-brand">
-            <div class="tech-brand-logo">🔧</div>
             <div>
               <div class="tech-brand-title">รักบ้าน ช่างมืออาชีพ</div>
               <div class="tech-brand-badge">เชียงใหม่</div>
             </div>
           </div>
           <div style="display: flex; gap: 6px; align-items: center;">
-            <button type="button" id="btn-open-tech-playbook" class="tech-link-btn" style="background: rgba(249, 115, 22, 0.3); border-color: #f97316; color: #ffedd5; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-              📖 คู่มือช่าง
+            <button type="button" id="btn-open-tech-playbook" class="tech-link-btn" style="background: rgba(249, 115, 22, 0.3); border-color: #f97316; color: #ffedd5; cursor: pointer;">
+              คู่มือช่าง
             </button>
             <a href="/" target="_blank" class="tech-link-btn">
-              ศูนย์กลาง ↗
+              ศูนย์กลาง
             </a>
           </div>
         </div>
@@ -943,10 +981,9 @@
         </div>
       </header>
 
-      <!-- ป้ายเตือนกฎเหล็กห้ามรับเงินสด (Zero-Cash Rule) -->
+      <!-- ป้ายเตือนกฎเหล็กห้ามรับเงินสด -->
       <div class="zero-cash-banner">
-        <span style="font-size: 18px;">🚫</span>
-        <span><strong>กฎเหล็ก:</strong> ห้ามรับเงินสดหน้างานทุกกรณี (โอนผ่านระบบ Escrow เพียบพร้อมทำ เท่านั้น)</span>
+        <strong>กฎเหล็ก:</strong> ห้ามรับเงินสดหน้างานทุกกรณี โอนผ่านระบบเพียบพร้อมทำเท่านั้น
       </div>
 
       <!-- แถบ 3 แท็บหลัก (จบในหน้าจอ ไม่ฟุ่มเฟือย) -->
@@ -968,7 +1005,6 @@
       <!-- ฟีดรายการงาน -->
       <main class="tech-feed" id="tech-jobs-feed">
         <div class="empty-state">
-          <div class="empty-icon">⏳</div>
           <div class="empty-title">กำลังเชื่อมต่อข้อมูลคิวงาน...</div>
         </div>
       </main>

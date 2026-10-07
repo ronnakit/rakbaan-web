@@ -666,7 +666,7 @@ function renderBookingWizard(container) {
           สรุปรายการแจ้งซ่อม
         </h2>
         <p style="font-size: 15px; color: #64748b; margin: 0 0 16px 0;">
-          ตรวจสอบความถูกต้องก่อนส่งงาน • เงินพักในระบบ PPT Escrow ปลอดภัย 100%
+          ตรวจสอบความถูกต้องก่อนส่งงาน • เงินพักในระบบเพียบพร้อมทำ ปลอดภัย 100%
         </p>
 
         <!-- หมวดหมู่ข้อมูล 3 ส่วนตามพิมพ์เขียว -->
@@ -730,7 +730,7 @@ function renderBookingWizard(container) {
             <span class="grand-total-amount" style="font-size: 32px;">฿${grandTotal.toLocaleString()}</span>
           </div>
           <div style="font-size: 14px; color: #059669; margin-top: 4px; font-weight: 600;">
-            🛡️ ระบบพักเงิน PPT Escrow: ท่านจะจ่ายจริงหลังเซ็นตรวจรับงานเท่านั้น
+            🛡️ ระบบพักเงินเพียบพร้อมทำ: ท่านจะจ่ายจริงหลังเซ็นตรวจรับงานเท่านั้น
           </div>
         </div>
 
@@ -1104,7 +1104,7 @@ function renderTrackingScreen(container) {
         📍 ติดตามสถานะงานซ่อม (${allMyJobs.length} รายการ)
       </h2>
       <p style="font-size: 15px; color: #64748b; margin: 0 0 16px 0;">
-        แสดงผลแบบ Realtime 10 สเต็ป • เงินพักในระบบ PPT Escrow ปลอดภัย 100%
+        แสดงผลแบบสด 10 ขั้นตอน • เงินพักในระบบเพียบพร้อมทำ ปลอดภัย 100%
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -1175,9 +1175,9 @@ function renderJobTrackingCard(job) {
         </div>
       </div>
 
-      <!-- Step 4 Escrow Notice -->
+      <!-- Step 4 Notice -->
       <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 10px 12px; font-size: 14px; color: #166534; margin-bottom: 12px;">
-        <strong>🛡️ สถานะเงินของท่าน (ขั้นตอนที่ 4):</strong> พักเงินในระบบ PPT Escrow
+        <strong>🛡️ สถานะเงินของท่าน (ขั้นตอนที่ 4):</strong> พักเงินในระบบเพียบพร้อมทำ
         <div style="font-size: 13px; color: #15803d; margin-top: 2px;">
           เงินของท่านปลอดภัย 100% — ช่างจะยังไม่ได้รับเงินจนกว่าท่านจะตรวจรับงานเรียบร้อย
         </div>
