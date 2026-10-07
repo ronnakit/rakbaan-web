@@ -322,12 +322,14 @@ function renderJobsFeed() {
   if (currentTab === 'completed') {
     const completedJobs = allMyJobs.filter(j => j.status === 'completed');
     renderCompletedHistoryTab(feed, completedJobs);
+    renderBottomStatusLine();
     return;
   }
 
   // แท็บระดับ: แสดงข้อมูลระดับฝีมือ คะแนนสะสม 2 ด้าน และการอบรม
   if (currentTab === 'tier') {
     renderTierTab(feed);
+    renderBottomStatusLine();
     return;
   }
 
@@ -355,6 +357,7 @@ function renderJobsFeed() {
         <div class="empty-title">${emptyTitle}</div>
       </div>
     `;
+    renderBottomStatusLine();
     return;
   }
 
@@ -362,6 +365,89 @@ function renderJobsFeed() {
 
   // Attach card event listeners
   displayJobs.forEach(job => attachJobCardEvents(job));
+
+  renderBottomStatusLine();
+}
+
+function renderBottomStatusLine() {
+  const container = document.getElementById('tech-status-line-container');
+  if (!container) return;
+
+  const issueJob = allMyJobs.find(j =>
+    j.adminIssue && (j.adminIssue.status === 'pending_admin' || j.adminIssue.status === 'resolved')
+  );
+
+  if (!issueJob) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const issue = issueJob.adminIssue;
+  const isPending = issue.status === 'pending_admin';
+  const isResolved = issue.status === 'resolved';
+
+  if (isPending) {
+    container.innerHTML = `
+      <div class="tech-bottom-status-line warning">
+        <div class="status-line-header">
+          <div class="status-line-pulse-dot"></div>
+          <div class="status-line-title">แจ้งแอดมินส่วนกลางเรียบร้อยแล้ว แอดมินจะประสานงานกับลูกค้าให้ทันที</div>
+        </div>
+        <div class="status-line-text">
+          เรื่อง: ${escapeHtml(issue.issueType)} ${issue.notes ? `(${escapeHtml(issue.notes)})` : ''} · ระบบประสานงานผ่านแอป 100%
+        </div>
+      </div>
+    `;
+  } else if (isResolved) {
+    container.innerHTML = `
+      <div class="tech-bottom-status-line resolved">
+        <div class="status-line-header">
+          <div class="status-line-pulse-dot"></div>
+          <div class="status-line-title">แอดมินประสานงานเรียบร้อยแล้ว</div>
+        </div>
+        <div class="status-line-text">
+          คำแนะนำจากแอดมิน: ${escapeHtml(issue.resolutionNotes || 'ตรวจสอบเรียบร้อย สามารถเข้าปฏิบัติงานต่อได้ทันที')}
+        </div>
+        <button type="button" class="btn-ack-resolution" id="btn-ack-resolution-${issueJob.id}">
+          รับทราบผล และเริ่มทำงานต่อ
+        </button>
+      </div>
+    `;
+
+    const btnAck = document.getElementById(`btn-ack-resolution-${issueJob.id}`);
+    if (btnAck) {
+      btnAck.onclick = async () => {
+        btnAck.disabled = true;
+        btnAck.textContent = 'กำลังบันทึก...';
+        try {
+          await updateDoc(doc(db, 'jobs', issueJob.id), {
+            'adminIssue.status': 'acknowledged',
+            'adminIssue.acknowledgedAt': new Date().toISOString()
+          });
+
+          await logAgentActivity({
+            agentId: 'agent-2-tech',
+            agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
+            step: 6,
+            stepName: '6. ช่างรับทราบผลประสานงานจากแอดมิน',
+            action: 'TECH_ACKNOWLEDGED_ADMIN_RESOLUTION',
+            jobId: issueJob.id,
+            status: 'success',
+            details: {
+              techId: currentTech.id,
+              resolutionNotes: issue.resolutionNotes || '',
+            }
+          });
+
+          showToast('รับทราบแล้ว เริ่มปฏิบัติงานต่อได้เลยค่ะ', 'success');
+        } catch (err) {
+          alert(`เกิดข้อผิดพลาด: ${err.message}`);
+          btnAck.disabled = false;
+          btnAck.textContent = 'รับทราบผล และเริ่มทำงานต่อ';
+        }
+      };
+    }
+  }
 }
 
 function renderCompletedHistoryTab(feed, allCompletedJobs) {
@@ -725,14 +811,43 @@ function renderJobCardHtml(job) {
         </div>
 
         <!-- กรอบแจ้งกลับแอดมินเมื่อติดขัด (ห้ามติดต่อลูกค้าโดยตรง) -->
-        <div class="job-admin-box">
-          <div class="job-admin-text">
-            หากติดขัดหรือพบปัญหาหน้างาน:
+        ${job.adminIssue && job.adminIssue.status === 'pending_admin' ? `
+          <div class="job-admin-box" style="background: #fff7ed; border: 1.5px solid #fdba74;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-size: 14px; font-weight: 700; color: #c2410c;">
+                แจ้งปัญหาหน้างานแล้ว: ${escapeHtml(job.adminIssue.issueType)}
+              </div>
+              <span class="badge" style="background: #ffedd5; color: #9a3412; font-size: 11px;">รอแอดมินประสานงาน</span>
+            </div>
+            <div style="font-size: 13px; color: #7c2d12; margin-top: 4px;">
+              แอดมินกำลังประสานงานกับลูกค้าผ่านแอปให้ทันที ไม่ต้องโทรศัพท์ค่ะ
+            </div>
+            <button type="button" class="btn-contact-admin" id="btn-admin-${job.id}" style="margin-top: 8px; width: 100%;">
+              ส่งข้อความเพิ่มเติมถึงแอดมิน
+            </button>
           </div>
-          <button type="button" class="btn-contact-admin" id="btn-admin-${job.id}">
-            แจ้งกลับแอดมิน
-          </button>
-        </div>
+        ` : (job.adminIssue && job.adminIssue.status === 'resolved' ? `
+          <div class="job-admin-box" style="background: #f0fdf4; border: 1.5px solid #86efac;">
+            <div style="font-size: 14px; font-weight: 700; color: #166534;">
+              แอดมินประสานงานเรียบร้อยแล้ว
+            </div>
+            <div style="font-size: 13.5px; color: #15803d; margin: 4px 0 8px;">
+              คำแนะนำ: ${escapeHtml(job.adminIssue.resolutionNotes || 'ตรวจสอบเรียบร้อย สามารถเข้าปฏิบัติงานต่อได้ทันที')}
+            </div>
+            <button type="button" class="btn-tech-action" id="card-btn-ack-${job.id}" style="background: #16a34a; color: #ffffff; min-height: 40px; font-size: 14px;">
+              รับทราบผล และเริ่มทำงานต่อ
+            </button>
+          </div>
+        ` : `
+          <div class="job-admin-box">
+            <div class="job-admin-text">
+              หากติดขัดหรือพบปัญหาหน้างาน:
+            </div>
+            <button type="button" class="btn-contact-admin" id="btn-admin-${job.id}">
+              แจ้งกลับแอดมิน
+            </button>
+          </div>
+        `)}
 
         <!-- ปุ่มและแบบฟอร์มการทำงานตามขั้นตอน -->
         <div class="job-actions">
@@ -893,6 +1008,41 @@ function attachJobCardEvents(job) {
   if (btnAdmin) {
     btnAdmin.onclick = () => {
       openAdminContactModal(job);
+    };
+  }
+
+  // ปุ่มรับทราบผลประสานงานในการ์ดงาน
+  const cardBtnAck = document.getElementById(`card-btn-ack-${job.id}`);
+  if (cardBtnAck) {
+    cardBtnAck.onclick = async () => {
+      cardBtnAck.disabled = true;
+      cardBtnAck.textContent = 'กำลังบันทึก...';
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          'adminIssue.status': 'acknowledged',
+          'adminIssue.acknowledgedAt': new Date().toISOString()
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-2-tech',
+          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
+          step: 6,
+          stepName: '6. ช่างรับทราบผลประสานงานจากแอดมิน',
+          action: 'TECH_ACKNOWLEDGED_ADMIN_RESOLUTION',
+          jobId: job.id,
+          status: 'success',
+          details: {
+            techId: currentTech.id,
+            resolutionNotes: job.adminIssue?.resolutionNotes || '',
+          }
+        });
+
+        showToast('รับทราบแล้ว เริ่มปฏิบัติงานต่อได้เลยค่ะ', 'success');
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+        cardBtnAck.disabled = false;
+        cardBtnAck.textContent = 'รับทราบผล และเริ่มทำงานต่อ';
+      }
     };
   }
 
@@ -1208,8 +1358,8 @@ function openAdminContactModal(job) {
           <textarea id="admin-issue-notes" class="tech-notes-input" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)..." style="min-height: 60px; margin-bottom: 0;"></textarea>
         </div>
 
-        <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 13.5px; color: #c2410c; text-align: center;">
-          สายด่วนแอดมินรักบ้าน: <strong>053-222-111</strong>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 13px; color: #475569; text-align: center;">
+          ระบบประสานงานอัตโนมัติผ่านแอป 100% (เก็บบันทึกประวัติและประสานงานลูกค้าให้ทันที)
         </div>
 
         <div style="display: flex; gap: 8px;">
@@ -1231,11 +1381,26 @@ function openAdminContactModal(job) {
   };
 
   document.getElementById('btn-admin-submit').onclick = async () => {
+    const btnSubmit = document.getElementById('btn-admin-submit');
     const selectedRadio = document.querySelector('input[name="admin-issue"]:checked');
     const issueType = selectedRadio ? selectedRadio.value : 'แจ้งปัญหาหน้างาน';
     const notes = document.getElementById('admin-issue-notes')?.value || '';
 
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'กำลังส่งแจ้ง...';
+
     try {
+      await updateDoc(doc(db, 'jobs', job.id), {
+        adminIssue: {
+          status: 'pending_admin',
+          issueType,
+          notes,
+          reportedAt: new Date().toISOString(),
+          techId: currentTech.id,
+          techName: currentTech.name,
+        }
+      });
+
       await logAgentActivity({
         agentId: 'agent-2-tech',
         agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
@@ -1257,6 +1422,8 @@ function openAdminContactModal(job) {
       showToast('แจ้งแอดมินส่วนกลางเรียบร้อยแล้ว แอดมินจะประสานงานกับลูกค้าให้ทันที', 'success');
     } catch (e) {
       alert(`ไม่สามารถส่งข้อความได้: ${e.message}`);
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'ส่งแจ้งแอดมิน';
     }
   };
 }

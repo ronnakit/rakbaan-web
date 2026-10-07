@@ -765,6 +765,29 @@ async function refreshJobsTable() {
   });
 
   const showStatusCol = true;
+  const pendingIssueJobs = filtered.filter(j => j.adminIssue && j.adminIssue.status === 'pending_admin');
+
+  let bannerHtml = '';
+  if (pendingIssueJobs.length > 0) {
+    bannerHtml = `
+      <div class="emergency-issue-banner" style="background: #fff7ed; border: 2px solid #ea580c; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.12);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 26px;">🚨</span>
+          <div>
+            <div style="font-size: 14.5px; font-weight: 700; color: #9a3412;">
+              ช่างแจ้งปัญหาหน้างาน ${pendingIssueJobs.length} รายการ (ประสานงานผ่านแอป 100% ห้ามโทรศัพท์)
+            </div>
+            <div style="font-size: 12.5px; color: #c2410c;">
+              เรื่อง: ${escapeHtml(pendingIssueJobs[0].adminIssue.issueType)} · คลิกดูใบงานเพื่อส่งข้อความหาลูกค้าและช่างทันที
+            </div>
+          </div>
+        </div>
+        <button class="btn-sm btn-quick-issue-open" data-id="${pendingIssueJobs[0].id}" style="background: #ea580c; color: white; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; cursor: pointer;">
+          เปิดใบงานด่วน 📋
+        </button>
+      </div>
+    `;
+  }
 
   let tableHtml = `
     <table class="catalog-table">
@@ -809,6 +832,12 @@ async function refreshJobsTable() {
       } else if (j.status === 'completed') {
         statusBadgeHtml = `<span class="badge" style="background: #dcfce7; color: #166534; font-size: 11px; border: 1px solid #86efac;">✅ เสร็จสิ้นและมีประกัน</span>`;
       }
+
+      if (j.adminIssue && j.adminIssue.status === 'pending_admin') {
+        statusBadgeHtml += `<div style="margin-top: 4px;"><span class="badge" style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; font-size: 10.5px; font-weight: 700;">⚠️ ช่างติดปัญหา</span></div>`;
+      } else if (j.adminIssue && j.adminIssue.status === 'resolved') {
+        statusBadgeHtml += `<div style="margin-top: 4px;"><span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; font-size: 10.5px; font-weight: 700;">✓ ประสานงานแล้ว</span></div>`;
+      }
       
       tableHtml += `
         <tr class="service-row" id="job-row-${j.id}">
@@ -832,11 +861,20 @@ async function refreshJobsTable() {
   }
   
   tableHtml += `</tbody></table>`;
-  container.innerHTML = tableHtml;
+  container.innerHTML = bannerHtml + tableHtml;
 
   // Attach modal events
   const detailBtns = container.querySelectorAll('.btn-job-detail');
   detailBtns.forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.getAttribute('data-id');
+      const job = filtered.find(j => j.id === id);
+      if (job) openJobModal(job);
+    };
+  });
+
+  const quickIssueBtns = container.querySelectorAll('.btn-quick-issue-open');
+  quickIssueBtns.forEach(btn => {
     btn.onclick = () => {
       const id = btn.getAttribute('data-id');
       const job = filtered.find(j => j.id === id);
@@ -976,6 +1014,99 @@ async function openJobModal(job) {
           </div>
         ` : ''}
 
+        <!-- ศูนย์ประสานงานปัญหาหน้างาน (Two-Way In-App Closed Loop 100% ห้ามโทรศัพท์) -->
+        ${job.adminIssue ? `
+          <div style="background: #fff7ed; border: 2px solid ${job.adminIssue.status === 'pending_admin' ? '#ea580c' : '#16a34a'}; border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">🚨</span>
+                <h4 style="margin: 0; color: #9a3412; font-size: 14px; font-weight: 700;">
+                  ศูนย์ประสานงานปัญหาหน้างาน (สื่อสารผ่านแอป 100% ห้ามโทรศัพท์)
+                </h4>
+              </div>
+              <span class="badge" style="background: ${job.adminIssue.status === 'pending_admin' ? '#ffedd5' : '#dcfce7'}; color: ${job.adminIssue.status === 'pending_admin' ? '#c2410c' : '#15803d'}; font-size: 11px; font-weight: 700; border: 1px solid ${job.adminIssue.status === 'pending_admin' ? '#fdba74' : '#86efac'};">
+                ${job.adminIssue.status === 'pending_admin' ? '⚠️ ช่างรอแอดมินประสานงาน' : (job.adminIssue.status === 'resolved' ? '✓ แอดมินประสานงานเรียบร้อย' : '✓ ช่างรับทราบผลแล้ว')}
+              </span>
+            </div>
+
+            <!-- กล่องที่ 1: รายละเอียดปัญหาที่ช่างแจ้งเข้ามา -->
+            <div style="background: #ffffff; border: 1px solid #fed7aa; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px;">
+              <div style="font-weight: 700; color: #c2410c; margin-bottom: 2px;">
+                ช่างผู้แจ้ง: ${escapeHtml(job.adminIssue.techName || job.assignedTechName || '-')} [${escapeHtml(job.adminIssue.techId || job.assignedTeamId || '')}]
+              </div>
+              <div style="color: #431407;">
+                <strong>เรื่อง:</strong> ${escapeHtml(job.adminIssue.issueType)} ${job.adminIssue.notes ? `— <em>"${escapeHtml(job.adminIssue.notes)}"</em>` : ''}
+              </div>
+              <div style="font-size: 11px; color: #9a3412; margin-top: 4px;">
+                เวลาที่แจ้ง: ${new Date(job.adminIssue.reportedAt).toLocaleDateString('th-TH', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
+              </div>
+            </div>
+
+            <!-- กล่องที่ 2: ช่องทางแอดมินสื่อสารกับลูกค้าผ่านแอป (Customer In-App Messenger) -->
+            <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div style="font-weight: 700; color: #0369a1; font-size: 13px;">
+                  💬 สื่อสารกับลูกค้าผ่านแอป (ระบบแจ้งเตือนจอลูกค้าทันที):
+                </div>
+                ${job.customerInAppMessage ? `
+                  <span class="badge" style="background: ${job.customerReply ? '#dcfce7' : '#fef3c7'}; color: ${job.customerReply ? '#15803d' : '#92400e'}; font-size: 11px;">
+                    ${job.customerReply ? '✓ ลูกค้าตอบกลับแล้ว' : '⏳ รอลูกค้าเปิดอ่าน/ตอบ'}
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- ข้อความที่เคยส่ง หรือคำตอบจากลูกค้า -->
+              ${job.customerInAppMessage ? `
+                <div style="background: #ffffff; border: 1px solid #e0f2fe; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 12.5px; color: #075985;">
+                  <div><strong>ข้อความที่ส่งถึงลูกค้า:</strong> "${escapeHtml(job.customerInAppMessage.message)}"</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ส่งเมื่อ: ${new Date(job.customerInAppMessage.sentAt).toLocaleTimeString('th-TH')}</div>
+                </div>
+              ` : ''}
+
+              ${job.customerReply ? `
+                <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; color: #166534;">
+                  <div><strong>🟢 คำตอบจากลูกค้า:</strong> "${escapeHtml(job.customerReply.text)}"</div>
+                  <div style="font-size: 11px; color: #15803d; margin-top: 2px;">ตอบกลับเมื่อ: ${new Date(job.customerReply.repliedAt).toLocaleTimeString('th-TH')}</div>
+                </div>
+              ` : ''}
+
+              <!-- แม่แบบข้อความด่วนสำหรับแอดมินส่งหาลูกค้า -->
+              <div style="font-size: 12px; font-weight: 600; color: #0369a1; margin-bottom: 4px;">เลือกข้อความด่วนส่งหาลูกค้า:</div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+                <button type="button" class="btn-template-msg" data-text="ช่างถึงซอยหน้าบ้านแล้วแต่หาบ้านเลขที่ไม่เจอ ขอหมุดหรือจุดสังเกตเพิ่มเติมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;">
+                  📍 หาบ้านไม่เจอ ขอจุดสังเกต
+                </button>
+                <button type="button" class="btn-template-msg" data-text="ช่างถึงหน้าบ้านแล้ว ประตูรั้วปิดอยู่ รบกวนเปิดประตูบ้านให้ช่างด้วยค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;">
+                  🚪 ถึงหน้าบ้านแล้ว รบกวนเปิดประตู
+                </button>
+                <button type="button" class="btn-template-msg" data-text="ช่างตรวจพบจุดแก้ไขเพิ่มเติมหน้างาน ขอประสานงานรายละเอียดการซ่อมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;">
+                  🔧 ตรวจพบจุดซ่อมเพิ่มเติม
+                </button>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="admin-cust-msg-input" class="form-input" placeholder="พิมพ์ข้อความส่งหาลูกค้าผ่านแอป..." style="margin-bottom: 0; font-size: 12px; flex: 1;">
+                <button type="button" class="btn-mint btn-sm" id="btn-send-msg-cust" style="white-space: nowrap; font-weight: 600;">
+                  💬 ส่งแจ้งลูกค้า
+                </button>
+              </div>
+            </div>
+
+            <!-- กล่องที่ 3: สรุปผลประสานงานส่งกลับให้ช่าง (ปลดล็อกช่าง) -->
+            <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 6px; padding: 12px;">
+              <div style="font-weight: 700; color: #166534; font-size: 13px; margin-bottom: 6px;">
+                📢 ส่งผลประสานงานให้ช่าง (ปลดล็อกจอช่าง):
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="admin-tech-resolution-input" class="form-input" placeholder="คำแนะนำให้ช่าง (เช่น ลูกค้าแจ้งว่าบ้านอยู่หลังรั้วสีขาว เข้าไปได้เลย)..." value="${escapeHtml(job.adminIssue.resolutionNotes || '')}" style="margin-bottom: 0; font-size: 12px; flex: 1;">
+                <button type="button" class="btn-mint btn-sm" id="btn-send-resolution-tech" style="background: #16a34a; white-space: nowrap; font-weight: 600;">
+                  📢 ปลดล็อก & สั่งช่างลุยต่อ
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
         <!-- Dual-Sided Panel: Customer Side vs Technician & Ops Side -->
         <div class="dual-container">
           <!-- ฝั่งซ้าย: ข้อมูลลูกค้า (Customer Side 👤) -->
@@ -1104,7 +1235,7 @@ async function openJobModal(job) {
             </label>
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" id="chk-customer-confirm" ${job.coordination?.customerConfirmChecked ? 'checked' : ''}>
-              <span>📞 โทรยืนยันเวลานัดหมายและพิกัดหน้างานกับลูกค้าเรียบร้อย</span>
+              <span>💬 ส่งข้อความยืนยันเวลานัดหมายและพิกัดหน้างานผ่านแอปเรียบร้อย (งดโทรศัพท์ 100%)</span>
             </label>
           </div>
 
@@ -1305,6 +1436,115 @@ async function openJobModal(job) {
   document.getElementById('job-modal-backdrop').onclick = (e) => {
     if (e.target.id === 'job-modal-backdrop') closeModal();
   };
+
+  // Issue Coordination Center: Quick Template Buttons
+  const templateBtns = modalContainer.querySelectorAll('.btn-template-msg');
+  templateBtns.forEach(btn => {
+    btn.onclick = () => {
+      const msgInput = document.getElementById('admin-cust-msg-input');
+      if (msgInput) {
+        msgInput.value = btn.getAttribute('data-text');
+        msgInput.focus();
+      }
+    };
+  });
+
+  // Issue Coordination Center: Send In-App Message to Customer
+  const btnSendMsgCust = document.getElementById('btn-send-msg-cust');
+  if (btnSendMsgCust) {
+    btnSendMsgCust.onclick = async () => {
+      const msgInput = document.getElementById('admin-cust-msg-input');
+      const message = msgInput?.value.trim();
+      if (!message) {
+        alert('กรุณากรอกข้อความที่จะส่งถึงลูกค้าค่ะ');
+        return;
+      }
+
+      btnSendMsgCust.disabled = true;
+      btnSendMsgCust.textContent = 'กำลังส่ง...';
+
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          customerInAppMessage: {
+            id: Date.now().toString(),
+            message: message,
+            status: 'pending',
+            sentAt: new Date().toISOString(),
+            sender: auth.currentUser?.email || 'admin@rakbaan.com',
+          }
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 6,
+          stepName: '6. เราประสานงาน (ส่งข้อความถึงลูกค้าในแอป)',
+          action: 'ADMIN_SENT_INAPP_MESSAGE_TO_CUSTOMER',
+          jobId: job.id,
+          status: 'success',
+          details: {
+            message,
+            customerId: job.customerId,
+          }
+        });
+
+        showToast('ส่งข้อความประสานงานถึงลูกค้าผ่านแอปเรียบร้อยแล้วค่ะ', 'success');
+        const updatedSnap = await getDoc(doc(db, 'jobs', job.id));
+        if (updatedSnap.exists()) {
+          openJobModal({ id: updatedSnap.id, ...updatedSnap.data() });
+        }
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาดในการส่งข้อความ: ${err.message}`);
+        btnSendMsgCust.disabled = false;
+        btnSendMsgCust.textContent = '💬 ส่งแจ้งลูกค้า';
+      }
+    };
+  }
+
+  // Issue Coordination Center: Send Resolution Advice to Tech (Unlock Tech)
+  const btnSendResolutionTech = document.getElementById('btn-send-resolution-tech');
+  if (btnSendResolutionTech) {
+    btnSendResolutionTech.onclick = async () => {
+      const resInput = document.getElementById('admin-tech-resolution-input');
+      const resolutionNotes = resInput?.value.trim() || 'แอดมินประสานงานเรียบร้อยแล้ว สามารถเข้าปฏิบัติงานต่อได้ทันที';
+
+      btnSendResolutionTech.disabled = true;
+      btnSendResolutionTech.textContent = 'กำลังส่ง...';
+
+      try {
+        await updateDoc(doc(db, 'jobs', job.id), {
+          'adminIssue.status': 'resolved',
+          'adminIssue.resolutionNotes': resolutionNotes,
+          'adminIssue.resolvedAt': new Date().toISOString(),
+          'adminIssue.resolvedBy': auth.currentUser?.email || 'admin@rakbaan.com',
+        });
+
+        await logAgentActivity({
+          agentId: 'agent-3-ops',
+          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          step: 6,
+          stepName: '6. เราประสานงาน (ส่งผลประสานงานปลดล็อกช่าง)',
+          action: 'ADMIN_RESOLVED_ISSUE_FOR_TECH',
+          jobId: job.id,
+          status: 'success',
+          details: {
+            techId: job.adminIssue?.techId || job.assignedTeamId,
+            resolutionNotes,
+          }
+        });
+
+        showToast('ส่งผลประสานงานให้ช่างเรียบร้อยแล้ว (ช่างจะเห็นปุ่มปลดล็อกเริ่มงานต่อ)', 'success');
+        const updatedSnap = await getDoc(doc(db, 'jobs', job.id));
+        if (updatedSnap.exists()) {
+          openJobModal({ id: updatedSnap.id, ...updatedSnap.data() });
+        }
+      } catch (err) {
+        alert(`เกิดข้อผิดพลาด: ${err.message}`);
+        btnSendResolutionTech.disabled = false;
+        btnSendResolutionTech.textContent = '📢 ปลดล็อก & สั่งช่างลุยต่อ';
+      }
+    };
+  }
 
   // Step 3 Action: Assign and send to technician
   const btnAssignAndSend = document.getElementById('btn-assign-and-send');

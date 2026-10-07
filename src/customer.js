@@ -269,6 +269,8 @@ function renderHomeScreen(container) {
     `;
   }
 
+  const pendingInAppJob = allMyJobs.find(j => j.customerInAppMessage && j.customerInAppMessage.status === 'pending');
+
   container.innerHTML = `
     <div>
       <!-- ข้อความต้อนรับส่วนตัว (ตัวหนังสือใหญ่ ชัดเจน) -->
@@ -276,6 +278,22 @@ function renderHomeScreen(container) {
         <span style="font-size: 26px;">🏡</span>
         <div class="welcome-text">ยินดีต้อนรับกลับมา คุณเชิด</div>
       </div>
+
+      <!-- ส่วนแจ้งเตือนข้อความด่วนจากแอดมิน (In-App Messenger) -->
+      ${pendingInAppJob ? `
+        <div class="in-app-msg-card" style="margin-bottom: 20px;">
+          <div class="in-app-msg-header">
+            <span style="font-size: 22px;">💬</span>
+            <div class="in-app-msg-title">ข้อความด่วนจากแอดมินรักบ้าน</div>
+          </div>
+          <div class="in-app-msg-bubble">
+            ${escapeHtml(pendingInAppJob.customerInAppMessage.message)}
+          </div>
+          <button class="btn-senior-primary" id="btn-home-goto-reply" style="font-size: 17px; padding: 12px;">
+            💬 เปิดดูและตอบกลับแอดมินทันที ➔
+          </button>
+        </div>
+      ` : ''}
 
       <!-- ส่วนที่ 1: แถบติดตามสถานะงานพร้อมไฟสเต็ปสว่าง Realtime -->
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
@@ -343,6 +361,15 @@ function renderHomeScreen(container) {
   `;
 
   // Attach Home events
+  const btnGotoReply = document.getElementById('btn-home-goto-reply');
+  if (btnGotoReply) {
+    btnGotoReply.onclick = () => {
+      activeNav = 'tracking';
+      updateNavButtons();
+      renderCurrentView();
+    };
+  }
+
   const btnGotoTracking = document.getElementById('btn-home-goto-tracking');
   if (btnGotoTracking) {
     btnGotoTracking.onclick = () => {
@@ -1124,6 +1151,77 @@ function renderTrackingScreen(container) {
       btnReject.onclick = () => handleCustomerRejectJob(job);
     }
   });
+
+  // Attach In-App Quick Reply Buttons
+  container.querySelectorAll('.btn-quick-reply').forEach(btn => {
+    btn.onclick = async () => {
+      const jobId = btn.getAttribute('data-job');
+      const text = btn.getAttribute('data-text');
+      await sendCustomerReply(jobId, text);
+    };
+  });
+
+  // Attach In-App Custom Reply Buttons
+  container.querySelectorAll('.btn-submit-cust-reply').forEach(btn => {
+    btn.onclick = async () => {
+      const jobId = btn.getAttribute('data-job');
+      const input = document.getElementById(`input-cust-reply-${jobId}`);
+      const text = input ? input.value.trim() : '';
+      if (!text) {
+        alert('กรุณากรอกข้อความตอบกลับก่อนกดส่งนะคะ');
+        return;
+      }
+      await sendCustomerReply(jobId, text);
+    };
+  });
+}
+
+async function sendCustomerReply(jobId, replyText) {
+  try {
+    await updateDoc(doc(db, 'jobs', jobId), {
+      customerReply: {
+        text: replyText,
+        repliedAt: new Date().toISOString()
+      },
+      'customerInAppMessage.status': 'replied'
+    });
+
+    await logAgentActivity({
+      agentId: 'agent-1-customer',
+      agentName: 'Agent-1: ลูกค้า 👤',
+      step: 6,
+      stepName: '6. ลูกค้าตอบกลับข้อความประสานงานในแอป',
+      action: 'CUSTOMER_REPLIED_INAPP',
+      jobId: jobId,
+      status: 'success',
+      details: {
+        replyText,
+        customerId: CUSTOMER_ID,
+      }
+    });
+
+    showToast('ส่งข้อความตอบกลับแอดมินเรียบร้อยแล้วค่ะ แอดมินจะแจ้งช่างให้ทันที');
+    renderCurrentView();
+  } catch (err) {
+    showToast(`ไม่สามารถส่งข้อความได้: ${err.message}`);
+  }
+}
+
+function showToast(message) {
+  let toast = document.getElementById('customer-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'customer-toast';
+    toast.style.cssText = 'position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #ffffff; padding: 12px 24px; border-radius: 30px; font-size: 15px; font-weight: 700; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.25); text-align: center; max-width: 90%; transition: opacity 0.3s;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => { toast.style.display = 'none'; }, 300);
+  }, 2500);
 }
 
 function renderJobTrackingCard(job) {
@@ -1183,11 +1281,55 @@ function renderJobTrackingCard(job) {
         </div>
       </div>
 
-      <!-- Assigned Technician Info -->
+      <!-- Assigned Technician Info (ห้ามมีเบอร์โทรศัพท์ ช่างและลูกค้าสื่อสารผ่านแอป 100%) -->
       <div style="background: #f8fafc; border-radius: 10px; padding: 10px 14px; font-size: 15px; margin-bottom: 12px; color: #334155;">
         <span>👷 ช่างผู้ดูแล: <strong>${escapeHtml(job.assignedTechName || job.assignedTeamId || 'กำลังจัดสรรช่าง Pro')}</strong></span>
-        ${job.assignedTechPhone ? `<span style="margin-left: 8px;">📞 ${job.assignedTechPhone}</span>` : ''}
+        <span style="margin-left: 8px; font-size: 12.5px; color: #059669; font-weight: 600;">(ระบบประสานงานผ่านแอป 100%)</span>
       </div>
+
+      <!-- In-App Communication from Admin (Two-Way Closed Loop 100% ห้ามโทรศัพท์) -->
+      ${job.customerInAppMessage ? `
+        <div class="in-app-msg-card">
+          <div class="in-app-msg-header">
+            <span style="font-size: 22px;">💬</span>
+            <div class="in-app-msg-title">ข้อความจากแอดมินรักบ้าน (ประสานงานหน้างาน)</div>
+          </div>
+          <div class="in-app-msg-bubble">
+            ${escapeHtml(job.customerInAppMessage.message)}
+          </div>
+
+          ${job.customerReply ? `
+            <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: 10px; padding: 10px 12px; font-size: 15px; color: #166534; line-height: 1.4;">
+              <div style="font-weight: 700;">✓ ท่านได้ตอบกลับแล้ว:</div>
+              <div style="margin-top: 2px;">"${escapeHtml(job.customerReply.text)}"</div>
+              <div style="font-size: 12px; color: #15803d; margin-top: 4px;">
+                เวลาที่ตอบกลับ: ${new Date(job.customerReply.repliedAt).toLocaleTimeString('th-TH')}
+              </div>
+            </div>
+          ` : `
+            <div style="font-size: 14.5px; font-weight: 700; color: #0369a1; margin-bottom: 6px;">
+              แตะเลือกคำตอบด่วน หรือพิมพ์ตอบกลับ:
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+              <button type="button" class="btn-quick-reply" data-job="${job.id}" data-text="บ้านอยู่ซอย 2 รั้วสีขาว ประตูเปิดอยู่ เข้ามาได้เลยค่ะ">
+                📍 บ้านอยู่ซอย 2 รั้วสีขาว
+              </button>
+              <button type="button" class="btn-quick-reply" data-job="${job.id}" data-text="กำลังเดินไปเปิดประตูรั้วหน้าบ้านให้ช่างค่ะ">
+                🚪 กำลังเดินไปเปิดประตู
+              </button>
+              <button type="button" class="btn-quick-reply" data-job="${job.id}" data-text="มีคนอยู่บ้านตลอด กดกริ่งหน้าบ้านได้เลยค่ะ">
+                🔔 มีคนอยู่บ้าน กดกริ่งได้เลย
+              </button>
+            </div>
+            <div class="in-app-reply-box">
+              <input type="text" id="input-cust-reply-${job.id}" class="in-app-reply-input" placeholder="พิมพ์ข้อความตอบกลับแอดมิน...">
+              <button type="button" class="btn-senior-primary btn-submit-cust-reply" data-job="${job.id}" style="width: auto; padding: 10px 18px; font-size: 16px;">
+                ส่งตอบกลับ ➔
+              </button>
+            </div>
+          `}
+        </div>
+      ` : ''}
 
       <!-- STEP 10: CUSTOMER INSPECTION & APPROVAL GATE -->
       ${(isCustomerReview || (isSubmittedForReview && job.afterPhotos)) ? `

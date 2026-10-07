@@ -362,12 +362,13 @@
           <span>👤</span> Agent-1: จอลูกค้า (รักบ้าน@CNX)
         </div>
         <div class="screen-tools">
+          <button class="btn-icon" id="btn-toggle-cust-src" title="สลับระหว่าง Web MVP กับ Flutter 8080" style="font-size: 11px; padding: 2px 8px; width: auto; font-weight: 700;">🌐 Web MVP</button>
           <button class="btn-icon" id="btn-reload-cust" title="รีเฟรชจอลูกค้า">🔄</button>
-          <a href="http://localhost:8080" target="_blank" class="btn-icon" title="เปิดแท็บใหม่">↗</a>
+          <a href="/customer.html" target="_blank" class="btn-icon" id="link-cust-external" title="เปิดแท็บใหม่">↗</a>
         </div>
       </div>
       <div class="screen-iframe-wrapper">
-        <iframe src="http://localhost:8080" id="frame-customer"></iframe>
+        <iframe src="/customer.html" id="frame-customer"></iframe>
       </div>
     </section>
 
@@ -497,6 +498,22 @@
     const frameCust = document.getElementById('frame-customer');
     const frameOps = document.getElementById('frame-ops');
     const frameTech = document.getElementById('frame-tech');
+
+    const btnToggleCust = document.getElementById('btn-toggle-cust-src');
+    const linkCust = document.getElementById('link-cust-external');
+    if (btnToggleCust && frameCust) {
+      btnToggleCust.onclick = () => {
+        if (frameCust.src.includes('customer.html')) {
+          frameCust.src = 'http://localhost:8080';
+          if (linkCust) linkCust.href = 'http://localhost:8080';
+          btnToggleCust.textContent = '📱 Flutter 8080';
+        } else {
+          frameCust.src = '/customer.html';
+          if (linkCust) linkCust.href = '/customer.html';
+          btnToggleCust.textContent = '🌐 Web MVP';
+        }
+      };
+    }
 
     document.getElementById('btn-reload-cust').onclick = () => frameCust.src = frameCust.src;
     document.getElementById('btn-reload-ops').onclick = () => frameOps.src = frameOps.src;
