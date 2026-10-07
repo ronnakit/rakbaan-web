@@ -463,6 +463,156 @@
       }
 
       /* -----------------------------------------------------------------------
+         ตารางประวัติงาน (History Table & Monthly Filters)
+         ----------------------------------------------------------------------- */
+      .history-filter-box {
+        background: #ffffff;
+        border: 1px solid var(--tech-border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .history-filter-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .history-filter-group {
+        flex: 1 1 160px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .history-filter-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--tech-text-muted);
+      }
+
+      .history-select {
+        width: 100%;
+        padding: 7px 10px;
+        font-size: 13.5px;
+        font-family: inherit;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        background: #f8fafc;
+        color: var(--tech-navy);
+        cursor: pointer;
+      }
+
+      .history-select:focus {
+        outline: none;
+        border-color: var(--tech-primary);
+        background: #ffffff;
+      }
+
+      .history-card {
+        background: #ffffff;
+        border: 1px solid var(--tech-border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+
+      .history-header {
+        padding: 10px 14px;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--tech-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .history-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--tech-navy);
+      }
+
+      .history-summary {
+        font-size: 13.5px;
+        color: var(--tech-text-muted);
+        font-weight: 600;
+      }
+
+      .history-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      .history-table th {
+        background: #f1f5f9;
+        color: var(--tech-navy);
+        padding: 10px 10px;
+        font-weight: 700;
+        border-bottom: 1px solid var(--tech-border);
+      }
+
+      .history-table td {
+        padding: 10px 10px;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--tech-text-main);
+        vertical-align: middle;
+      }
+
+      .history-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .history-table tr:hover td {
+        background: #f8fafc;
+      }
+
+      .col-idx {
+        text-align: center;
+        color: var(--tech-text-muted);
+        font-weight: 700;
+        width: 44px;
+      }
+
+      .col-job {
+        font-weight: 700;
+        color: var(--tech-navy);
+        white-space: normal;
+        min-width: 130px;
+        max-width: 180px;
+      }
+
+      .col-price {
+        text-align: right;
+        font-weight: 800;
+        color: var(--tech-primary);
+      }
+
+      .col-work-date {
+        text-align: center;
+        color: var(--tech-text-muted);
+        font-size: 13px;
+      }
+
+      .col-warranty-date {
+        text-align: center;
+        color: #15803d;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      /* -----------------------------------------------------------------------
          ปุ่มปฏิบัติการช่าง (Tap Targets 54px สำหรับคนทำงาน)
          ----------------------------------------------------------------------- */
       .job-actions {
@@ -997,7 +1147,7 @@
           <span class="tech-tab-badge" id="tab-count-submitted">0</span>
         </button>
         <button class="tech-tab" data-tab="completed">
-          <span>งานเสร็จแล้ว</span>
+          <span>ประวัติ</span>
           <span class="tech-tab-badge" id="tab-count-completed">0</span>
         </button>
       </nav>

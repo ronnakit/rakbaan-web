@@ -34,6 +34,8 @@ let currentTech = null;
 let currentTab = 'active'; // 'active', 'submitted', 'completed'
 let allMyJobs = [];
 let unsubscribe = null;
+let selectedWorkMonth = 'all';
+let selectedWarrantyMonth = 'all';
 
 // Before/After photo cache per job
 const photoDrafts = new Map();
@@ -234,9 +236,82 @@ function updateTabBadges() {
   document.getElementById('tab-count-completed').textContent = completedCount;
 }
 
+const THAI_MONTHS_FULL = [
+  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+];
+
+const THAI_MONTHS_SHORT = [
+  'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+  'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+];
+
+function parseJobDate(raw) {
+  if (!raw) return null;
+  if (raw instanceof Date) return isNaN(raw.getTime()) ? null : raw;
+  if (typeof raw.toDate === 'function') {
+    try {
+      const d = raw.toDate();
+      if (!isNaN(d.getTime())) return d;
+    } catch (e) {}
+  }
+  if (typeof raw === 'number' || typeof raw === 'string') {
+    const d = new Date(raw);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+function getJobDateMeta(job) {
+  // วันที่ส่งงาน หรือ วันที่เสร็จสิ้น
+  const rawWorkDate = job.techSubmittedAt || job.completedAt || job.scheduledDate || job.createdAt;
+  const workDate = parseJobDate(rawWorkDate) || new Date();
+
+  // ระยะเวลารับประกัน (วัน) นับจากวันส่งงาน (มาตรฐาน 90 วัน)
+  const warrantyDays = Number(job.warrantyDays || (job.warranty && job.warranty.days) || 90);
+  const warrantyExpireDate = new Date(workDate.getTime() + warrantyDays * 24 * 60 * 60 * 1000);
+
+  // รูปแบบคีย์เดือน YYYY-MM สำหรับ Dropdown
+  const workYear = workDate.getFullYear();
+  const workMonth = String(workDate.getMonth() + 1).padStart(2, '0');
+  const workMonthKey = `${workYear}-${workMonth}`;
+  const workMonthLabel = `${THAI_MONTHS_FULL[workDate.getMonth()]} ${workYear + 543}`;
+
+  const expYear = warrantyExpireDate.getFullYear();
+  const expMonth = String(warrantyExpireDate.getMonth() + 1).padStart(2, '0');
+  const expMonthKey = `${expYear}-${expMonth}`;
+  const expMonthLabel = `${THAI_MONTHS_FULL[warrantyExpireDate.getMonth()]} ${expYear + 543}`;
+
+  // วันที่แสดงผลภาษาไทย (พ.ศ. 2 หลัก เช่น 7 ต.ค. 69)
+  const workYear2D = String((workYear + 543) % 100).padStart(2, '0');
+  const expYear2D = String((expYear + 543) % 100).padStart(2, '0');
+
+  const workDateStr = `${workDate.getDate()} ${THAI_MONTHS_SHORT[workDate.getMonth()]} ${workYear2D}`;
+  const warrantyExpireDateStr = `${warrantyExpireDate.getDate()} ${THAI_MONTHS_SHORT[warrantyExpireDate.getMonth()]} ${expYear2D}`;
+
+  return {
+    workDate,
+    warrantyExpireDate,
+    workMonthKey,
+    workMonthLabel,
+    expMonthKey,
+    expMonthLabel,
+    workDateStr,
+    warrantyExpireDateStr,
+    warrantyDays,
+  };
+}
+
 function renderJobsFeed() {
   const feed = document.getElementById('tech-jobs-feed');
   if (!feed) return;
+
+  // แท็บประวัติ: แสดงตาราง 5 คอลัมน์พร้อมตัวกรองเดือนที่ทำและเดือนที่จะหมดประกัน
+  if (currentTab === 'completed') {
+    const completedJobs = allMyJobs.filter(j => j.status === 'completed');
+    renderCompletedHistoryTab(feed, completedJobs);
+    return;
+  }
 
   let displayJobs = [];
 
@@ -250,17 +325,12 @@ function renderJobsFeed() {
     displayJobs = allMyJobs.filter(j => {
       return j.workflowStatus === 'tech_submitted' && j.status !== 'completed';
     });
-  } else if (currentTab === 'completed') {
-    displayJobs = allMyJobs.filter(j => j.status === 'completed');
   }
 
   if (displayJobs.length === 0) {
-    let emptyTitle = 'ไม่มีงานที่ต้องทำในขณะนี้';
-    if (currentTab === 'submitted') {
-      emptyTitle = 'ไม่มีงานที่รอตรวจในขณะนี้';
-    } else if (currentTab === 'completed') {
-      emptyTitle = 'ไม่มีประวัติงานที่เสร็จสิ้น';
-    }
+    const emptyTitle = currentTab === 'submitted'
+      ? 'ไม่มีงานที่รอตรวจในขณะนี้'
+      : 'ไม่มีงานที่ต้องทำในขณะนี้';
 
     feed.innerHTML = `
       <div class="empty-state">
@@ -274,6 +344,141 @@ function renderJobsFeed() {
 
   // Attach card event listeners
   displayJobs.forEach(job => attachJobCardEvents(job));
+}
+
+function renderCompletedHistoryTab(feed, allCompletedJobs) {
+  if (!allCompletedJobs || allCompletedJobs.length === 0) {
+    feed.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-title">ไม่มีประวัติงานที่เสร็จสิ้น</div>
+      </div>
+    `;
+    return;
+  }
+
+  // รวบรวมเดือนที่ทำและเดือนที่จะหมดประกันสำหรับตัวกรอง Dropdown
+  const workMonthsMap = new Map();
+  const warrantyMonthsMap = new Map();
+
+  allCompletedJobs.forEach(job => {
+    const meta = getJobDateMeta(job);
+    if (!workMonthsMap.has(meta.workMonthKey)) {
+      workMonthsMap.set(meta.workMonthKey, meta.workMonthLabel);
+    }
+    if (!warrantyMonthsMap.has(meta.expMonthKey)) {
+      warrantyMonthsMap.set(meta.expMonthKey, meta.expMonthLabel);
+    }
+  });
+
+  // เรียงลำดับจากเดือนล่าสุดไปหาอดีต
+  const sortedWorkMonths = Array.from(workMonthsMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+  const sortedWarrantyMonths = Array.from(warrantyMonthsMap.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+
+  // กรองรายการตามเดือนที่เลือก
+  const filteredJobs = allCompletedJobs.filter(job => {
+    const meta = getJobDateMeta(job);
+    if (selectedWorkMonth !== 'all' && meta.workMonthKey !== selectedWorkMonth) {
+      return false;
+    }
+    if (selectedWarrantyMonth !== 'all' && meta.expMonthKey !== selectedWarrantyMonth) {
+      return false;
+    }
+    return true;
+  });
+
+  const totalIncome = filteredJobs.reduce((sum, j) => sum + (Number(j.price) || 0), 0);
+
+  const workMonthOptions = sortedWorkMonths.map(([key, label]) => {
+    const isSelected = key === selectedWorkMonth ? 'selected' : '';
+    return `<option value="${key}" ${isSelected}>${label}</option>`;
+  }).join('');
+
+  const warrantyMonthOptions = sortedWarrantyMonths.map(([key, label]) => {
+    const isSelected = key === selectedWarrantyMonth ? 'selected' : '';
+    return `<option value="${key}" ${isSelected}>${label}</option>`;
+  }).join('');
+
+  feed.innerHTML = `
+    <!-- กรอบตัวกรองเดือนที่ทำ และ เดือนที่จะหมดประกัน -->
+    <div class="history-filter-box">
+      <div class="history-filter-row">
+        <div class="history-filter-group">
+          <label class="history-filter-label" for="filter-work-month">เลือกเดือนที่ทำ</label>
+          <select id="filter-work-month" class="history-select">
+            <option value="all" ${selectedWorkMonth === 'all' ? 'selected' : ''}>ทั้งหมด (ทุกเดือน)</option>
+            ${workMonthOptions}
+          </select>
+        </div>
+        <div class="history-filter-group">
+          <label class="history-filter-label" for="filter-warranty-month">เลือกเดือนที่จะหมดประกัน</label>
+          <select id="filter-warranty-month" class="history-select">
+            <option value="all" ${selectedWarrantyMonth === 'all' ? 'selected' : ''}>ทั้งหมด (ทุกเดือน)</option>
+            ${warrantyMonthOptions}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- การ์ดตารางประวัติงาน 5 คอลัมน์ (ลำดับ | งาน | เงิน | วันที่ทำ | วันที่หมดประกัน) -->
+    <div class="history-card">
+      <div class="history-header">
+        <div class="history-title">ประวัติงานที่เสร็จสิ้น</div>
+        <div class="history-summary">${filteredJobs.length} รายการ · รวม ฿${totalIncome.toLocaleString()}</div>
+      </div>
+      <div class="history-table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th class="col-idx">ลำดับ</th>
+              <th>งาน</th>
+              <th style="text-align: right;">เงิน</th>
+              <th style="text-align: center;">วันที่ทำ</th>
+              <th style="text-align: center;">วันที่หมดประกัน</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredJobs.length === 0 ? `
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 28px 12px; color: var(--tech-text-muted); font-size: 14px;">
+                  ไม่พบรายการงานในเดือนที่เลือก
+                </td>
+              </tr>
+            ` : filteredJobs.map((job, idx) => {
+              const meta = getJobDateMeta(job);
+              const title = escapeHtml(job.title || job.serviceName || 'งานบริการช่าง');
+              const price = (Number(job.price) || 0).toLocaleString();
+              return `
+                <tr>
+                  <td class="col-idx">${idx + 1}</td>
+                  <td class="col-job">${title}</td>
+                  <td class="col-price">฿${price}</td>
+                  <td class="col-work-date">${meta.workDateStr}</td>
+                  <td class="col-warranty-date">${meta.warrantyExpireDateStr}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // ผูกตัวดักฟังการเปลี่ยนเดือนใน Dropdown
+  const selWork = document.getElementById('filter-work-month');
+  if (selWork) {
+    selWork.onchange = (e) => {
+      selectedWorkMonth = e.target.value;
+      renderJobsFeed();
+    };
+  }
+
+  const selWarranty = document.getElementById('filter-warranty-month');
+  if (selWarranty) {
+    selWarranty.onchange = (e) => {
+      selectedWarrantyMonth = e.target.value;
+      renderJobsFeed();
+    };
+  }
 }
 
 function renderJobCardHtml(job) {
