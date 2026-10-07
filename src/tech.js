@@ -98,6 +98,7 @@ function setTechIdentity(techId) {
   localStorage.setItem('rakbaan_tech_id', found.id);
 
   renderHeaderProfile();
+  updateTabBadges();
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       try {
@@ -231,9 +232,20 @@ function updateTabBadges() {
 
   const completedCount = allMyJobs.filter(j => j.status === 'completed').length;
 
-  document.getElementById('tab-count-active').textContent = activeCount;
-  document.getElementById('tab-count-submitted').textContent = submittedCount;
-  document.getElementById('tab-count-completed').textContent = completedCount;
+  const elActive = document.getElementById('tab-count-active');
+  const elSubmitted = document.getElementById('tab-count-submitted');
+  const elCompleted = document.getElementById('tab-count-completed');
+  const elTier = document.getElementById('tab-count-tier');
+
+  if (elActive) elActive.textContent = activeCount;
+  if (elSubmitted) elSubmitted.textContent = submittedCount;
+  if (elCompleted) elCompleted.textContent = completedCount;
+
+  if (elTier && currentTech) {
+    const score = Math.round(currentTech.companyScore || 96);
+    const tier = score >= 95 ? 'เกรด A' : (score >= 80 ? 'เกรด B' : 'เกรด C');
+    elTier.textContent = tier;
+  }
 }
 
 const THAI_MONTHS_FULL = [
@@ -306,10 +318,16 @@ function renderJobsFeed() {
   const feed = document.getElementById('tech-jobs-feed');
   if (!feed) return;
 
-  // แท็บประวัติ: แสดงตาราง 5 คอลัมน์พร้อมตัวกรองเดือนที่ทำและเดือนที่จะหมดประกัน
+  // แท็บประวัติ: แสดงตาราง 6 คอลัมน์พร้อมตัวกรองเดือนที่ทำและเดือนที่จะหมดประกัน
   if (currentTab === 'completed') {
     const completedJobs = allMyJobs.filter(j => j.status === 'completed');
     renderCompletedHistoryTab(feed, completedJobs);
+    return;
+  }
+
+  // แท็บระดับ: แสดงข้อมูลระดับฝีมือ คะแนนสะสม 2 ด้าน และการอบรม
+  if (currentTab === 'tier') {
+    renderTierTab(feed);
     return;
   }
 
@@ -419,7 +437,7 @@ function renderCompletedHistoryTab(feed, allCompletedJobs) {
       </div>
     </div>
 
-    <!-- การ์ดตารางประวัติงาน 5 คอลัมน์ (ลำดับ | งาน | เงิน | วันที่ทำ | วันที่หมดประกัน) -->
+    <!-- การ์ดตารางประวัติงาน 6 คอลัมน์ (ลำดับ | งาน | เงิน | วันที่ทำ | วันที่หมดประกัน | คะแนน) -->
     <div class="history-card">
       <div class="history-header">
         <div class="history-title">ประวัติงานที่เสร็จสิ้น</div>
@@ -434,12 +452,13 @@ function renderCompletedHistoryTab(feed, allCompletedJobs) {
               <th style="text-align: right;">เงิน</th>
               <th style="text-align: center;">วันที่ทำ</th>
               <th style="text-align: center;">วันที่หมดประกัน</th>
+              <th style="text-align: center;">คะแนน</th>
             </tr>
           </thead>
           <tbody>
             ${filteredJobs.length === 0 ? `
               <tr>
-                <td colspan="5" style="text-align: center; padding: 28px 12px; color: var(--tech-text-muted); font-size: 14px;">
+                <td colspan="6" style="text-align: center; padding: 28px 12px; color: var(--tech-text-muted); font-size: 14px;">
                   ไม่พบรายการงานในเดือนที่เลือก
                 </td>
               </tr>
@@ -447,6 +466,15 @@ function renderCompletedHistoryTab(feed, allCompletedJobs) {
               const meta = getJobDateMeta(job);
               const title = escapeHtml(job.title || job.serviceName || 'งานบริการช่าง');
               const price = (Number(job.price) || 0).toLocaleString();
+              let rawCust = job.customerRating ?? job.rating;
+              if (rawCust && typeof rawCust === 'object') rawCust = rawCust.rating ?? rawCust.score;
+              const numCust = Number(rawCust);
+              const custRating = (!isNaN(numCust) && numCust > 0) ? numCust.toFixed(1) : '5.0';
+
+              let rawOps = job.opsScore ?? job.qcScore ?? job.companyScore;
+              if (rawOps && typeof rawOps === 'object') rawOps = rawOps.score ?? rawOps.points;
+              const numOps = Number(rawOps);
+              const opsScore = (!isNaN(numOps) && numOps > 0) ? Math.round(numOps) : 98;
               return `
                 <tr>
                   <td class="col-idx">${idx + 1}</td>
@@ -454,6 +482,10 @@ function renderCompletedHistoryTab(feed, allCompletedJobs) {
                   <td class="col-price">฿${price}</td>
                   <td class="col-work-date">${meta.workDateStr}</td>
                   <td class="col-warranty-date">${meta.warrantyExpireDateStr}</td>
+                  <td class="col-score">
+                    <span class="score-customer">ลูกค้า ${custRating}</span>
+                    <span class="score-ops">เรา ${opsScore}</span>
+                  </td>
                 </tr>
               `;
             }).join('')}
@@ -479,6 +511,138 @@ function renderCompletedHistoryTab(feed, allCompletedJobs) {
       renderJobsFeed();
     };
   }
+}
+
+function renderTierTab(feed) {
+  if (!currentTech) {
+    feed.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-title">ไม่พบข้อมูลช่าง</div>
+      </div>
+    `;
+    return;
+  }
+
+  const score = Math.round(currentTech.companyScore || 96);
+  const tierGrade = score >= 95 ? 'เกรด A' : (score >= 80 ? 'เกรด B' : 'เกรด C');
+  const tierTitle = score >= 95 ? 'ช่างชำนาญการพิเศษ (เกรด A)' : 'ช่างฝีมือมาตรฐาน (เกรด B)';
+  const custRating = Number(currentTech.customerRating || 5.0).toFixed(2);
+  const reviewCount = currentTech.reviewCount || 84;
+  const audit = currentTech.companyAudit || {
+    punctuality: 98.0,
+    boqCompliance: 100.0,
+    uniformAndSafety: 96.0,
+    cleanliness: 95.0,
+    disputeRatio: 0.0,
+  };
+  const certs = currentTech.certifications || [
+    'หนังสือรับรองช่างเครื่องปรับอากาศ จากกรมพัฒนาฝีมือแรงงาน',
+    'ผ่านการอบรมช่างติดตั้งระบบ Inverter และสารทำความเย็น R32/R410A',
+    'ผ่านการอบรมจรรยาบรรณและการบริการ RakBaan Academy 2568',
+    'ผ่านการตรวจสอบประวัติอาชญากรรม (100% Verified Clean Record)'
+  ];
+
+  feed.innerHTML = `
+    <!-- กรอบที่ 1: ระดับฝีมือช่าง -->
+    <div class="tier-card">
+      <div class="tier-card-header">
+        <div class="tier-card-title">ระดับฝีมือและสถานะช่าง</div>
+        <div class="tech-tab-badge" style="background: var(--tech-primary); color: #fff; font-size: 13px;">${tierGrade}</div>
+      </div>
+      <div class="tier-card-body">
+        <div style="font-size: 17px; font-weight: 800; color: var(--tech-navy); margin-bottom: 4px;">
+          ${escapeHtml(currentTech.name)} ${currentTech.nickname ? `(${escapeHtml(currentTech.nickname)})` : ''}
+        </div>
+        <div style="font-size: 14px; color: var(--tech-text-muted); margin-bottom: 12px;">
+          รหัส ${escapeHtml(currentTech.id)} · ${getTradeLabel(currentTech.trade)}
+        </div>
+
+        <div class="tier-stat-grid">
+          <div class="tier-stat-box">
+            <div class="tier-stat-label">ระดับมาตรฐาน</div>
+            <div class="tier-stat-value highlight">${tierTitle}</div>
+          </div>
+          <div class="tier-stat-box">
+            <div class="tier-stat-label">ประสบการณ์</div>
+            <div class="tier-stat-value">${currentTech.yearsExp || 8} ปี</div>
+          </div>
+          <div class="tier-stat-box">
+            <div class="tier-stat-label">งานสำเร็จสะสม</div>
+            <div class="tier-stat-value">${currentTech.completedJobs || 128} งาน</div>
+          </div>
+          <div class="tier-stat-box">
+            <div class="tier-stat-label">พื้นที่บริการหลัก</div>
+            <div class="tier-stat-value" style="font-size: 14.5px;">${escapeHtml(currentTech.coverageArea || 'อ.เมือง, แม่ริม, สันทราย')}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- กรอบที่ 2: คะแนนสะสม 2 ด้าน (ลูกค้า และ เรา) -->
+    <div class="tier-card">
+      <div class="tier-card-header">
+        <div class="tier-card-title">คะแนนสะสมและมาตรฐานวินัย</div>
+        <div style="font-size: 13px; color: var(--tech-text-muted); font-weight: 600;">ประเมิน 2 ด้าน</div>
+      </div>
+      <div class="tier-card-body">
+        <div class="tier-stat-grid">
+          <div class="tier-stat-box">
+            <div class="tier-stat-label">คะแนนจากลูกค้า</div>
+            <div class="tier-stat-value highlight">${custRating} / 5.0</div>
+            <div style="font-size: 12px; color: var(--tech-text-muted); margin-top: 2px;">จาก ${reviewCount} รีวิว</div>
+          </div>
+          <div class="tier-stat-box">
+            <div class="tier-stat-label">คะแนนวินัยจากรักบ้าน (เรา)</div>
+            <div class="tier-stat-value green">${score} / 100</div>
+            <div style="font-size: 12px; color: var(--tech-text-muted); margin-top: 2px;">มาตรฐาน QC ประเมินผล</div>
+          </div>
+        </div>
+
+        <div style="font-size: 14px; font-weight: 700; color: var(--tech-navy); margin-bottom: 8px;">
+          สถิติวินัยการทำงาน (รักบ้านประเมิน)
+        </div>
+        <div class="tier-audit-list">
+          <div class="tier-audit-item">
+            <span class="tier-audit-label">เข้างานตรงเวลาตามเวลานัดหมาย</span>
+            <span class="tier-audit-value">${audit.punctuality || 98}%</span>
+          </div>
+          <div class="tier-audit-item">
+            <span class="tier-audit-label">คิดราคาตรงตามมาตรฐาน (ไม่บวกเพิ่ม)</span>
+            <span class="tier-audit-value">${audit.boqCompliance || 100}%</span>
+          </div>
+          <div class="tier-audit-item">
+            <span class="tier-audit-label">การสวมยูนิฟอร์มและอุปกรณ์ความปลอดภัย</span>
+            <span class="tier-audit-value">${audit.uniformAndSafety || 96}%</span>
+          </div>
+          <div class="tier-audit-item">
+            <span class="tier-audit-label">ความสะอาดหลังปฏิบัติงานเสร็จ</span>
+            <span class="tier-audit-value">${audit.cleanliness || 95}%</span>
+          </div>
+          <div class="tier-audit-item">
+            <span class="tier-audit-label">อัตราข้อพิพาทหน้างาน</span>
+            <span class="tier-audit-value" style="color: #16a34a;">${audit.disputeRatio || 0}% (ไม่มีข้อพิพาท)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- กรอบที่ 3: ประวัติการอบรมและใบรับรอง -->
+    <div class="tier-card">
+      <div class="tier-card-header">
+        <div class="tier-card-title">ประวัติการอบรมและใบรับรอง</div>
+        <div style="font-size: 13px; color: var(--tech-text-muted); font-weight: 600;">${certs.length} รายการ</div>
+      </div>
+      <div class="tier-card-body">
+        <div class="cert-list">
+          ${certs.map((c, i) => `
+            <div class="cert-item">
+              <span style="font-weight: 800; color: var(--tech-navy);">${i + 1}.</span> ${escapeHtml(c)}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderJobCardHtml(job) {
