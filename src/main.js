@@ -208,7 +208,6 @@ function renderDashboard(user, role) {
     <div class="layout-wrapper">
       <aside class="sidebar">
         <div class="brand-badge sidebar-brand">
-          <span style="font-size: 26px;">🏡</span>
           <div>
             <h1 class="brand-title">การบริหารรักบ้าน</h1>
             <div class="brand-subtitle">ระบบบริหารจัดการงานซ่อมครบวงจร</div>
@@ -216,31 +215,31 @@ function renderDashboard(user, role) {
         </div>
         <nav class="sidebar-nav">
           <button class="nav-item ${activeTab === 'jobs' ? 'active' : ''}" id="nav-jobs">
-            📋 คิวงานซ่อม
+            คิวงานซ่อม
           </button>
           <button class="nav-item ${activeTab === 'catalog' ? 'active' : ''}" id="nav-catalog">
-            🏷️ รายการงานบริการ
+            รายการงานบริการ
           </button>
           <button class="nav-item ${activeTab === 'technicians' ? 'active' : ''}" id="nav-technicians">
-            👷‍♂️ ทะเบียนช่าง
+            ทะเบียนช่าง
           </button>
           <button class="nav-item ${activeTab === 'customers' ? 'active' : ''}" id="nav-customers">
-            👥 ข้อมูลลูกค้า
+            ข้อมูลลูกค้า
           </button>
           <button class="nav-item ${activeTab === 'finance' ? 'active' : ''}" id="nav-finance">
-            💰 สรุปการเงิน
+            สรุปการเงิน
           </button>
-          <button class="nav-item" id="nav-ops-playbook" style="margin-top: 14px; background: #ecfdf5; border: 1.5px solid #10b981; color: #047857; font-weight: 700; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-            <span>📖</span> <span>คู่มือแอดมิน (SOP)</span>
+          <button class="nav-item" id="nav-ops-playbook" style="margin-top: 14px; background: #ecfdf5; border: 1.5px solid #10b981; color: #047857; font-weight: 700; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: center;">
+            <span>คู่มือแอดมิน (SOP)</span>
           </button>
-          <a href="/cockpit.html" target="_blank" class="nav-item" style="text-decoration: none; color: #fff; margin-top: 8px; background: linear-gradient(135deg, #059669 0%, #0d9488 100%); border-radius: var(--radius-md); font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);">
-            🚀 ศูนย์ควบคุม 3 หน้าจอ ↗
+          <a href="/cockpit.html" target="_blank" class="nav-item" style="text-decoration: none; color: #fff; margin-top: 8px; background: linear-gradient(135deg, #059669 0%, #0d9488 100%); border-radius: var(--radius-md); font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); text-align: center;">
+            ศูนย์ควบคุม 3 หน้าจอ ↗
           </a>
-          <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: #d97706; margin-top: 6px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: var(--radius-md); font-size: 13px;">
-            🔧 จอช่างมืออาชีพ ↗
+          <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: #d97706; margin-top: 6px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: var(--radius-md); font-size: 13px; text-align: center;">
+            จอช่างมืออาชีพ ↗
           </a>
-          <a href="http://localhost:8080" target="_blank" class="nav-item" style="text-decoration: none; color: var(--mint-600); margin-top: 6px; background: var(--mint-100); border: 1px dashed var(--mint); border-radius: var(--radius-md); font-size: 13px;">
-            👤 จอลูกค้าแจ้งซ่อม ↗
+          <a href="/customer.html" target="_blank" class="nav-item" style="text-decoration: none; color: var(--mint-600); margin-top: 6px; background: var(--mint-100); border: 1px dashed var(--mint); border-radius: var(--radius-md); font-size: 13px; text-align: center;">
+            จอลูกค้าแจ้งซ่อม ↗
           </a>
         </nav>
         <div class="sidebar-footer">
@@ -347,12 +346,12 @@ function renderTechniciansView(container) {
   container.innerHTML = `
     <div class="catalog-header">
       <div>
-        <h2 class="catalog-title">👷‍♂️ ทำเนียบกำลังพลช่างฝีมือเชียงใหม่ 15 ท่าน</h2>
+        <h2 class="catalog-title">ทำเนียบกำลังพลช่างฝีมือเชียงใหม่ 15 ท่าน</h2>
         <p class="catalog-subtitle">ทะเบียนช่างมืออาชีพผ่านการคัดกรองมาตรฐานรักบ้าน — ตรวจประวัติอาชญากรรมเรียบร้อย</p>
       </div>
       <div>
         <a href="/tech.html" target="_blank" class="btn-mint" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-          <span>📱</span> เปิดหน้าจอช่าง ↗
+          เปิดหน้าจอช่าง ↗
         </a>
       </div>
     </div>
@@ -389,7 +388,7 @@ function renderTechniciansView(container) {
               </td>
               <td style="text-align: center;">
                 <span class="badge" style="${t.status === 'active' ? 'background: var(--mint-100); color: var(--mint-600);' : 'background: var(--amber-100); color: var(--amber);'} font-size: 11px;">
-                  ${t.status === 'active' ? '🟢 พร้อมรับงาน' : '🟡 กำลังทำงาน'}
+                  ${t.status === 'active' ? 'พร้อมรับงาน' : 'กำลังทำงาน'}
                 </span>
               </td>
               <td>
@@ -400,13 +399,13 @@ function renderTechniciansView(container) {
               <td style="text-align: center; font-weight: 600; color: var(--navy);">${t.completedJobs} งาน</td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
-                  <span style="color: #0284c7;">🛡️ วินัย Trust: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</strong></span>
-                  <span style="color: #d97706;">⭐ ลูกค้า: <strong>${t.customerRating}</strong> (${t.reviewCount})</span>
+                  <span style="color: #0284c7;">วินัย Trust: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</strong></span>
+                  <span style="color: #d97706;">ลูกค้า: <strong>${t.customerRating}</strong> (${t.reviewCount})</span>
                 </div>
               </td>
               <td style="text-align: center;">
                 <a href="/tech.html?techId=${t.id}" target="_blank" class="secondary btn-sm" style="text-decoration: none; font-size: 11px; padding: 3px 8px;" title="เข้าสู่ระบบในนามช่างคนนี้">
-                  📱 สวมบท
+                  เข้าจอช่าง
                 </a>
               </td>
             </tr>
@@ -478,7 +477,7 @@ function renderCustomersView(container) {
   container.innerHTML = `
     <div class="catalog-header">
       <div>
-        <h2 class="catalog-title">👥 ข้อมูลลูกค้า (Customers)</h2>
+        <h2 class="catalog-title">ข้อมูลลูกค้า</h2>
         <p class="catalog-subtitle">ระบบค้นหาอัจฉริยะ (Universal Smart Search) และประวัติงานซ่อม</p>
       </div>
     </div>
@@ -634,19 +633,19 @@ function renderJobsView(container) {
   container.innerHTML = `
     <div class="catalog-header">
       <div>
-        <h2 class="catalog-title">📋 คิวงานซ่อม</h2>
+        <h2 class="catalog-title">คิวงานซ่อม</h2>
         <p class="catalog-subtitle">ระบบบริหารจัดการและติดตามสถานะงานซ่อม</p>
       </div>
     </div>
     
     <!-- 6 Workflow Tabs -->
     <div class="nav-tabs" style="margin-bottom: 20px; display: flex; gap: 8px; overflow-x: auto; padding: 4px;">
-      <button class="nav-tab ${currentJobTab === 'all' ? 'active' : ''}" data-tab="all">⚪ งานทั้งหมด</button>
-      <button class="nav-tab ${currentJobTab === 'pending' ? 'active' : ''}" data-tab="pending">🔵 1-3 รอจัดช่าง</button>
-      <button class="nav-tab ${currentJobTab === 'active' ? 'active' : ''}" data-tab="active">🟡 4-7 กำลังดำเนินการ</button>
-      <button class="nav-tab ${currentJobTab === 'qc' ? 'active' : ''}" data-tab="qc">📸 8-9 รอตรวจงาน</button>
-      <button class="nav-tab ${currentJobTab === 'rework' ? 'active' : ''}" data-tab="rework">⚠️ 10 ลูกค้าสั่งแก้ (ความรับผิดชอบร่วม)</button>
-      <button class="nav-tab ${currentJobTab === 'completed' ? 'active' : ''}" data-tab="completed">🟢 10 เสร็จสิ้นและมีประกัน</button>
+      <button class="nav-tab ${currentJobTab === 'all' ? 'active' : ''}" data-tab="all">งานทั้งหมด</button>
+      <button class="nav-tab ${currentJobTab === 'pending' ? 'active' : ''}" data-tab="pending">1-3 รอจัดช่าง</button>
+      <button class="nav-tab ${currentJobTab === 'active' ? 'active' : ''}" data-tab="active">4-7 กำลังดำเนินการ</button>
+      <button class="nav-tab ${currentJobTab === 'qc' ? 'active' : ''}" data-tab="qc">8-9 รอตรวจงาน</button>
+      <button class="nav-tab ${currentJobTab === 'rework' ? 'active' : ''}" data-tab="rework">10 ลูกค้าสั่งแก้ (ความรับผิดชอบร่วม)</button>
+      <button class="nav-tab ${currentJobTab === 'completed' ? 'active' : ''}" data-tab="completed">10 เสร็จสิ้นและมีประกัน</button>
     </div>
 
     <!-- Date Filters -->
@@ -771,19 +770,16 @@ async function refreshJobsTable() {
   if (pendingIssueJobs.length > 0) {
     bannerHtml = `
       <div class="emergency-issue-banner" style="background: #fff7ed; border: 2px solid #ea580c; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.12);">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 26px;">🚨</span>
-          <div>
-            <div style="font-size: 14.5px; font-weight: 700; color: #9a3412;">
-              ช่างแจ้งปัญหาหน้างาน ${pendingIssueJobs.length} รายการ (ประสานงานผ่านแอป 100% ห้ามโทรศัพท์)
-            </div>
-            <div style="font-size: 12.5px; color: #c2410c;">
-              เรื่อง: ${escapeHtml(pendingIssueJobs[0].adminIssue.issueType)} · คลิกดูใบงานเพื่อส่งข้อความหาลูกค้าและช่างทันที
-            </div>
+        <div>
+          <div style="font-size: 14.5px; font-weight: 700; color: #9a3412;">
+            ช่างแจ้งปัญหาหน้างาน ${pendingIssueJobs.length} รายการ (ประสานงานผ่านแอป 100% ห้ามโทรศัพท์)
+          </div>
+          <div style="font-size: 12.5px; color: #c2410c;">
+            เรื่อง: ${escapeHtml(pendingIssueJobs[0].adminIssue.issueType)} · คลิกดูงานเพื่อส่งข้อความหาลูกค้าและช่างทันที
           </div>
         </div>
         <button class="btn-sm btn-quick-issue-open" data-id="${pendingIssueJobs[0].id}" style="background: #ea580c; color: white; border: none; border-radius: 6px; padding: 8px 14px; font-weight: 700; cursor: pointer;">
-          เปิดใบงานด่วน 📋
+          เปิดดูงานด่วน
         </button>
       </div>
     `;
@@ -801,7 +797,7 @@ async function refreshJobsTable() {
           <th style="width: 160px;">ที่อยู่หน้างาน</th>
           <th style="width: 160px;">ช่างผู้รับผิดชอบ</th>
           <th style="width: 110px;">ราคารวมสุทธิ</th>
-          <th style="width: 70px; text-align: center;">จัดการ</th>
+          <th style="width: 90px; text-align: center;">จัดการ</th>
         </tr>
       </thead>
       <tbody>
@@ -811,32 +807,39 @@ async function refreshJobsTable() {
     tableHtml += `<tr><td colspan="9" class="meta" style="text-align: center;">ไม่พบข้อมูลคิวงานซ่อมในหมวดนี้</td></tr>`;
   } else {
     for (const j of filtered) {
-      const category = CATEGORIES[j.category] || { name: j.category, icon: '🔧' };
+      const category = CATEGORIES[j.category] || 
+        (j.category === 'air' ? CATEGORIES.air_con : null) || 
+        { name: j.serviceTitle || j.title || j.category || 'งานบริการซ่อม', icon: '' };
       const dateObj = new Date(j.scheduledDate || j.createdAt);
       const dateStr = dateObj.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       const address = j.addressId ? await resolveAddress(j.addressId) : '(ไม่มีที่อยู่)';
       const step = STATUS_STEPS.find((s) => s.value === j.status) || STATUS_STEPS[0];
       
-      const assignedTech = j.assignedTeamId ? getTechnicianById(j.assignedTeamId) : null;
+      const techId = j.assignedTeamId || j.assignedTechId || j.techId;
+      let assignedTech = techId ? getTechnicianById(techId) : null;
+      if (!assignedTech && (j.customerSelectedTech || j.assignedTechName)) {
+        const queryName = j.customerSelectedTech || j.assignedTechName;
+        assignedTech = TECHNICIANS.find(t => t.name.includes(queryName) || t.id === queryName || (t.nickname && t.nickname.includes(queryName)));
+      }
       const techDisplay = assignedTech
         ? `[${assignedTech.id}] ${assignedTech.nickname || assignedTech.name}`
-        : (j.assignedTechName ? `[${j.assignedTeamId}] ${j.assignedTechName}` : (j.assignedTeamId || 'รอการยืนยัน'));
+        : (j.assignedTechName ? (techId ? `[${techId}] ` : '') + j.assignedTechName : (techId || 'รอการยืนยัน'));
 
       let statusBadgeHtml = `<span class="badge ${step.badge}" style="font-size: 11px;">${step.label}</span>`;
       if (j.workflowStatus === 'rework_needed') {
-        statusBadgeHtml = `<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 11px; border: 1px solid #fca5a5;">⚠️ สั่งแก้ไข (ความรับผิดชอบร่วม)</span>`;
+        statusBadgeHtml = `<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 11px; border: 1px solid #fca5a5;">สั่งแก้ไข (ความรับผิดชอบร่วม)</span>`;
       } else if (j.workflowStatus === 'tech_submitted') {
-        statusBadgeHtml = `<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 11px; border: 1px solid #fde68a;">📥 ช่างส่งงาน (รอตรวจงาน)</span>`;
+        statusBadgeHtml = `<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 11px; border: 1px solid #fde68a;">ช่างส่งงาน (รอตรวจงาน)</span>`;
       } else if (j.workflowStatus === 'customer_review') {
-        statusBadgeHtml = `<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; border: 1px solid #bae6fd;">👤 ส่งต่อลูกค้าตรวจรับงาน</span>`;
+        statusBadgeHtml = `<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; border: 1px solid #bae6fd;">ส่งต่อลูกค้าตรวจรับงาน</span>`;
       } else if (j.status === 'completed') {
-        statusBadgeHtml = `<span class="badge" style="background: #dcfce7; color: #166534; font-size: 11px; border: 1px solid #86efac;">✅ เสร็จสิ้นและมีประกัน</span>`;
+        statusBadgeHtml = `<span class="badge" style="background: #dcfce7; color: #166534; font-size: 11px; border: 1px solid #86efac;">เสร็จสิ้นและมีประกัน</span>`;
       }
 
       if (j.adminIssue && j.adminIssue.status === 'pending_admin') {
-        statusBadgeHtml += `<div style="margin-top: 4px;"><span class="badge" style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; font-size: 10.5px; font-weight: 700;">⚠️ ช่างติดปัญหา</span></div>`;
+        statusBadgeHtml += `<div style="margin-top: 4px;"><span class="badge" style="background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; font-size: 10.5px; font-weight: 700;">ช่างติดปัญหา</span></div>`;
       } else if (j.adminIssue && j.adminIssue.status === 'resolved') {
-        statusBadgeHtml += `<div style="margin-top: 4px;"><span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; font-size: 10.5px; font-weight: 700;">✓ ประสานงานแล้ว</span></div>`;
+        statusBadgeHtml += `<div style="margin-top: 4px;"><span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; font-size: 10.5px; font-weight: 700;">ประสานงานแล้ว</span></div>`;
       }
       
       tableHtml += `
@@ -844,7 +847,7 @@ async function refreshJobsTable() {
           <td style="font-family: monospace; font-weight: 700; color: var(--navy); font-size: 12px;">${j.id.slice(0, 8).toUpperCase()}</td>
           <td style="font-size: 12px; color: var(--gray-700);">${dateStr}</td>
           <td>
-            <div style="font-weight: 600; color: var(--gray-900);">${category.icon} ${category.name}</div>
+            <div style="font-weight: 600; color: var(--gray-900);">${category.name}</div>
             <div style="font-size: 11px; color: var(--gray-600);">${escapeHtml(j.title || '-')}</div>
           </td>
           <td style="text-align:center;">${statusBadgeHtml}</td>
@@ -853,7 +856,7 @@ async function refreshJobsTable() {
           <td style="font-size: 12px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(techDisplay)}</td>
           <td style="font-weight: 600; color: var(--navy);">฿${(j.price || 0).toLocaleString()}</td>
           <td style="text-align: center;">
-            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" title="[📋 ใบงาน] ตรวจสอบ/จัดการ 10 สเต็ป" style="font-size: 14px; padding: 4px 8px;">📋</button>
+            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" style="font-size: 12px; padding: 4px 10px; font-weight: 600; white-space: nowrap;">เปิดดูงาน</button>
           </td>
         </tr>
       `;
@@ -887,7 +890,9 @@ async function openJobModal(job) {
   const modalContainer = document.getElementById('job-modal-container');
   if (!modalContainer) return;
   
-  const category = CATEGORIES[job.category] || { name: job.category, icon: '🔧' };
+  const category = CATEGORIES[job.category] || 
+    (job.category === 'air' ? CATEGORIES.air_con : null) || 
+    { name: job.serviceTitle || job.serviceName || job.title || 'งานบริการซ่อม', icon: '' };
   const step = STATUS_STEPS.find((s) => s.value === job.status) || STATUS_STEPS[0];
   const address = job.addressId ? await resolveAddress(job.addressId) : '(ไม่มีที่อยู่)';
   const dateStr = new Date(job.scheduledDate || job.createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -952,14 +957,14 @@ async function openJobModal(job) {
             <span style="font-size: 13px; color: var(--gray-600); font-family: monospace;">รหัสงาน: ${job.id}</span>
             <div style="display: flex; gap: 6px; align-items: center;">
               <span class="badge ${step.badge}" style="font-size: 12px;">สถานะหลัก: ${step.label}</span>
-              ${isRework ? '<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 12px; font-weight: 700;">⚠️ วนกลับขั้นตอนที่ 6 (ลูกค้าสั่งแก้ไข)</span>' : ''}
-              ${isSubmittedForReview ? '<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700;">📸 ขั้นตอนที่ 9: รอตรวจงาน</span>' : ''}
-              ${isCustomerReview ? '<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 700;">👤 ขั้นตอนที่ 10: ส่งต่อลูกค้าตรวจรับงาน</span>' : ''}
-              ${isCompleted ? '<span class="badge" style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700;">🛡️ รับประกันเริ่มมีผล</span>' : ''}
+              ${isRework ? '<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 12px; font-weight: 700;">วนกลับขั้นตอนที่ 6 (ลูกค้าสั่งแก้ไข)</span>' : ''}
+              ${isSubmittedForReview ? '<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700;">ขั้นตอนที่ 9: รอตรวจงาน</span>' : ''}
+              ${isCustomerReview ? '<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 700;">ขั้นตอนที่ 10: ส่งต่อลูกค้าตรวจรับงาน</span>' : ''}
+              ${isCompleted ? '<span class="badge" style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700;">รับประกันเริ่มมีผล</span>' : ''}
             </div>
           </div>
           <h2 style="margin: 0; color: var(--navy); display: flex; align-items: center; gap: 8px;">
-            <span>${category.icon}</span> ${category.name}
+            ${category.name}
             <span style="font-size: 14px; font-weight: normal; color: var(--gray-600);">— ศูนย์บริหารงานซ่อม</span>
           </h2>
         </div>
@@ -1018,14 +1023,11 @@ async function openJobModal(job) {
         ${job.adminIssue ? `
           <div style="background: #fff7ed; border: 2px solid ${job.adminIssue.status === 'pending_admin' ? '#ea580c' : '#16a34a'}; border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">🚨</span>
-                <h4 style="margin: 0; color: #9a3412; font-size: 14px; font-weight: 700;">
-                  ศูนย์ประสานงานปัญหาหน้างาน (สื่อสารผ่านแอป 100% ห้ามโทรศัพท์)
-                </h4>
-              </div>
+              <h4 style="margin: 0; color: #9a3412; font-size: 14px; font-weight: 700;">
+                ศูนย์ประสานงานปัญหาหน้างาน (สื่อสารผ่านแอป 100% ห้ามโทรศัพท์)
+              </h4>
               <span class="badge" style="background: ${job.adminIssue.status === 'pending_admin' ? '#ffedd5' : '#dcfce7'}; color: ${job.adminIssue.status === 'pending_admin' ? '#c2410c' : '#15803d'}; font-size: 11px; font-weight: 700; border: 1px solid ${job.adminIssue.status === 'pending_admin' ? '#fdba74' : '#86efac'};">
-                ${job.adminIssue.status === 'pending_admin' ? '⚠️ ช่างรอแอดมินประสานงาน' : (job.adminIssue.status === 'resolved' ? '✓ แอดมินประสานงานเรียบร้อย' : '✓ ช่างรับทราบผลแล้ว')}
+                ${job.adminIssue.status === 'pending_admin' ? 'ช่างรอแอดมินประสานงาน' : (job.adminIssue.status === 'resolved' ? 'แอดมินประสานงานเรียบร้อย' : 'ช่างรับทราบผลแล้ว')}
               </span>
             </div>
 
@@ -1046,11 +1048,11 @@ async function openJobModal(job) {
             <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <div style="font-weight: 700; color: #0369a1; font-size: 13px;">
-                  💬 สื่อสารกับลูกค้าผ่านแอป (ระบบแจ้งเตือนจอลูกค้าทันที):
+                  สื่อสารกับลูกค้าผ่านแอป (ระบบแจ้งเตือนจอลูกค้าทันที):
                 </div>
                 ${job.customerInAppMessage ? `
                   <span class="badge" style="background: ${job.customerReply ? '#dcfce7' : '#fef3c7'}; color: ${job.customerReply ? '#15803d' : '#92400e'}; font-size: 11px;">
-                    ${job.customerReply ? '✓ ลูกค้าตอบกลับแล้ว' : '⏳ รอลูกค้าเปิดอ่าน/ตอบ'}
+                    ${job.customerReply ? 'ลูกค้าตอบกลับแล้ว' : 'รอลูกค้าเปิดอ่าน/ตอบ'}
                   </span>
                 ` : ''}
               </div>
@@ -1065,7 +1067,7 @@ async function openJobModal(job) {
 
               ${job.customerReply ? `
                 <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; color: #166534;">
-                  <div><strong>🟢 คำตอบจากลูกค้า:</strong> "${escapeHtml(job.customerReply.text)}"</div>
+                  <div><strong>คำตอบจากลูกค้า:</strong> "${escapeHtml(job.customerReply.text)}"</div>
                   <div style="font-size: 11px; color: #15803d; margin-top: 2px;">ตอบกลับเมื่อ: ${new Date(job.customerReply.repliedAt).toLocaleTimeString('th-TH')}</div>
                 </div>
               ` : ''}
@@ -1073,21 +1075,21 @@ async function openJobModal(job) {
               <!-- แม่แบบข้อความด่วนสำหรับแอดมินส่งหาลูกค้า -->
               <div style="font-size: 12px; font-weight: 600; color: #0369a1; margin-bottom: 4px;">เลือกข้อความด่วนส่งหาลูกค้า:</div>
               <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
-                <button type="button" class="btn-template-msg" data-text="ช่างถึงซอยหน้าบ้านแล้วแต่หาบ้านเลขที่ไม่เจอ ขอหมุดหรือจุดสังเกตเพิ่มเติมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;">
-                  📍 หาบ้านไม่เจอ ขอจุดสังเกต
+                <button type="button" class="btn-template-msg" data-text="ช่างถึงซอยหน้าบ้านแล้วแต่หาบ้านเลขที่ไม่เจอ ขอหมุดหรือจุดสังเกตเพิ่มเติมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
+                  หาบ้านไม่เจอ ขอจุดสังเกต
                 </button>
-                <button type="button" class="btn-template-msg" data-text="ช่างถึงหน้าบ้านแล้ว ประตูรั้วปิดอยู่ รบกวนเปิดประตูบ้านให้ช่างด้วยค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;">
-                  🚪 ถึงหน้าบ้านแล้ว รบกวนเปิดประตู
+                <button type="button" class="btn-template-msg" data-text="ช่างถึงหน้าบ้านแล้ว ประตูรั้วปิดอยู่ รบกวนเปิดประตูบ้านให้ช่างด้วยค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
+                  ถึงหน้าบ้านแล้ว รบกวนเปิดประตู
                 </button>
-                <button type="button" class="btn-template-msg" data-text="ช่างตรวจพบจุดแก้ไขเพิ่มเติมหน้างาน ขอประสานงานรายละเอียดการซ่อมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;">
-                  🔧 ตรวจพบจุดซ่อมเพิ่มเติม
+                <button type="button" class="btn-template-msg" data-text="ช่างตรวจพบจุดแก้ไขเพิ่มเติมหน้างาน ขอประสานงานรายละเอียดการซ่อมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
+                  ตรวจพบจุดซ่อมเพิ่มเติม
                 </button>
               </div>
 
               <div style="display: flex; gap: 8px;">
                 <input type="text" id="admin-cust-msg-input" class="form-input" placeholder="พิมพ์ข้อความส่งหาลูกค้าผ่านแอป..." style="margin-bottom: 0; font-size: 12px; flex: 1;">
-                <button type="button" class="btn-mint btn-sm" id="btn-send-msg-cust" style="white-space: nowrap; font-weight: 600;">
-                  💬 ส่งแจ้งลูกค้า
+                <button type="button" class="btn-mint btn-sm" id="btn-send-msg-cust" style="white-space: nowrap; font-weight: 600; padding: 6px 12px;">
+                  ส่งแจ้งลูกค้า
                 </button>
               </div>
             </div>
@@ -1095,12 +1097,12 @@ async function openJobModal(job) {
             <!-- กล่องที่ 3: สรุปผลประสานงานส่งกลับให้ช่าง (ปลดล็อกช่าง) -->
             <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 6px; padding: 12px;">
               <div style="font-weight: 700; color: #166534; font-size: 13px; margin-bottom: 6px;">
-                📢 ส่งผลประสานงานให้ช่าง (ปลดล็อกจอช่าง):
+                ส่งผลประสานงานให้ช่าง (ปลดล็อกจอช่าง):
               </div>
               <div style="display: flex; gap: 8px;">
                 <input type="text" id="admin-tech-resolution-input" class="form-input" placeholder="คำแนะนำให้ช่าง (เช่น ลูกค้าแจ้งว่าบ้านอยู่หลังรั้วสีขาว เข้าไปได้เลย)..." value="${escapeHtml(job.adminIssue.resolutionNotes || '')}" style="margin-bottom: 0; font-size: 12px; flex: 1;">
-                <button type="button" class="btn-mint btn-sm" id="btn-send-resolution-tech" style="background: #16a34a; white-space: nowrap; font-weight: 600;">
-                  📢 ปลดล็อก & สั่งช่างลุยต่อ
+                <button type="button" class="btn-mint btn-sm" id="btn-send-resolution-tech" style="background: #16a34a; white-space: nowrap; font-weight: 600; padding: 6px 12px;">
+                  ปลดล็อกและสั่งช่างทำงานต่อ
                 </button>
               </div>
             </div>
@@ -1112,7 +1114,7 @@ async function openJobModal(job) {
           <!-- ฝั่งซ้าย: ข้อมูลลูกค้า (Customer Side 👤) -->
           <div class="dual-panel">
             <div class="dual-panel-header">
-              <h4 class="dual-panel-title">👤 ข้อมูลลูกค้า</h4>
+              <h4 class="dual-panel-title">ข้อมูลลูกค้า</h4>
               <span style="font-size: 11px; color: var(--gray-500);">ข้อมูลผู้แจ้ง</span>
             </div>
 
@@ -1123,14 +1125,14 @@ async function openJobModal(job) {
                 <strong>ที่อยู่หน้างาน:</strong> ${escapeHtml(address)}
                 <div style="margin-top: 4px;">
                   <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" style="color: #0284c7; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                    📍 เปิดแผนที่นำทาง ↗
+                    เปิดแผนที่นำทาง ↗
                   </a>
                 </div>
               </div>
             </div>
 
             <div style="background: #fff; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); font-size: 13px;">
-              <strong style="color: var(--navy);">📋 รายการแจ้งซ่อม:</strong>
+              <strong style="color: var(--navy);">รายการแจ้งซ่อม:</strong>
               <div style="color: var(--gray-800); margin-top: 4px; line-height: 1.4;">${escapeHtml(job.title || 'ไม่มีรายละเอียด')}</div>
             </div>
 
@@ -1142,7 +1144,7 @@ async function openJobModal(job) {
             <!-- Escrow Held Badge (Step 4) -->
             <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 10px; font-size: 12px; color: #065f46;">
               <div style="font-weight: 700; display: flex; align-items: center; gap: 4px;">
-                <span>🛡️ ขั้นตอนที่ 4: พักเงินค่าบริการเรียบร้อย</span>
+                <span>ขั้นตอนที่ 4: พักเงินค่าบริการเรียบร้อย</span>
               </div>
               <div style="margin-top: 2px; color: #047857;">
                 ยอด ฿${(job.price || 0).toLocaleString()} ชำระเงินเรียบร้อย (พักเงินรอไว้ ปลดล็อกเมื่อลูกค้าตรวจรับงาน)
@@ -1150,14 +1152,14 @@ async function openJobModal(job) {
             </div>
 
             <div style="font-size: 12px; color: var(--gray-600); border-top: 1px dashed var(--gray-200); padding-top: 6px;">
-              <span>การเลือกช่าง: <strong>${job.technicianPreference === 'ai' ? '🤖 ระบบจัดหาให้อัตโนมัติ' : '👤 ลูกค้าเลือกช่างเอง'}</strong></span>
+              <span>การเลือกช่าง: <strong>${job.technicianPreference === 'ai' ? 'ระบบจัดหาให้อัตโนมัติ' : 'ลูกค้าเลือกช่างเอง'}</strong></span>
             </div>
           </div>
 
-          <!-- ฝั่งขวา: ข้อมูลช่าง & เรา (Technician & Ops Side 🔧🏛️) -->
+          <!-- ฝั่งขวา: ข้อมูลช่าง & เรา (Technician & Ops Side) -->
           <div class="dual-panel">
             <div class="dual-panel-header">
-              <h4 class="dual-panel-title">🔧 ช่างผู้รับผิดชอบ & ฝ่ายบริหาร</h4>
+              <h4 class="dual-panel-title">ช่างผู้รับผิดชอบ และฝ่ายบริหาร</h4>
               <span style="font-size: 11px; color: var(--gray-500);">ข้อมูลผู้ปฏิบัติงาน</span>
             </div>
 
@@ -1165,27 +1167,27 @@ async function openJobModal(job) {
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label class="form-label" style="font-weight: 600; color: var(--navy); font-size: 13px; margin: 0;">
-                  👷‍♂️ ช่างผู้รับผิดชอบ (ขั้นตอนที่ 3)
+                  ช่างผู้รับผิดชอบ (ขั้นตอนที่ 3)
                 </label>
                 <span style="font-size: 11px; background: #bbf7d0; color: #14532d; padding: 2px 6px; border-radius: 10px; font-weight: 600;">
-                  ✓ ทะเบียนช่าง 15 ท่าน
+                  ทะเบียนช่าง 15 ท่าน
                 </span>
               </div>
 
               <select id="modal-assign-tech-select" class="form-input select-input" style="width: 100%; font-size: 12px; margin-bottom: 8px;">
                 <option value="">-- กรุณาเลือกช่างจากทะเบียนช่าง --</option>
-                <optgroup label="⭐ ช่างแนะนำที่ตรงกับหมวดงาน (${category.name})">
+                <optgroup label="ช่างแนะนำที่ตรงกับหมวดงาน (${category.name})">
                   ${matchedTechs.map(t => `
                     <option value="${t.id}" ${currentSelectedTechId === t.id ? 'selected' : ''}>
-                      [${t.id}] ${t.name} (${t.nickname}) ⭐${t.customerRating} — ${t.tradeName} [${t.status === 'active' ? '🟢 ว่าง' : '🟡 ไม่ว่าง'}]
+                      [${t.id}] ${t.name} (${t.nickname}) คะแนน ${t.customerRating} — ${t.tradeName} [${t.status === 'active' ? 'ว่าง' : 'ไม่ว่าง'}]
                     </option>
                   `).join('')}
                 </optgroup>
                 ${otherTechs.length > 0 ? `
-                  <optgroup label="🛠️ ช่างสาขาอื่นๆ ในทะเบียน">
+                  <optgroup label="ช่างสาขาอื่นๆ ในทะเบียน">
                     ${otherTechs.map(t => `
                       <option value="${t.id}" ${currentSelectedTechId === t.id ? 'selected' : ''}>
-                        [${t.id}] ${t.name} (${t.nickname}) ⭐${t.customerRating} — ${t.tradeName} [${t.status === 'active' ? '🟢 ว่าง' : '🟡 ไม่ว่าง'}]
+                        [${t.id}] ${t.name} (${t.nickname}) คะแนน ${t.customerRating} — ${t.tradeName} [${t.status === 'active' ? 'ว่าง' : 'ไม่ว่าง'}]
                       </option>
                     `).join('')}
                   </optgroup>
@@ -1200,7 +1202,7 @@ async function openJobModal(job) {
 
             <!-- Technician Portal Quick Link -->
             <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
-              <span style="font-size: 12px; color: var(--gray-600);">📱 หน้าจอช่าง:</span>
+              <span style="font-size: 12px; color: var(--gray-600);">หน้าจอช่าง:</span>
               <a href="/tech.html?techId=${currentSelectedTechId || 'RPS-T01'}" target="_blank" style="color: var(--mint-600); font-weight: 600; text-decoration: none; font-size: 12px;">
                 เปิดหน้าจอช่าง ↗
               </a>
@@ -1209,7 +1211,7 @@ async function openJobModal(job) {
             <!-- Dispatch Button if not yet assigned -->
             ${isPendingReview ? `
               <button class="btn-mint" id="btn-assign-and-send" style="width: 100%; font-weight: 600; padding: 10px; font-size: 13px;">
-                📤 ขั้นตอนที่ 3: ส่งงานให้ช่างรับ
+                ขั้นตอนที่ 3: ส่งงานให้ช่างรับ
               </button>
             ` : ''}
           </div>
@@ -1219,7 +1221,7 @@ async function openJobModal(job) {
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h4 style="margin: 0; color: var(--navy); font-size: 13px; font-weight: 600;">
-              ⚙️ ขั้นตอนที่ 6: เราประสานงาน (อะไหล่แท้ + ช่าง + ลูกค้า)
+              ขั้นตอนที่ 6: เราประสานงาน (อะไหล่แท้ + ช่าง + ลูกค้า)
             </h4>
             <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px;">ประสานงาน 3 ฝ่าย</span>
           </div>
@@ -1227,21 +1229,21 @@ async function openJobModal(job) {
           <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--gray-700); margin-bottom: 10px;">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" id="chk-parts" ${job.coordination?.partsChecked ? 'checked' : ''}>
-              <span>🔍 ตรวจสอบอะไหล่แท้/อุปกรณ์มาตรฐานครบถ้วน (ไม่ใช้อะไหล่เทียบหรืออะไหล่ดัดแปลง)</span>
+              <span>ตรวจสอบอะไหล่แท้/อุปกรณ์มาตรฐานครบถ้วน (ไม่ใช้อะไหล่เทียบหรืออะไหล่ดัดแปลง)</span>
             </label>
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" id="chk-tech-ready" ${job.coordination?.techReadyChecked ? 'checked' : ''}>
-              <span>👷 ช่างยืนยันความพร้อม คิวเวลาเดินทาง และอุปกรณ์ความปลอดภัย</span>
+              <span>ช่างยืนยันความพร้อม คิวเวลาเดินทาง และอุปกรณ์ความปลอดภัย</span>
             </label>
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
               <input type="checkbox" id="chk-customer-confirm" ${job.coordination?.customerConfirmChecked ? 'checked' : ''}>
-              <span>💬 ส่งข้อความยืนยันเวลานัดหมายและพิกัดหน้างานผ่านแอปเรียบร้อย (งดโทรศัพท์ 100%)</span>
+              <span>ส่งข้อความยืนยันเวลานัดหมายและพิกัดหน้างานผ่านแอปเรียบร้อย (งดโทรศัพท์ 100%)</span>
             </label>
           </div>
 
           <div style="display: flex; gap: 8px;">
             <input type="text" id="input-coord-notes" class="form-input" placeholder="บันทึกการประสานงาน (เช่น ยืนยันเบิกคอมเพรสเซอร์แท้ศูนย์, ช่างเข้า 10:00 น.)..." value="${escapeHtml(job.coordination?.notes || '')}" style="margin-bottom: 0; flex: 1; font-size: 12px;">
-            <button class="secondary btn-sm" id="btn-save-coord" style="white-space: nowrap;">💾 บันทึกประสานงาน</button>
+            <button class="secondary btn-sm" id="btn-save-coord" style="white-space: nowrap;">บันทึกประสานงาน</button>
           </div>
         </div>
 
@@ -1249,11 +1251,11 @@ async function openJobModal(job) {
         ${(job.status === 'assigned' || job.status === 'traveling' || isRework) ? `
           <div style="background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <strong style="color: #1e40af; font-size: 13px;">🚀 ขั้นตอนที่ 7: เราอนุญาตให้ช่างเริ่มทำงานให้ลูกค้า</strong>
+              <strong style="color: #1e40af; font-size: 13px;">ขั้นตอนที่ 7: เราอนุญาตให้ช่างเริ่มทำงานให้ลูกค้า</strong>
               <div style="font-size: 12px; color: #1e3a8a; margin-top: 2px;">เมื่อการประสานงานอะไหล่และความพร้อมเรียบร้อย ให้กดอนุญาตเพื่อให้ช่างลงมือซ่อมหน้างานได้</div>
             </div>
             <button class="btn-mint" id="btn-authorize-start" style="font-weight: 600; white-space: nowrap; padding: 8px 16px;">
-              🚀 อนุญาตให้ช่างเริ่มงาน
+              อนุญาตให้ช่างเริ่มงาน
             </button>
           </div>
         ` : ''}
@@ -1263,14 +1265,14 @@ async function openJobModal(job) {
           <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h4 style="margin: 0; color: var(--navy); font-size: 14px; font-weight: 600;">
-                📸 ขั้นตอนที่ 8 & 9: ผลงานช่าง & เราตรวจงานส่งต่อลูกค้า
+                ขั้นตอนที่ 8 และ 9: ผลงานช่าง และเราตรวจงานส่งต่อลูกค้า
               </h4>
               <span class="badge" style="background: #dbeafe; color: #1e40af; font-size: 11px;">การตรวจงาน</span>
             </div>
             
             <div class="qc-compare-grid" style="margin-bottom: 12px;">
               <div class="qc-photo-box">
-                <div class="qc-photo-title">📷 รูปก่อนทำ</div>
+                <div class="qc-photo-title">รูปก่อนทำ</div>
                 ${(job.beforePhotos && job.beforePhotos.length > 0) ? `
                   <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
                     ${job.beforePhotos.map(url => `
@@ -1281,7 +1283,7 @@ async function openJobModal(job) {
               </div>
 
               <div class="qc-photo-box">
-                <div class="qc-photo-title">📷 รูปหลังทำเสร็จ</div>
+                <div class="qc-photo-title">รูปหลังทำเสร็จ</div>
                 ${(job.afterPhotos && job.afterPhotos.length > 0) ? `
                   <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
                     ${job.afterPhotos.map(url => `
@@ -1294,7 +1296,7 @@ async function openJobModal(job) {
 
             ${job.techNotes ? `
               <div style="background: #fff; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); font-size: 12px; margin-bottom: 12px;">
-                <strong>📝 หมายเหตุจากช่างหน้างาน:</strong> ${escapeHtml(job.techNotes)}
+                <strong>หมายเหตุจากช่างหน้างาน:</strong> ${escapeHtml(job.techNotes)}
               </div>
             ` : ''}
 
@@ -1302,15 +1304,15 @@ async function openJobModal(job) {
             ${isSubmittedForReview ? `
               <div style="background: #fff; padding: 12px; border-radius: var(--radius-sm); border: 1px solid #93c5fd; display: flex; flex-direction: column; gap: 10px;">
                 <div style="font-weight: 600; font-size: 13px; color: var(--navy);">
-                  🔍 ตรวจสอบงาน: ตรวจสอบความถูกต้องก่อนส่งให้ลูกค้าตรวจรับ
+                  ตรวจสอบงาน: ตรวจสอบความถูกต้องก่อนส่งให้ลูกค้าตรวจรับ
                 </div>
                 <input type="text" id="qc-inspector-notes" class="form-input" placeholder="ความเห็นผู้ตรวจงาน (เช่น ล้างสะอาดเรียบร้อย เช็คแรงดันน้ำยาแอร์ปกติ)..." style="margin-bottom: 0; font-size: 12px;">
                 <div style="display: flex; justify-content: flex-end; gap: 8px;">
                   <button class="secondary btn-sm" id="btn-reject-qc1" style="color: #b91c1c; border-color: #fca5a5;">
-                    ❌ ไม่ผ่านการตรวจ - ส่งกลับให้ช่างแก้ไข
+                    ไม่ผ่านการตรวจ - ส่งกลับให้ช่างแก้ไข
                   </button>
                   <button class="btn-mint btn-sm" id="btn-pass-qc1" style="font-weight: 600;">
-                    ✅ ผ่านการตรวจ - ส่งต่อลูกค้าตรวจรับงาน (ไปขั้นตอนที่ 10)
+                    ผ่านการตรวจ - ส่งต่อลูกค้าตรวจรับงาน (ไปขั้นตอนที่ 10)
                   </button>
                 </div>
               </div>
@@ -1323,7 +1325,7 @@ async function openJobModal(job) {
           <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <h4 style="margin: 0; color: #166534; font-size: 13px; font-weight: 600;">
-                🎯 ขั้นตอนที่ 10: ลูกค้าตรวจรับงาน (เริ่มนับประกัน)
+                ขั้นตอนที่ 10: ลูกค้าตรวจรับงาน (เริ่มนับประกัน)
               </h4>
               <span class="badge" style="background: #bbf7d0; color: #14532d; font-size: 11px;">การตรวจรับงาน</span>
             </div>
@@ -1332,10 +1334,10 @@ async function openJobModal(job) {
             </p>
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
               <button class="secondary" id="btn-customer-reject" style="color: #991b1b; border-color: #f87171; font-weight: 600;">
-                ⚠️ ลูกค้าไม่รับงาน & ขอแก้ไข (วนกลับไปข้อ 6)
+                ลูกค้าไม่รับงาน & ขอแก้ไข (วนกลับไปข้อ 6)
               </button>
               <button class="btn-mint" id="btn-customer-accept" style="font-weight: 600;">
-                🎉 ลูกค้ารับงานสมบูรณ์ (เริ่มนับประกัน)
+                ลูกค้ารับงานสมบูรณ์ (เริ่มนับประกัน)
               </button>
             </div>
           </div>
@@ -1381,9 +1383,6 @@ async function openJobModal(job) {
 
     previewContainer.innerHTML = `
       <div style="display: flex; gap: 10px; align-items: flex-start;">
-        <div style="width: 38px; height: 38px; border-radius: 50%; background: #e0f2fe; color: #0369a1; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; font-weight: bold;">
-          👷
-        </div>
         <div style="flex: 1;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="font-weight: 700; color: var(--navy); font-size: 13px;">
@@ -1391,24 +1390,24 @@ async function openJobModal(job) {
               <span style="font-family: monospace; font-size: 11px; color: var(--gray-500); font-weight: normal;">[${tech.id}]</span>
             </div>
             <span class="badge" style="${tech.status === 'active' ? 'background: #dcfce7; color: #15803d;' : 'background: #fef3c7; color: #b45309;'} font-size: 11px;">
-              ${tech.status === 'active' ? '🟢 พร้อมรับงาน' : '🟡 กำลังทำงาน'}
+              ${tech.status === 'active' ? 'พร้อมรับงาน' : 'กำลังทำงาน'}
             </span>
           </div>
 
           <div style="display: flex; gap: 12px; margin-top: 4px; font-size: 11px; color: var(--gray-600); flex-wrap: wrap;">
-            <span>📞 <strong>${tech.phone}</strong></span>
-            <span>📍 บริการ: <strong>${tech.coverageArea}</strong></span>
-            <span>🏆 ผ่านงาน: <strong>${tech.completedJobs} งาน</strong></span>
+            <span>โทรศัพท์: <strong>${tech.phone}</strong></span>
+            <span>พื้นที่บริการ: <strong>${tech.coverageArea}</strong></span>
+            <span>ผ่านงาน: <strong>${tech.completedJobs} งาน</strong></span>
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 4px; font-size: 11px; align-items: center;">
-            <span style="color: #b45309; font-weight: 600;">⭐ ลูกค้า: ${tech.customerRating} / 5.0 (${tech.reviewCount} รีวิว)</span>
-            <span style="color: #0369a1; font-weight: 600;">🛡️ วินัย Trust: ${Math.round(tech.companyScore || 95)}/100 (${Math.round(tech.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</span>
+            <span style="color: #b45309; font-weight: 600;">คะแนนลูกค้า: ${tech.customerRating} / 5.0 (${tech.reviewCount} รีวิว)</span>
+            <span style="color: #0369a1; font-weight: 600;">คะแนนวินัย: ${Math.round(tech.companyScore || 95)}/100 (${Math.round(tech.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</span>
           </div>
 
           ${firstReview ? `
             <div style="margin-top: 6px; font-size: 11px; background: #f8fafc; padding: 4px 8px; border-radius: 4px; border-left: 3px solid #10b981; color: var(--gray-700);">
-              💬 <em>"${firstReview.comment}"</em> — <span style="color: var(--gray-500);">${firstReview.customer}</span>
+              <em>"${firstReview.comment}"</em> — <span style="color: var(--gray-500);">${firstReview.customer}</span>
             </div>
           ` : ''}
         </div>
