@@ -73,7 +73,7 @@ const isDevAdmin = urlParams.get('devAdmin') === 'true' || localStorage.getItem(
 
 if (isDevAdmin) {
   // 0ms Instant UI Render for Cockpit & Local Dev
-  renderDashboard({ email: 'admin@rakbaan.com (Ops Lead)', uid: 'demo_ops_admin' }, 'admin');
+  renderDashboard({ email: 'admin@rakbaan.com (หัวหน้าฝ่ายบริหาร)', uid: 'demo_ops_admin' }, 'admin');
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       try {
@@ -118,12 +118,12 @@ function renderLogin() {
       <div class="brand-badge" style="justify-content: center; margin-bottom: 24px;">
         <span style="font-size: 32px;">🏡</span>
         <div>
-          <h1 class="brand-title" style="font-size: 22px;">รักบ้าน@CNX — Ops Portal</h1>
-          <div class="brand-subtitle">ระบบบริหารจัดการสำหรับทีมงานและผู้ดูแลระบบ</div>
+          <h1 class="brand-title" style="font-size: 22px;">การบริหารรักบ้าน</h1>
+          <div class="brand-subtitle">ระบบบริหารจัดการสำหรับทีมงานและฝ่ายบริหาร</div>
         </div>
       </div>
       <div class="card">
-        <h2 style="font-size: 16px; margin-bottom: 14px;">เข้าสู่ระบบ Staff / Admin</h2>
+        <h2 style="font-size: 16px; margin-bottom: 14px;">เข้าสู่ระบบเจ้าหน้าที่ฝ่ายบริหาร</h2>
         <input id="email" type="email" placeholder="อีเมล" autocomplete="username" />
         <input id="password" type="password" placeholder="รหัสผ่าน" autocomplete="current-password" />
         <p class="error" id="error"></p>
@@ -132,11 +132,11 @@ function renderLogin() {
           <button class="secondary" id="signup">สร้างบัญชีใหม่</button>
         </div>
         <button class="btn-mint" id="btn-demo-admin" style="width: 100%; margin-top: 12px; font-weight: 700; padding: 10px; font-size: 13px;">
-          ⚡ เข้าสู่ระบบแบบจำลอง (Demo Ops Admin Mode)
+          เข้าสู่ระบบแบบจำลองสำหรับทดสอบ
         </button>
       </div>
       <p class="meta" style="text-align: center;">
-        บัญชีใหม่ต้องได้รับสิทธิ์ staff ผ่าน <code>node scripts/grant-staff-role.js [email]</code> ก่อนเข้าใช้งาน
+        บัญชีใหม่ต้องได้รับสิทธิ์จากผู้ดูแลระบบก่อนเข้าใช้งาน
       </p>
     </div>
   `;
@@ -153,7 +153,7 @@ function renderLogin() {
           await signInAnonymously(auth);
         } catch (e) {}
       }
-      renderDashboard({ email: 'admin@rakbaan.com (Ops Lead)', uid: 'demo_ops_admin' }, 'admin');
+      renderDashboard({ email: 'admin@rakbaan.com (ผู้ดูแลระบบ)', uid: 'demo_ops_admin' }, 'admin');
     };
   }
 
@@ -215,35 +215,35 @@ function renderDashboard(user, role) {
         </div>
         <nav class="sidebar-nav">
           <button class="nav-item ${activeTab === 'jobs' ? 'active' : ''}" id="nav-jobs" style="display: flex; align-items: center; justify-content: space-between;">
-            <span>🚆 คิวเดินรถซ่อมสด</span>
+            <span>คิวงานซ่อมสด</span>
             <span id="sidebar-incident-badge" style="display: none; background: #ea580c; color: #fff; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 1px 7px;">0</span>
           </button>
           <button class="nav-item ${activeTab === 'history' ? 'active' : ''}" id="nav-history">
-            <span>📦 อู่ประวัติเดินรถ</span>
+            <span>ประวัติงานที่เสร็จสิ้น</span>
           </button>
           <button class="nav-item ${activeTab === 'catalog' ? 'active' : ''}" id="nav-catalog">
-            <span>🏷️ รายการงานบริการ</span>
+            <span>รายการงานบริการ</span>
           </button>
           <button class="nav-item ${activeTab === 'technicians' ? 'active' : ''}" id="nav-technicians">
-            <span>🔧 ทะเบียนคนขับช่าง</span>
+            <span>ทะเบียนช่าง</span>
           </button>
           <button class="nav-item ${activeTab === 'customers' ? 'active' : ''}" id="nav-customers">
-            <span>👤 ข้อมูลคนโดยสาร</span>
+            <span>ข้อมูลลูกค้า</span>
           </button>
           <button class="nav-item ${activeTab === 'finance' ? 'active' : ''}" id="nav-finance">
-            <span>💰 สรุปการเงิน</span>
+            <span>สรุปการเงิน</span>
           </button>
           <button class="nav-item" id="nav-ops-playbook" style="margin-top: 14px; background: #ecfdf5; border: 1.5px solid #10b981; color: #047857; font-weight: 700; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span>📖 คู่มือเดินรถ (SOP)</span>
+            <span>คู่มือปฏิบัติการ</span>
           </button>
           <a href="/cockpit.html" target="_blank" class="nav-item" style="text-decoration: none; color: #fff; margin-top: 8px; background: linear-gradient(135deg, #059669 0%, #0d9488 100%); border-radius: var(--radius-md); font-size: 13px; font-weight: 700; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); text-align: center;">
-            ศูนย์ควบคุม 3 หน้าจอ ↗
+            ศูนย์ควบคุม 3 หน้าจอ
           </a>
           <a href="/tech.html" target="_blank" class="nav-item" style="text-decoration: none; color: #d97706; margin-top: 6px; background: #fffbeb; border: 1px dashed #f59e0b; border-radius: var(--radius-md); font-size: 13px; text-align: center;">
-            จอคนขับช่าง ↗
+            จอช่าง
           </a>
           <a href="/customer.html" target="_blank" class="nav-item" style="text-decoration: none; color: var(--mint-600); margin-top: 6px; background: var(--mint-100); border: 1px dashed var(--mint); border-radius: var(--radius-md); font-size: 13px; text-align: center;">
-            จอคนโดยสาร ↗
+            จอลูกค้า
           </a>
         </nav>
         <div class="sidebar-footer">
@@ -255,13 +255,17 @@ function renderDashboard(user, role) {
             <button class="link text-red" id="signout">ออกจากระบบ</button>
           </div>
           <div style="font-size: 11px; color: var(--gray-400); text-align: center; margin-top: 8px;">
-            Powered by Dlab Studios.<br>
-            <a href="https://www.Dlabotory.com" target="_blank" style="color: var(--gray-400); text-decoration: none;">www.Dlabotory.com</a>
+            ระบบบริหารจัดการรักบ้าน
           </div>
         </div>
       </aside>
 
       <main class="main-content">
+        <div style="margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;">
+          <button id="btn-toggle-sidebar" class="btn-toggle-sidebar" title="ซ่อนหรือแสดงแถบเมนูด้านซ้าย">
+            <span id="sidebar-toggle-text">ซ่อนแถบเมนูข้าง</span>
+          </button>
+        </div>
         <div id="view-content"></div>
       </main>
     </div>
@@ -269,6 +273,32 @@ function renderDashboard(user, role) {
 
   document.getElementById('signout').onclick = () => signOut(auth);
   document.getElementById('nav-ops-playbook').onclick = openOpsPlaybookModal;
+
+  const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+  const toggleSidebarFn = () => {
+    const sidebar = document.querySelector('.sidebar');
+    const text = document.getElementById('sidebar-toggle-text');
+    if (sidebar) {
+      sidebar.classList.toggle('collapsed');
+      const isCollapsed = sidebar.classList.contains('collapsed');
+      if (text) text.textContent = isCollapsed ? 'แสดงแถบเมนูข้าง' : 'ซ่อนแถบเมนูข้าง';
+    }
+  };
+
+  if (btnToggleSidebar) {
+    btnToggleSidebar.onclick = toggleSidebarFn;
+  }
+
+  // Keyboard shortcut
+  if (!window._sidebarShortcutAttached) {
+    window._sidebarShortcutAttached = true;
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+        e.preventDefault();
+        toggleSidebarFn();
+      }
+    });
+  }
 
   const tabs = ['jobs', 'history', 'catalog', 'technicians', 'customers', 'finance'];
   const switchTab = (tab) => {
@@ -294,7 +324,9 @@ async function renderActiveTab(user, role) {
   if (!content) return;
 
   if (activeTab === 'jobs') {
-    currentJobTab = 'all';
+    if (!['urgent', 'active', 'pending', 'delivering', 'history'].includes(currentJobTab)) {
+      currentJobTab = 'urgent';
+    }
     renderJobsView(content);
   } else if (activeTab === 'history') {
     currentJobTab = 'history';
@@ -330,19 +362,19 @@ async function renderActiveTab(user, role) {
 
 
 let mockTechnicians = [
-  { id: 'PPT-TC01', name: 'สมชาย ใจดี (ชาย)', gender: 'ชาย', age: 35, phone: '081-111-2222', skills: ['❄️ แอร์', '⚡ ไฟฟ้า'], qcScore: 4.8, reviewScore: 4.9, paymentModel: 'ส่วนแบ่ง %', status: 'available' },
-  { id: 'PPT-TC02', name: 'วิชัย รักงาน (ชัย)', gender: 'ชาย', age: 42, phone: '082-222-3333', skills: ['🚰 ประปา', '🏠 ซ่อมบ้าน'], qcScore: 4.5, reviewScore: 4.7, paymentModel: 'เงินเดือน', status: 'busy' },
-  { id: 'PPT-TC03', name: 'นพดล เก่งมาก (นพ)', gender: 'ชาย', age: 28, phone: '083-333-4444', skills: ['❄️ แอร์'], qcScore: 4.9, reviewScore: 5.0, paymentModel: 'เหมาต่องาน', status: 'available' },
-  { id: 'PPT-TC04', name: 'สุดา ช่างแอร์ (ดา)', gender: 'หญิง', age: 31, phone: '084-444-5555', skills: ['❄️ แอร์', '⚡ ไฟฟ้า'], qcScore: 4.6, reviewScore: 4.8, paymentModel: 'ส่วนแบ่ง %', status: 'inactive' },
-  { id: 'PPT-TC05', name: 'อำนาจ ทรงพลัง (อ่ำ)', gender: 'ชาย', age: 45, phone: '085-555-6666', skills: ['🏠 ซ่อมบ้าน', '🚰 ประปา', '⚡ ไฟฟ้า'], qcScore: 4.7, reviewScore: 4.6, paymentModel: 'เหมาต่องาน', status: 'busy' },
+  { id: 'PPT-TC01', name: 'สมชาย ใจดี (ชาย)', gender: 'ชาย', age: 35, phone: '081-111-2222', skills: ['แอร์', 'ไฟฟ้า'], qcScore: 4.8, reviewScore: 4.9, paymentModel: 'ส่วนแบ่ง %', status: 'available' },
+  { id: 'PPT-TC02', name: 'วิชัย รักงาน (ชัย)', gender: 'ชาย', age: 42, phone: '082-222-3333', skills: ['ประปา', 'ซ่อมบ้าน'], qcScore: 4.5, reviewScore: 4.7, paymentModel: 'เงินเดือน', status: 'busy' },
+  { id: 'PPT-TC03', name: 'นพดล เก่งมาก (นพ)', gender: 'ชาย', age: 28, phone: '083-333-4444', skills: ['แอร์'], qcScore: 4.9, reviewScore: 5.0, paymentModel: 'เหมาต่องาน', status: 'available' },
+  { id: 'PPT-TC04', name: 'สุดา ช่างแอร์ (ดา)', gender: 'หญิง', age: 31, phone: '084-444-5555', skills: ['แอร์', 'ไฟฟ้า'], qcScore: 4.6, reviewScore: 4.8, paymentModel: 'ส่วนแบ่ง %', status: 'inactive' },
+  { id: 'PPT-TC05', name: 'อำนาจ ทรงพลัง (อ่ำ)', gender: 'ชาย', age: 45, phone: '085-555-6666', skills: ['ซ่อมบ้าน', 'ประปา', 'ไฟฟ้า'], qcScore: 4.7, reviewScore: 4.6, paymentModel: 'เหมาต่องาน', status: 'busy' },
 ];
 
 let mockCustomers = [
-  { id: 'CUST-01', name: 'คุณนารี สวยเสมอ', phone: '091-111-1111', zone: 'นิมมาน, เชียงใหม่', currentStatus: 'normal', jobCount: 5, totalSpend: 15500, history: [{ date: '2026-09-10', code: 'AC-CLN-001', service: 'ล้างแอร์ติดผนัง', tech: 'สมชาย ใจดี', price: 550, review: 'ดีมาก ช่างตรงต่อเวลา ⭐⭐⭐⭐⭐' }] },
-  { id: 'CUST-02', name: 'บจก. คาเฟ่ เชียงใหม่', phone: '092-222-2222', zone: 'แม่เหียะ, เชียงใหม่', currentStatus: 'in_progress', jobCount: 12, totalSpend: 45000, history: [{ date: '2026-09-08', code: 'EL-REP-005', service: 'ซ่อมไฟช็อต', tech: 'อำนาจ ทรงพลัง', price: 1200, review: 'แก้ไขได้รวดเร็ว ⭐⭐⭐⭐' }] },
-  { id: 'CUST-03', name: 'ดร. วิชาญ เรียนดี', phone: '093-333-3333', zone: 'สันผีเสื้อ, เชียงใหม่', currentStatus: 'pending', jobCount: 2, totalSpend: 2800, history: [{ date: '2026-09-01', code: 'PL-LEK-002', service: 'ซ่อมท่อประปารั่ว', tech: 'วิชัย รักงาน', price: 800, review: 'งานเรียบร้อยดี ⭐⭐⭐⭐⭐' }] },
-  { id: 'CUST-04', name: 'ร้านอาหาร ไทยล้านนา', phone: '094-444-4444', zone: 'ช้างคลาน, เชียงใหม่', currentStatus: 'normal', jobCount: 8, totalSpend: 23400, history: [{ date: '2026-08-25', code: 'AC-REP-009', service: 'ซ่อมแอร์ไม่เย็น', tech: 'นพดล เก่งมาก', price: 3500, review: 'แอร์เย็นฉ่ำเหมือนใหม่ ⭐⭐⭐⭐⭐' }] },
-  { id: 'CUST-05', name: 'คุณสมศักดิ์ มั่งมี', phone: '095-555-5555', zone: 'สันทราย, เชียงใหม่', currentStatus: 'normal', jobCount: 1, totalSpend: 550, history: [{ date: '2026-08-20', code: 'AC-CLN-010', service: 'ล้างแอร์ติดผนัง', tech: 'สุดา ช่างแอร์', price: 550, review: 'ช่างอัธยาศัยดี ⭐⭐⭐⭐⭐' }] },
+  { id: 'CUST-01', name: 'คุณนารี สวยเสมอ', phone: '091-111-1111', zone: 'นิมมาน, เชียงใหม่', currentStatus: 'normal', jobCount: 5, totalSpend: 15500, history: [{ date: '2026-09-10', code: 'AC-CLN-001', service: 'ล้างแอร์ติดผนัง', tech: 'สมชาย ใจดี', price: 550, review: 'ดีมาก ช่างตรงต่อเวลา (5/5)' }] },
+  { id: 'CUST-02', name: 'บจก. คาเฟ่ เชียงใหม่', phone: '092-222-2222', zone: 'แม่เหียะ, เชียงใหม่', currentStatus: 'in_progress', jobCount: 12, totalSpend: 45000, history: [{ date: '2026-09-08', code: 'EL-REP-005', service: 'ซ่อมไฟช็อต', tech: 'อำนาจ ทรงพลัง', price: 1200, review: 'แก้ไขได้รวดเร็ว (4/5)' }] },
+  { id: 'CUST-03', name: 'ดร. วิชาญ เรียนดี', phone: '093-333-3333', zone: 'สันผีเสื้อ, เชียงใหม่', currentStatus: 'pending', jobCount: 2, totalSpend: 2800, history: [{ date: '2026-09-01', code: 'PL-LEK-002', service: 'ซ่อมท่อประปารั่ว', tech: 'วิชัย รักงาน', price: 800, review: 'งานเรียบร้อยดี (5/5)' }] },
+  { id: 'CUST-04', name: 'ร้านอาหาร ไทยล้านนา', phone: '094-444-4444', zone: 'ช้างคลาน, เชียงใหม่', currentStatus: 'normal', jobCount: 8, totalSpend: 23400, history: [{ date: '2026-08-25', code: 'AC-REP-009', service: 'ซ่อมแอร์ไม่เย็น', tech: 'นพดล เก่งมาก', price: 3500, review: 'แอร์เย็นฉ่ำเหมือนใหม่ (5/5)' }] },
+  { id: 'CUST-05', name: 'คุณสมศักดิ์ มั่งมี', phone: '095-555-5555', zone: 'สันทราย, เชียงใหม่', currentStatus: 'normal', jobCount: 1, totalSpend: 550, history: [{ date: '2026-08-20', code: 'AC-CLN-010', service: 'ล้างแอร์ติดผนัง', tech: 'สุดา ช่างแอร์', price: 550, review: 'ช่างอัธยาศัยดี (5/5)' }] },
 ];
 
 
@@ -361,7 +393,7 @@ function renderTechniciansView(container) {
       </div>
       <div>
         <a href="/tech.html" target="_blank" class="btn-mint" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-          เปิดหน้าจอช่าง ↗
+          เปิดหน้าจอช่าง
         </a>
       </div>
     </div>
@@ -409,7 +441,7 @@ function renderTechniciansView(container) {
               <td style="text-align: center; font-weight: 600; color: var(--navy);">${t.completedJobs} งาน</td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
-                  <span style="color: #0284c7;">วินัย Trust: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</strong></span>
+                  <span style="color: #0284c7;">คะแนนวินัย: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</strong></span>
                   <span style="color: #d97706;">ลูกค้า: <strong>${t.customerRating}</strong> (${t.reviewCount})</span>
                 </div>
               </td>
@@ -428,48 +460,51 @@ function renderTechniciansView(container) {
     <div id="tech-modal-container"></div>
   `;
 
-  document.getElementById('btn-add-tech').onclick = () => {
-    const m = document.getElementById('tech-modal-container');
-    m.innerHTML = `
-      <div class="modal-backdrop" id="tech-modal-backdrop" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;">
-        <div class="modal-dialog card" style="width: 500px; max-width: 90%; position: relative; padding: 24px;">
-          <button class="modal-close-btn" id="tech-modal-close" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
-          <h3 style="margin: 0 0 16px 0;">➕ เพิ่ม/แก้ไขข้อมูลช่าง</h3>
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div><label class="form-label">ชื่อ-สกุล (ชื่อเล่น)</label><input class="form-input" style="margin:0;" type="text"></div>
-            <div><label class="form-label">เบอร์โทรศัพท์</label><input class="form-input" style="margin:0;" type="text"></div>
-            <div>
-              <label class="form-label">ทักษะความชำนาญ (Multi-select)</label>
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <label><input type="checkbox"> ❄️ แอร์</label>
-                <label><input type="checkbox"> ⚡ ไฟฟ้า</label>
-                <label><input type="checkbox"> 🚰 ประปา</label>
-                <label><input type="checkbox"> 🏠 ซ่อมบ้าน</label>
+  const btnAddTech = document.getElementById('btn-add-tech');
+  if (btnAddTech) {
+    btnAddTech.onclick = () => {
+      const m = document.getElementById('tech-modal-container');
+      m.innerHTML = `
+        <div class="modal-backdrop" id="tech-modal-backdrop" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;">
+          <div class="modal-dialog card" style="width: 500px; max-width: 90%; position: relative; padding: 24px;">
+            <button class="modal-close-btn" id="tech-modal-close" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
+            <h3 style="margin: 0 0 16px 0;">เพิ่มหรือแก้ไขข้อมูลช่าง</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div><label class="form-label">ชื่อ-สกุล (ชื่อเล่น)</label><input class="form-input" style="margin:0;" type="text"></div>
+              <div><label class="form-label">เบอร์โทรศัพท์</label><input class="form-input" style="margin:0;" type="text"></div>
+              <div>
+                <label class="form-label">ทักษะความชำนาญ</label>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <label><input type="checkbox"> แอร์</label>
+                  <label><input type="checkbox"> ไฟฟ้า</label>
+                  <label><input type="checkbox"> ประปา</label>
+                  <label><input type="checkbox"> ซ่อมบ้าน</label>
+                </div>
+              </div>
+              <div>
+                <label class="form-label">โมเดลค่าแรง</label>
+                <select class="form-input select-input" style="margin:0;">
+                  <option>ส่วนแบ่ง %</option><option>เหมาต่องาน</option><option>เงินเดือน</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">สถานะ</label>
+                <select class="form-input select-input" style="margin:0;">
+                  <option>พร้อมรับงาน</option><option>กำลังทำงาน</option><option>พักงาน</option>
+                </select>
               </div>
             </div>
-            <div>
-              <label class="form-label">โมเดลค่าแรง</label>
-              <select class="form-input select-input" style="margin:0;">
-                <option>ส่วนแบ่ง %</option><option>เหมาต่องาน</option><option>เงินเดือน</option>
-              </select>
+            <div style="margin-top: 24px; text-align: right;">
+              <button class="btn-mint" id="btn-save-tech">บันทึกข้อมูล</button>
             </div>
-            <div>
-              <label class="form-label">สถานะ (ห้ามลบ)</label>
-              <select class="form-input select-input" style="margin:0;">
-                <option>พร้อมรับงาน</option><option>กำลังทำงาน</option><option>พักงาน</option>
-              </select>
-            </div>
-          </div>
-          <div style="margin-top: 24px; text-align: right;">
-            <button class="btn-mint" id="btn-save-tech">บันทึกข้อมูล</button>
           </div>
         </div>
-      </div>
-    `;
-    document.getElementById('tech-modal-close').onclick = () => m.innerHTML = '';
-    document.getElementById('tech-modal-backdrop').onclick = (e) => { if(e.target.id === 'tech-modal-backdrop') m.innerHTML = ''; };
-    document.getElementById('btn-save-tech').onclick = () => { m.innerHTML = ''; showToast('บันทึกข้อมูลช่างเรียบร้อย'); };
-  };
+      `;
+      document.getElementById('tech-modal-close').onclick = () => m.innerHTML = '';
+      document.getElementById('tech-modal-backdrop').onclick = (e) => { if(e.target.id === 'tech-modal-backdrop') m.innerHTML = ''; };
+      document.getElementById('btn-save-tech').onclick = () => { m.innerHTML = ''; showToast('บันทึกข้อมูลช่างเรียบร้อย'); };
+    };
+  }
 }
 
 
@@ -488,13 +523,12 @@ function renderCustomersView(container) {
     <div class="catalog-header">
       <div>
         <h2 class="catalog-title">ข้อมูลลูกค้า</h2>
-        <p class="catalog-subtitle">ระบบค้นหาอัจฉริยะ (Universal Smart Search) และประวัติงานซ่อม</p>
+        <p class="catalog-subtitle">ระบบค้นหาและประวัติงานซ่อม</p>
       </div>
     </div>
     <div class="card" style="margin-bottom: 20px;">
       <div class="search-input-wrapper" style="margin-bottom: 0;">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="cust-search" class="catalog-search-input" placeholder="ค้นหา ชื่อ, สกุล, เบอร์โทร, โซนที่อยู่ แบบเรียลไทม์..." value="${customerSearchKeyword}" />
+        <input type="text" id="cust-search" class="catalog-search-input" placeholder="ค้นหา ชื่อ, สกุล, เบอร์โทร, โซนที่อยู่..." value="${customerSearchKeyword}" />
       </div>
     </div>
 
@@ -514,9 +548,9 @@ function renderCustomersView(container) {
         </thead>
         <tbody>
           ${filtered.length === 0 ? `<tr><td colspan="8" class="meta" style="text-align: center;">ไม่พบข้อมูลลูกค้า</td></tr>` : filtered.map(c => {
-            let badge = '<span class="badge" style="background: var(--mint-100); color: var(--mint-600);">🟢 ปกติ</span>';
-            if (c.currentStatus === 'in_progress') badge = '<span class="badge" style="background: var(--amber-100); color: var(--amber);">🟡 กำลังซ่อม</span>';
-            else if (c.currentStatus === 'pending') badge = '<span class="badge" style="background: var(--navy-100); color: var(--navy);">🔵 รอนัดหมาย</span>';
+            let badge = '<span class="badge" style="background: var(--mint-100); color: var(--mint-600);">ปกติ</span>';
+            if (c.currentStatus === 'in_progress') badge = '<span class="badge" style="background: var(--amber-100); color: var(--amber);">กำลังซ่อม</span>';
+            else if (c.currentStatus === 'pending') badge = '<span class="badge" style="background: var(--navy-100); color: var(--navy);">รอนัดหมาย</span>';
             return `
             <tr class="service-row">
               <td style="font-family: monospace; font-weight: 700; color: var(--navy);">${c.id}</td>
@@ -527,7 +561,7 @@ function renderCustomersView(container) {
               <td style="text-align: center;"><span class="badge" style="background: var(--gray-100); color: var(--gray-700);">${c.jobCount} งาน</span></td>
               <td style="text-align: right; font-weight: 700; color: var(--mint-600);">฿${c.totalSpend.toLocaleString()}</td>
               <td style="text-align: center;">
-                <button class="secondary btn-sm btn-cust-history" data-id="${c.id}">🔍 ประวัติงาน</button>
+                <button class="secondary btn-sm btn-cust-history" data-id="${c.id}">ประวัติงาน</button>
               </td>
             </tr>
           `}).join('')}
@@ -541,9 +575,7 @@ function renderCustomersView(container) {
   const searchInput = document.getElementById('cust-search');
   searchInput.oninput = (e) => {
     customerSearchKeyword = e.target.value;
-    // Debounce is ideal, but for mock data immediate re-render is fine
     renderCustomersView(container);
-    // Keep focus
     const newSearch = document.getElementById('cust-search');
     if (newSearch) {
       newSearch.focus();
@@ -620,7 +652,7 @@ function renderFinanceView(container) {
   container.innerHTML = `
     <div class="catalog-header">
       <div>
-        <h2 class="catalog-title">การเงิน (Finance)</h2>
+        <h2 class="catalog-title">สรุปการเงิน</h2>
         <p class="catalog-subtitle">สรุปยอดทางการเงิน</p>
       </div>
     </div>
@@ -636,101 +668,150 @@ function renderFinanceView(container) {
 
 
 // ---------------------------------------------------------------------------
-// แบบจำลองศูนย์ควบคุมการเดินรถซ่อมรักบ้าน (Subway OCC Paradigm):
-// 🚆 รถไฟ -> งาน (Job)
-// 🔧 คนขับ -> ช่าง (Technician)
-// 👤 คนโดยสาร -> ลูกค้า (Customer)
-// 🏛️ ศูนย์ควบคุม -> Admin (OCC Ops Control Center)
+// ระบบบริหารจัดการงานซ่อมครบวงจร (Ops Admin Hub):
+// 5 ลำดับแท็บการทำงาน:
+// 1. ปัญหาด่วน (ด่วน - ช่างติดปัญหาหน้างาน แอดมินต้องเคลียร์ทันที)
+// 2. กำลังดำเนินการ (กำลังเดินทาง / กำลังซ่อม)
+// 3. รอมอบหมาย (งานใหม่รอมอบหมายช่าง)
+// 4. กำลังส่งมอบ (ช่างส่งงาน / รอตรวจ QC / ลูกค้าตรวจรับ)
+// 5. ประวัติ (งานเสร็จสิ้นสมบูรณ์)
 // ---------------------------------------------------------------------------
 
-let currentJobTab = 'all'; // 'all', 'urgent', 'active', 'pending', 'history'
+let currentJobTab = 'urgent'; // 'urgent', 'active', 'pending', 'delivering', 'history'
 let filterMonth = 'all';
 let filterYear = 'all';
-window._simIssuesActive = false; // สลับเปิด-ปิดจำลองสถานการณ์ 4 ขบวนติดปัญหาพร้อมกัน
+window._simIssuesActive = false; // สลับเปิด-ปิดจำลองสถานการณ์ 4 งานติดปัญหาพร้อมกัน
 
 const MOCK_MULTI_ISSUES = [
   {
-    id: 'SIM-AIR01',
-    title: 'ล้างแอร์ทั่วไป (ติดผนัง) (ห้องนอนอาม่า)',
-    category: 'air_con',
-    price: 600,
-    status: 'traveling',
+    id: 'NM-01-ABANDON',
+    title: 'ซ่อมท่อประปาฝังผนังแตก / ท่อเมนรั่ว',
+    category: 'plumbing',
+    price: 750,
+    status: 'in_progress',
     scheduledDate: new Date().toISOString(),
-    customerId: 'customer_cherd',
+    customerId: 'customer_weera',
+    addressId: null,
+    addressText: '45/8 หมู่ 5 ต.สุเทพ อ.เมือง จ.เชียงใหม่',
+    assignedTeamId: 'RPS-T01',
+    assignedTechName: 'ช่างสมหมาย ใจซื่อ (ช่างหมาย)',
+    adminIssue: {
+      issueType: 'ช่างทิ้งงานเพราะไม่ไหวจริงๆ (ท่อเมนเหล็กผุทั้งแนว)',
+      notes: 'สกัดผนังเจอท่อเมนเหล็กสนิมผุยาว 3 เมตร น้ำทะลัก เครื่องมือเชื่อมท่อไม่พอ ช่างไม่ไหวครับ ขอยกเลิกงาน',
+      status: 'pending_admin',
+      reportedAt: new Date(Date.now() - 10 * 60000).toISOString(),
+      techId: 'RPS-T01',
+      techName: 'ช่างสมหมาย (ช่างหมาย)',
+      sopGuide: '1. ตรวจสอบสภาพงาน ➔ 2. มอบหมายช่างมือหนึ่ง (ช่างวิชัย RPS-T03) เข้าเสียบแทน ➔ 3. ส่งแจ้งลูกค้าผ่านแอป',
+      quickActionLabel: 'มอบหมายช่างวิชัย (มือหนึ่ง) แทนทันที และส่งแจ้งลูกค้า',
+      recommendedTechId: 'RPS-T03',
+      recommendedTechName: 'ช่างวิชัย นามวงศ์ (ช่างวิทย์)',
+      customerTemplate: 'รักบ้านขออภัยในความไม่สะดวกค่ะ ได้ประสานงานส่งช่างวิชัย (ผู้เชี่ยวชาญระบบท่ออาวุโส) พร้อมเครื่องมือพิเศษเข้าแก้ไขแทนทันทีใน 30 นาทีค่ะ',
+      techResolution: 'โอนย้ายงานให้ช่างวิชัย (RPS-T03) เข้าดำเนินการแทนเรียบร้อย ไม่หักเครดิตช่างเดิมเนื่องจากรายงานตามจริง'
+    }
+  },
+  {
+    id: 'NM-02-MIA',
+    title: 'ตรวจเช็คแก้ไขระบบไฟดับทั้งบ้าน / เบรกเกอร์ทริป',
+    category: 'electrical',
+    price: 650,
+    status: 'in_progress',
+    scheduledDate: new Date().toISOString(),
+    customerId: 'customer_kitti',
+    addressId: null,
+    addressText: '112/4 ต.ช้างเผือก อ.เมือง จ.เชียงใหม่',
+    assignedTeamId: 'RPS-T07',
+    assignedTechName: 'ช่างกิตติศักดิ์ เมืองแก้ว (ช่างศักดิ์)',
+    adminIssue: {
+      issueType: 'ช่างมีธุระด่วน เดี๋ยวกลับมาแล้วไม่แจ้ง (ขาดการติดต่อ 2 ชม.)',
+      notes: 'ลูกค้าแจ้งว่าช่างขอตัวออกไปข้างนอกตั้งแต่ 13:00 น. ตอนนี้ 15:00 น. ยังไม่กลับมา โทรหาช่างไม่รับสาย ลูกค้ารอเก้อ',
+      status: 'pending_admin',
+      reportedAt: new Date(Date.now() - 8 * 60000).toISOString(),
+      techId: 'RPS-T07',
+      techName: 'ช่างกิตติศักดิ์ (ช่างศักดิ์)',
+      sopGuide: '1. ส่งสัญญาณตรวจพิกัด ➔ 2. ตั้งเวลาเตือน 15 นาที ➔ 3. หากไม่ตอบ ส่งช่างสำรองแทนทันที',
+      quickActionLabel: 'ส่งสัญญาณเตือนช่าง และแจ้งเวลากับลูกค้า',
+      customerTemplate: 'รักบ้านกำลังส่งสัญญาณตรวจสอบพิกัดช่างด่วนค่ะ หากช่างไม่ติดต่อกลับภายใน 15 นาที จะจัดส่งช่างสำรองเข้าดำเนินการแทนทันทีค่ะ',
+      techResolution: 'ระบบส่งสัญญาณเตือนช่าง หากไม่กลับเข้าหน้างานภายใน 15 นาทีจะถูกปรับตัดสิทธิ์และส่งช่างสำรอง'
+    }
+  },
+  {
+    id: 'NM-03-LOWPRICE',
+    title: 'เปลี่ยนลูกบิดประตูห้องนอน / ปรับเดือยล็อค',
+    category: 'door_window',
+    price: 250,
+    status: 'pending_review',
+    scheduledDate: new Date().toISOString(),
+    customerId: 'customer_malee',
+    addressId: null,
+    addressText: '201 หมู่บ้านกรีนวัลเลย์ ต.แม่ริม จ.เชียงใหม่',
+    assignedTeamId: null,
+    assignedTechName: null,
+    adminIssue: {
+      issueType: 'งานราคาถูก / งานโปรโมชั่น ไม่มีช่างรับ (ค้างเกิน 45 นาที)',
+      notes: 'งานราคา 250 บาท ช่างในพื้นที่มองว่าไม่คุ้มค่าน้ำมัน ไม่มีช่างกดรับงานในรัศมี 5 กม.',
+      status: 'pending_admin',
+      reportedAt: new Date(Date.now() - 6 * 60000).toISOString(),
+      techId: null,
+      techName: 'ยังไม่มีช่างรับงาน',
+      sopGuide: '1. เปิดประกันค่าน้ำมันขั้นต่ำ (+100 บาท) ➔ 2. ผูกงานกับงานแอร์ละแวกเดียวกัน ➔ 3. มอบหมายช่างเอก',
+      quickActionLabel: 'เปิดประกันค่าเดินทาง (+100 บาท) และมอบหมายช่างเอก',
+      recommendedTechId: 'RPS-T04',
+      recommendedTechName: 'ช่างเอกชัย บุญเรือง (ช่างเอก)',
+      customerTemplate: 'ระบบยืนยันคิวงานเรียบร้อยแล้วค่ะ ช่างเอกชัยจะเข้าให้บริการตามเวลานัดหมายค่ะ',
+      techResolution: 'เพิ่มค่าเดินทางพิเศษ +100 บาท พร้อมจับคู่ผูกงานในพื้นที่แม่ริมให้ช่างเอก'
+    }
+  },
+  {
+    id: 'NM-04-OVERREACT',
+    title: 'ล้างแอร์ทั่วไป (ติดผนัง) 24,000 BTU (ห้องรับแขก)',
+    category: 'air_con',
+    price: 650,
+    status: 'in_progress',
+    workflowStatus: 'customer_review',
+    scheduledDate: new Date().toISOString(),
+    customerId: 'customer_sasithorn',
     addressId: null,
     addressText: '88/12 ซอย 2 ต.สุเทพ อ.เมือง จ.เชียงใหม่',
     assignedTeamId: 'RPS-T01',
     assignedTechName: 'ช่างสมหมาย ใจซื่อ (ช่างหมาย)',
     adminIssue: {
-      issueType: 'หาบ้านไม่เจอ / เส้นทางติดขัด',
-      notes: 'หาบ้านเลขที่ 88/12 ไม่เจอ ซอยตันค่ะ',
-      status: 'pending_admin',
-      reportedAt: new Date(Date.now() - 6 * 60000).toISOString(),
-      techId: 'RPS-T01',
-      techName: 'ช่างสมหมาย ใจซื่อ (ช่างหมาย)',
-    }
-  },
-  {
-    id: 'SIM-ELEC02',
-    title: 'ตรวจเช็คแก้ไขไฟฟ้าดับเฉพาะจุด / ปลั๊กไฟช็อต',
-    category: 'electrical',
-    price: 550,
-    status: 'traveling',
-    scheduledDate: new Date().toISOString(),
-    customerId: 'customer_somsri',
-    addressId: null,
-    addressText: '142 หมู่ 4 ต.แม่เหียะ อ.เมือง จ.เชียงใหม่',
-    assignedTeamId: 'RPS-T07',
-    assignedTechName: 'ช่างกิตติศักดิ์ เมืองแก้ว (ช่างศักดิ์)',
-    adminIssue: {
-      issueType: 'ลูกค้าไม่อยู่บ้าน / ประตูรั้วล็อค',
-      notes: 'กดกริ่ง 3 ครั้งไม่มีคนออกมารับ โทรไม่ติดครับ',
+      issueType: 'งานเรียบร้อยแต่ลูกค้าจอมโวยวาย (มีละอองฝุ่นนิดหน่อย)',
+      notes: 'แอร์ล้างสะอาด วัดอุณหภูมิได้ 20.5°C มีรูปก่อนและหลังทำครบ แต่มีละอองฝุ่นตกบนพรม 2 จุด ลูกค้าโวยวายขู่จะฟ้องร้อง',
       status: 'pending_admin',
       reportedAt: new Date(Date.now() - 4 * 60000).toISOString(),
-      techId: 'RPS-T07',
-      techName: 'ช่างกิตติศักดิ์ (ช่างศักดิ์)',
+      techId: 'RPS-T01',
+      techName: 'ช่างสมหมาย (ช่างหมาย)',
+      sopGuide: '1. ตรวจรูปถ่ายก่อนและหลังทำ ➔ 2. ส่งภาพยืนยันอย่างสุภาพ ➔ 3. มอบบริการทีมทำความสะอาดเสริม (ไม่ตัดแต้มช่าง)',
+      quickActionLabel: 'ส่งภาพถ่ายยืนยัน และมอบบริการทำความสะอาด',
+      customerTemplate: 'รักบ้านตรวจสอบภาพผลงานแอร์ทำงานสมบูรณ์แล้วค่ะ เพื่อความสบายใจสูงสุดของท่าน ทางเราขอมอบบริการทีมทำความสะอาดเก็บกวาดจุดฝุ่นฟรีทันทีค่ะ',
+      techResolution: 'ตรวจสอบผลงานผ่านเกณฑ์มาตรฐาน 100% ปกป้องช่าง ไม่มีการตัดคะแนน ช่างปิดงานได้ตามปกติ'
     }
   },
   {
-    id: 'SIM-PLUMB03',
-    title: 'ซ่อมท่อประปารั่วซึม / ชักโครกกดไม่ลง',
-    category: 'plumbing',
-    price: 750,
-    status: 'in_progress',
-    scheduledDate: new Date().toISOString(),
-    customerId: 'customer_thanapat',
-    addressId: null,
-    addressText: '55/9 ต.ช้างเผือก อ.เมือง จ.เชียงใหม่',
-    assignedTeamId: 'RPS-T03',
-    assignedTechName: 'ช่างวิชัย นามวงศ์ (ช่างวิทย์)',
-    adminIssue: {
-      issueType: 'พบจุดซ่อมเพิ่มเติมหน้างาน',
-      notes: 'สกัดปูนพบท่อฝังผนังแตกเพิ่ม ต้องขออนุมัติเพิ่มงานครับ',
-      status: 'pending_admin',
-      reportedAt: new Date(Date.now() - 2 * 60000).toISOString(),
-      techId: 'RPS-T03',
-      techName: 'ช่างวิชัย (ช่างวิทย์)',
-    }
-  },
-  {
-    id: 'SIM-DOOR04',
-    title: 'ซ่อมประตูบานเลื่อนตกราง / ปรับระดับราง',
+    id: 'NM-05-DISPUTE',
+    title: 'ซ่อมประตูม้วนโรงรถ / มอเตอร์ติดขัด',
     category: 'door_window',
-    price: 500,
-    status: 'traveling',
+    price: 850,
+    status: 'in_progress',
+    workflowStatus: 'customer_review',
     scheduledDate: new Date().toISOString(),
-    customerId: 'customer_nittaya',
+    customerId: 'customer_charnchai',
     addressId: null,
-    addressText: '201 หมู่บ้านกรีนวัลเลย์ ต.แม่ริม จ.เชียงใหม่',
+    addressText: '55/9 ต.แม่เหียะ อ.เมือง จ.เชียงใหม่',
     assignedTeamId: 'RPS-T04',
     assignedTechName: 'ช่างเอกชัย บุญเรือง (ช่างเอก)',
     adminIssue: {
-      issueType: 'นิติบุคคลไม่อนุญาตให้เข้าโครงการ',
-      notes: 'รปภ. แจ้งว่าต้องให้เจ้าของบ้านโทรแจ้งป้อมก่อนครับ',
+      issueType: 'ลูกค้าเจตนาชักดาบขอเงินคืนทุกกรณี (งานเสร็จแต่หาเรื่องปฏิเสธ)',
+      notes: 'ซ่อมประตูเปิดปิดได้ปกติ มีคลิปทดสอบครบถ้วน แต่ลูกค้าอ้างว่าเสียงยังดังไม่ถูกใจ จะกดยกเลิกขอเงินคืน 100% ในระบบชำระเงิน',
       status: 'pending_admin',
-      reportedAt: new Date(Date.now() - 1 * 60000).toISOString(),
+      reportedAt: new Date(Date.now() - 2 * 60000).toISOString(),
       techId: 'RPS-T04',
       techName: 'ช่างเอกชัย (ช่างเอก)',
+      sopGuide: '1. ตรวจสอบคลิปหลักฐานการทำงาน ➔ 2. ยืนยันผลงานสมบูรณ์ ➔ 3. ปลดล็อกเงินให้ช่าง (เงินถูกพักไว้ในระบบ)',
+      quickActionLabel: 'ยืนยันผลงานสมบูรณ์ ปลดล็อกโอนเงินให้ช่าง',
+      customerTemplate: 'จากการตรวจสอบคลิปทดสอบการทำงาน ประตูม้วนทำงานได้ตามมาตรฐานแล้วค่ะ ระบบขอสงวนสิทธิ์การคืนเงินเต็มจำนวน แต่รับประกันงานซ่อม 90 วันค่ะ',
+      techResolution: 'ผลงานผ่านการพิจารณาจากฝ่ายไกล่เกลี่ย ปลดล็อกยอดเงิน 850 บาทเข้าบัญชีช่างเรียบร้อยแล้ว'
     }
   }
 ];
@@ -741,35 +822,35 @@ function renderJobsView(container) {
       <div>
         <h2 class="catalog-title" style="display: flex; align-items: center; gap: 8px;">
           <span>การบริหารรักบ้าน</span>
-          <span style="font-size: 14.5px; font-weight: 600; color: var(--gray-600);">— ศูนย์ควบคุมการเดินรถซ่อม (OCC)</span>
+          <span style="font-size: 14.5px; font-weight: 600; color: var(--gray-600);">— ศูนย์บริหารจัดการงานซ่อม (ฝ่ายปฏิบัติการส่วนกลาง)</span>
         </h2>
         <p class="catalog-subtitle" style="font-size: 13px; color: var(--gray-600); margin-top: 2px;">
-          ศูนย์สั่งการและแก้ปัญหา (Admin) · 🚆 รถไฟ ➔ งาน | 🔧 คนขับ ➔ ช่าง | 👤 คนโดยสาร ➔ ลูกค้า
+          ศูนย์สั่งการและประสานงานซ่อมผ่านระบบแอป 100% ไร้เสียงโทรศัพท์ · ช่างติดปัญหาหน้างานแอดมินเคลียร์ทันที
         </p>
       </div>
       <div>
         <button id="btn-toggle-sim-issues" style="background: ${window._simIssuesActive ? '#ea580c' : '#fff7ed'}; color: ${window._simIssuesActive ? '#ffffff' : '#c2410c'}; border: 1.5px solid #ea580c; border-radius: 8px; padding: 7px 14px; font-weight: 700; font-size: 12.5px; cursor: pointer; transition: all 0.15s;">
-          ${window._simIssuesActive ? '🧪 ปิดโหมดจำลอง (กลับข้อมูลจริง)' : '🧪 จำลองช่างติดปัญหา 4 ขบวน'}
+          ${window._simIssuesActive ? 'ปิดโหมดจำลอง (กลับข้อมูลจริง)' : 'จำลอง 5 เคสปัญหาหน้างาน'}
         </button>
       </div>
     </div>
     
-    <!-- แถบ 3 ลำดับความสำคัญ + อู่ประวัติเดินรถ (OCC Priority Tabs) -->
+    <!-- แถบ 5 ลำดับการทำงาน (Workflow Tabs 1-5) -->
     <div class="nav-tabs" style="margin-bottom: 16px; display: flex; gap: 8px; overflow-x: auto; padding: 4px;">
-      <button class="nav-tab ${currentJobTab === 'all' ? 'active' : ''}" data-tab="all" style="font-weight: 700;">
-        🚆 ขบวนรถสดทั้งหมด <span id="tab-count-all" class="badge" style="background: var(--navy); color: #fff; font-size: 11px; margin-left: 4px;">0</span>
-      </button>
       <button class="nav-tab ${currentJobTab === 'urgent' ? 'active' : ''}" data-tab="urgent" style="${currentJobTab === 'urgent' ? 'background: #ea580c; color: #fff;' : 'color: #c2410c; background: #fff7ed; border-color: #fdba74;'} font-weight: 700;">
-        🚨 1. รถไฟติดปัญหา (ด่วน) <span id="tab-count-urgent" class="badge" style="background: #dc2626; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
+        1. ปัญหาด่วน <span id="tab-count-urgent" class="badge" style="background: #dc2626; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
       </button>
       <button class="nav-tab ${currentJobTab === 'active' ? 'active' : ''}" data-tab="active" style="font-weight: 700;">
-        🟢 2. รถไฟกำลังแล่นบนราง <span id="tab-count-active" class="badge" style="background: #10b981; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
+        2. กำลังดำเนินการ <span id="tab-count-active" class="badge" style="background: #10b981; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
       </button>
       <button class="nav-tab ${currentJobTab === 'pending' ? 'active' : ''}" data-tab="pending" style="font-weight: 700;">
-        🟡 3. คนโดยสารรอรถ <span id="tab-count-pending" class="badge" style="background: #f59e0b; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
+        3. รอมอบหมาย <span id="tab-count-pending" class="badge" style="background: #f59e0b; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
+      </button>
+      <button class="nav-tab ${currentJobTab === 'delivering' ? 'active' : ''}" data-tab="delivering" style="font-weight: 700;">
+        4. กำลังส่งมอบ <span id="tab-count-delivering" class="badge" style="background: #0284c7; color: #fff; font-size: 11px; margin-left: 4px;">0</span>
       </button>
       <button class="nav-tab ${currentJobTab === 'history' ? 'active' : ''}" data-tab="history" style="font-weight: 700; margin-left: auto;">
-        📦 อู่ประวัติเดินรถ (History) <span id="tab-count-history" class="badge" style="background: var(--gray-600); color: #fff; font-size: 11px; margin-left: 4px;">0</span>
+        5. ประวัติ <span id="tab-count-history" class="badge" style="background: var(--gray-600); color: #fff; font-size: 11px; margin-left: 4px;">0</span>
       </button>
     </div>
 
@@ -800,7 +881,7 @@ function renderJobsView(container) {
 
     <!-- Table View -->
     <div class="table-responsive card" style="padding: 0; overflow: hidden; margin-bottom: 20px;" id="jobs-table-container">
-      กำลังโหลดข้อมูลเดินรถ...
+      กำลังโหลดข้อมูลงานซ่อม...
     </div>
     
     <div id="job-modal-container"></div>
@@ -865,26 +946,30 @@ async function refreshJobsTable() {
     ...(window._simIssuesActive ? MOCK_MULTI_ISSUES : [])
   ];
 
-  // ค้นหารถไฟที่ติดปัญหาทั้งหมด (Priority 1: Urgent Issues)
+  // ค้นหางานที่ติดปัญหาทั้งหมด (Priority 1: Urgent Issues)
   const allPendingIssues = allCombined.filter(j => j.adminIssue && j.adminIssue.status === 'pending_admin');
   allPendingIssues.sort((a, b) => new Date(a.adminIssue.reportedAt || a.createdAt || 0) - new Date(b.adminIssue.reportedAt || b.createdAt || 0));
 
-  // นับจำนวนขบวนในแต่ละหมวด
-  const urgentCount = allPendingIssues.length;
-  const activeCount = allCombined.filter(j => j.status !== 'completed' && ['assigned', 'traveling', 'in_progress'].includes(j.status)).length;
-  const pendingCount = allCombined.filter(j => j.status !== 'completed' && (j.status === 'pending_review' || j.status === 'requested')).length;
-  const historyCount = allCombined.filter(j => j.status === 'completed').length;
-  const allActiveCount = allCombined.filter(j => j.status !== 'completed').length;
+  // นิยามเงื่อนไขงานแต่ละกลุ่ม
+  const isDeliveringJob = (j) => j.status !== 'completed' && (['tech_submitted', 'customer_review', 'rework_needed'].includes(j.workflowStatus) || j.status === 'under_review');
+  const isActiveJob = (j) => j.status !== 'completed' && ['assigned', 'traveling', 'in_progress'].includes(j.status) && !isDeliveringJob(j);
 
-  // อัปเดตตัวเลขบนแท็บ
-  const elAll = document.getElementById('tab-count-all');
-  if (elAll) elAll.textContent = allActiveCount;
+  // นับจำนวนงานในแต่ละหมวด 5 แท็บ
+  const urgentCount = allPendingIssues.length;
+  const activeCount = allCombined.filter(isActiveJob).length;
+  const pendingCount = allCombined.filter(j => j.status !== 'completed' && (j.status === 'pending_review' || j.status === 'requested')).length;
+  const deliveringCount = allCombined.filter(isDeliveringJob).length;
+  const historyCount = allCombined.filter(j => j.status === 'completed').length;
+
+  // อัปเดตตัวเลขบนแท็บ 1-5
   const elUrgent = document.getElementById('tab-count-urgent');
   if (elUrgent) elUrgent.textContent = urgentCount;
   const elActive = document.getElementById('tab-count-active');
   if (elActive) elActive.textContent = activeCount;
   const elPending = document.getElementById('tab-count-pending');
   if (elPending) elPending.textContent = pendingCount;
+  const elDelivering = document.getElementById('tab-count-delivering');
+  if (elDelivering) elDelivering.textContent = deliveringCount;
   const elHistory = document.getElementById('tab-count-history');
   if (elHistory) elHistory.textContent = historyCount;
 
@@ -899,21 +984,21 @@ async function refreshJobsTable() {
     }
   }
 
-  // ตัวกรองตารางตามแท็บที่เลือก
+  // ตัวกรองตารางตามแท็บที่เลือก (5 แท็บ)
   let filtered = allCombined.filter(j => {
     if (currentJobTab === 'urgent') {
       return j.adminIssue && j.adminIssue.status === 'pending_admin';
     } else if (currentJobTab === 'active') {
-      if (j.status === 'completed') return false;
-      return ['assigned', 'traveling', 'in_progress'].includes(j.status) || ['tech_submitted', 'rework_needed'].includes(j.workflowStatus);
+      return isActiveJob(j);
     } else if (currentJobTab === 'pending') {
       if (j.status === 'completed') return false;
       return j.status === 'pending_review' || j.status === 'requested';
+    } else if (currentJobTab === 'delivering') {
+      return isDeliveringJob(j);
     } else if (currentJobTab === 'history') {
       return j.status === 'completed';
     } else {
-      // แท็บ 'all' = งานสดทั้งหมด (ไม่รวมงานที่เสร็จแล้ว ย้ายเข้า History ตามกฎคุณเชิด)
-      return j.status !== 'completed';
+      return j.adminIssue && j.adminIssue.status === 'pending_admin';
     }
   });
 
@@ -933,25 +1018,22 @@ async function refreshJobsTable() {
     return true;
   });
 
-  // แผงควบคุมปัญหาด่วนบนสุดเสมอ (Multi-Incident Control Deck)
+  // แผงควบคุมปัญหาด่วนบนสุดเสมอ
   let deckHtml = '';
   if (allPendingIssues.length > 0) {
     deckHtml = `
       <div class="metro-incident-deck" style="background: #fff7ed; border: 2.5px solid #ea580c; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(234, 88, 12, 0.15);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1.5px solid #fed7aa; padding-bottom: 10px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 22px;">🚨</span>
-            <div>
-              <div style="font-size: 16px; font-weight: 800; color: #9a3412;">
-                สัญญาณหยุดฉุกเฉิน: รถไฟติดปัญหา ${allPendingIssues.length} ขบวน (คนขับกำลังจอดรอคำตอบ — ศูนย์ควบคุมต้องเคลียร์ด่วน)
-              </div>
-              <div style="font-size: 12.5px; color: #c2410c;">
-                จัดลำดับตามเวลาจอดนิ่งนานที่สุด (Longest Delay First) · ช่างไม่รองาน สื่อสารกับคนโดยสารและปลดล็อกคนขับผ่านแอป 100%
-              </div>
+          <div>
+            <div style="font-size: 16px; font-weight: 800; color: #9a3412;">
+              สัญญาณแจ้งเตือนฉุกเฉิน: ช่างติดปัญหาหน้างาน ${allPendingIssues.length} รายการ (ช่างกำลังรอคำตอบ — แอดมินต้องเคลียร์ด่วน)
+            </div>
+            <div style="font-size: 12.5px; color: #c2410c; margin-top: 2px;">
+              จัดลำดับตามเวลารอนานที่สุด · ช่างไม่รองาน สื่อสารกับลูกค้าและปลดล็อกช่างผ่านแอป 100%
             </div>
           </div>
           <span class="badge" style="background: #dc2626; color: #fff; font-size: 13px; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
-            ค้างรอ ${allPendingIssues.length} ขบวน
+            ค้างรอ ${allPendingIssues.length} รายการ
           </span>
         </div>
         
@@ -963,16 +1045,16 @@ async function refreshJobsTable() {
               <div class="incident-card" style="background: #ffffff; border: ${isLongest ? '2px solid #dc2626' : '1.5px solid #fed7aa'}; border-radius: 10px; padding: 12px 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                    <span style="font-family: monospace; font-weight: 800; color: var(--navy); font-size: 12px;">🚆 ขบวน ${j.id.slice(0, 10).toUpperCase()}</span>
+                    <span style="font-family: monospace; font-weight: 800; color: var(--navy); font-size: 12px;">รหัสงาน ${j.id.slice(0, 10).toUpperCase()}</span>
                     <span class="badge" style="background: ${isLongest ? '#fee2e2' : '#ffedd5'}; color: ${isLongest ? '#991b1b' : '#c2410c'}; font-size: 11px; font-weight: 800; border: 1px solid ${isLongest ? '#fca5a5' : '#fdba74'};">
-                      ⏱️ จอดนิ่ง ${waitMins} นาที ${isLongest ? '(นานสุด ⚠️)' : ''}
+                      รอนาน ${waitMins} นาที ${isLongest ? '(รอนานสุด)' : ''}
                     </span>
                   </div>
                   <div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">
-                    🔧 คนขับ: ${escapeHtml(j.adminIssue.techName || j.assignedTechName || 'ช่างประจำขบวน')}
+                    ทีมช่าง: ${escapeHtml(j.adminIssue.techName || j.assignedTechName || 'ช่างผู้รับผิดชอบ')}
                   </div>
                   <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">
-                    👤 คนโดยสาร: ${escapeHtml(j.customerId || 'ลูกค้า')} · ${escapeHtml(j.title || 'งานบริการ')}
+                    ลูกค้า: ${escapeHtml(j.customerId || 'ลูกค้า')} · ${escapeHtml(j.title || 'งานบริการ')}
                   </div>
                   <div style="background: #fff7ed; border-left: 3px solid #ea580c; padding: 6px 8px; border-radius: 4px; font-size: 12px; color: #9a3412; margin-bottom: 8px;">
                     <strong>เรื่อง:</strong> ${escapeHtml(j.adminIssue.issueType)}
@@ -980,7 +1062,7 @@ async function refreshJobsTable() {
                   </div>
                 </div>
                 <button class="btn-sm btn-quick-issue-open" data-id="${j.id}" style="background: ${isLongest ? '#dc2626' : '#ea580c'}; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-weight: 700; cursor: pointer; width: 100%; font-size: 12.5px; transition: all 0.15s;">
-                  🚨 สับรางเคลียร์ขบวนนี้ ➔
+                  จัดการเคลียร์ปัญหานี้
                 </button>
               </div>
             `;
@@ -992,39 +1074,38 @@ async function refreshJobsTable() {
     deckHtml = `
       <div class="metro-occ-normal-bar" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 16px;">🟢</span>
           <span style="font-size: 13.5px; font-weight: 700; color: #166534;">
-            สัญญาณเดินรถปกติ: ทุกขบวนแล่นตามกำหนดเวลา ไม่มีรถไฟติดปัญหาหน้างาน (0 ขบวน)
+            สัญญาณปฏิบัติงานปกติ: ทุกงานดำเนินไปตามกำหนดเวลา ไม่มีงานติดปัญหาหน้างาน (0 รายการ)
           </span>
         </div>
         <span style="font-size: 12px; color: #15803d; font-weight: 600;">
-          ศูนย์ควบคุมการเดินรถพร้อมสั่งการ 100%
+          ระบบบริหารจัดการงานซ่อมพร้อมปฏิบัติการ 100%
         </span>
       </div>
     `;
   }
 
-  // ตารางเดินรถไฟ (OCC Traction Table)
+  // ตารางรายการงานซ่อม (Jobs Table)
   let tableHtml = `
     <table class="catalog-table">
       <thead>
         <tr>
-          <th style="width: 110px;"># 🚆 ขบวนรถ</th>
-          <th style="width: 130px;">⏱️ เวลานัดหมาย</th>
-          <th>🛠️ รายการงาน</th>
-          <th style="width: 160px; text-align:center;">📍 สถานีเดินรถ</th>
-          <th style="width: 140px;">👤 คนโดยสาร</th>
-          <th style="width: 160px;">🏠 ที่หมายปลายทาง</th>
-          <th style="width: 160px;">🔧 คนขับประจำขบวน</th>
-          <th style="width: 110px;">💰 ค่าบริการ</th>
-          <th style="width: 100px; text-align: center;">⚙️ สั่งการ</th>
+          <th style="width: 105px;">รหัสงาน</th>
+          <th style="width: 125px;">เวลานัดหมาย</th>
+          <th style="min-width: 290px;">รายการงาน</th>
+          <th style="width: 170px; text-align: center;">สถานะงาน</th>
+          <th style="width: 130px;">ลูกค้า</th>
+          <th style="width: 160px;">ที่อยู่หน้างาน</th>
+          <th style="width: 150px;">ทีมช่าง</th>
+          <th style="width: 110px; text-align: right;">ค่าบริการ</th>
+          <th style="width: 95px; text-align: center;">สั่งการ</th>
         </tr>
       </thead>
       <tbody>
   `;
 
   if (filtered.length === 0) {
-    tableHtml += `<tr><td colspan="9" class="meta" style="text-align: center; padding: 32px 16px;">ไม่พบรายการขบวนรถในหมวดนี้</td></tr>`;
+    tableHtml += `<tr><td colspan="9" class="meta" style="text-align: center; padding: 32px 16px;">ไม่พบรายการงานในหมวดนี้</td></tr>`;
   } else {
     for (const j of filtered) {
       const category = CATEGORIES[j.category] || 
@@ -1043,50 +1124,50 @@ async function refreshJobsTable() {
       }
       const techDisplay = assignedTech
         ? `[${assignedTech.id}] ${assignedTech.nickname || assignedTech.name}`
-        : (j.assignedTechName ? (techId ? `[${techId}] ` : '') + j.assignedTechName : (techId || 'รอจัดคนขับ'));
+        : (j.assignedTechName ? (techId ? `[${techId}] ` : '') + j.assignedTechName : (techId || 'รอจัดช่าง'));
 
-      // สัญลักษณ์ประกอบสถานีเดินรถ (Stations along the line)
-      let stationBadge = `<span class="badge ${step.badge}" style="font-size: 11px;">🟢 ${step.label}</span>`;
+      // สัญลักษณ์ประกอบขั้นตอนการทำงาน (Workflow steps)
+      let stationBadge = `<span class="badge ${step.badge}" style="font-size: 11px;">${step.label}</span>`;
       if (j.workflowStatus === 'rework_needed') {
-        stationBadge = `<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 11px; border: 1px solid #fca5a5;">⚠️ วนกลับสถานี 6 (สั่งแก้)</span>`;
+        stationBadge = `<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 11px; border: 1px solid #fca5a5;">วนกลับขั้นตอนที่ 6 (สั่งแก้)</span>`;
       } else if (j.workflowStatus === 'tech_submitted') {
-        stationBadge = `<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 11px; border: 1px solid #fde68a;">🔍 สถานี 9 (รอตรวจ QC)</span>`;
+        stationBadge = `<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 11px; border: 1px solid #fde68a;">ขั้นตอนที่ 9 (รอตรวจงาน)</span>`;
       } else if (j.workflowStatus === 'customer_review') {
-        stationBadge = `<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; border: 1px solid #bae6fd;">👤 สถานี 10 (คนโดยสารตรวจ)</span>`;
+        stationBadge = `<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; border: 1px solid #bae6fd;">ขั้นตอนที่ 10 (ลูกค้าตรวจรับ)</span>`;
       } else if (j.status === 'completed') {
-        stationBadge = `<span class="badge" style="background: #dcfce7; color: #166534; font-size: 11px; border: 1px solid #86efac;">📦 เข้าอู่ประวัติ/มีประกัน</span>`;
+        stationBadge = `<span class="badge" style="background: #dcfce7; color: #166534; font-size: 11px; border: 1px solid #86efac;">ประวัติงาน (มีประกัน)</span>`;
       }
 
       const hasPendingIssue = j.adminIssue && j.adminIssue.status === 'pending_admin';
       if (hasPendingIssue) {
         stationBadge = `
           <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span class="badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 11px; font-weight: 800;">
-              🚨 ติดสัญญาณฉุกเฉิน
+            <span class="badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 11px; font-weight: 700;">
+              ติดปัญหาด่วน
             </span>
-            <span style="font-size: 10.5px; color: #c2410c; font-weight: 700;">คนขับรอคำตอบ</span>
+            <span style="font-size: 10.5px; color: #c2410c; font-weight: 700;">ช่างรอคำตอบ</span>
           </div>
         `;
       } else if (j.adminIssue && j.adminIssue.status === 'resolved') {
-        stationBadge += `<div style="margin-top: 3px;"><span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; font-size: 10px; font-weight: 700;">🟢 สับรางเรียบร้อย</span></div>`;
+        stationBadge += `<div style="margin-top: 3px;"><span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; font-size: 10px; font-weight: 700;">จัดการปัญหาเรียบร้อย</span></div>`;
       }
 
       tableHtml += `
         <tr class="service-row" id="job-row-${j.id}" style="${hasPendingIssue ? 'background: #fff7ed; border-left: 4px solid #ea580c;' : ''}">
           <td style="font-family: monospace; font-weight: 700; color: var(--navy); font-size: 12px;">${j.id.slice(0, 10).toUpperCase()}</td>
           <td style="font-size: 12px; color: var(--gray-700);">${dateStr}</td>
-          <td>
-            <div style="font-weight: 600; color: var(--gray-900);">${category.name}</div>
-            <div style="font-size: 11px; color: var(--gray-600);">${escapeHtml(j.title || '-')}</div>
+          <td style="min-width: 290px; padding: 14px 16px;">
+            <div style="font-size: 14.5px; font-weight: 600; color: #0f172a; line-height: 1.4; margin-bottom: 4px;">${category.name}</div>
+            <div style="font-size: 13px; color: #475569; line-height: 1.45;">${escapeHtml(j.title || '-')}</div>
           </td>
-          <td style="text-align:center;">${stationBadge}</td>
-          <td style="font-size: 12px; font-weight: 600;">${escapeHtml(j.customerId?.slice(0, 15) || '-')}</td>
+          <td style="text-align: center;">${stationBadge}</td>
+          <td style="font-size: 12.5px; font-weight: 600; color: #1e293b;">${escapeHtml(j.customerId?.slice(0, 15) || '-')}</td>
           <td style="font-size: 12px; color: var(--gray-600); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(address)}">${escapeHtml(address)}</td>
-          <td style="font-size: 12px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(techDisplay)}</td>
-          <td style="font-weight: 600; color: var(--navy);">฿${(j.price || 0).toLocaleString()}</td>
+          <td style="font-size: 12.5px; font-weight: 600; color: ${j.assignedTeamId ? 'var(--mint-600)' : 'var(--amber)'};">${escapeHtml(techDisplay)}</td>
+          <td style="font-weight: 700; color: var(--navy); text-align: right; font-size: 13px;">฿${(j.price || 0).toLocaleString()}</td>
           <td style="text-align: center;">
-            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" style="font-size: 12px; padding: 4px 10px; font-weight: 600; white-space: nowrap;">
-              ⚙️ เปิดดูขบวน
+            <button class="secondary btn-sm btn-job-detail" data-id="${j.id}" style="font-size: 12px; padding: 5px 12px; font-weight: 600; white-space: nowrap; border-radius: 6px;">
+              เปิดดูงาน
             </button>
           </td>
         </tr>
@@ -1097,7 +1178,7 @@ async function refreshJobsTable() {
   tableHtml += `</tbody></table>`;
   container.innerHTML = deckHtml + tableHtml;
 
-  // ผูกตัวดักฟังปุ่มดูรายละเอียดขบวน
+  // ผูกตัวดักฟังปุ่มดูรายละเอียดงาน
   const detailBtns = container.querySelectorAll('.btn-job-detail');
   detailBtns.forEach(btn => {
     btn.onclick = () => {
@@ -1186,52 +1267,52 @@ async function openJobModal(job) {
         <!-- Header -->
         <div style="margin-bottom: 16px; border-bottom: 1px solid var(--gray-200); padding-bottom: 14px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 13px; color: var(--navy); font-weight: 700; font-family: monospace;">🚆 ขบวนรถ: ${job.id}</span>
+            <span style="font-size: 13px; color: var(--navy); font-weight: 700; font-family: monospace;">รหัสงาน: ${job.id}</span>
             <div style="display: flex; gap: 6px; align-items: center;">
-              <span class="badge ${step.badge}" style="font-size: 12px;">สถานีเดินรถ: ${step.label}</span>
-              ${isRework ? '<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 12px; font-weight: 700;">⚠️ วนกลับสถานี 6 (สั่งแก้ไข)</span>' : ''}
-              ${isSubmittedForReview ? '<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700;">🔍 สถานี 9: รอตรวจ QC</span>' : ''}
-              ${isCustomerReview ? '<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 700;">👤 สถานี 10: คนโดยสารตรวจ</span>' : ''}
-              ${isCompleted ? '<span class="badge" style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700;">📦 เข้าอู่ประวัติ/มีประกัน</span>' : ''}
+              <span class="badge ${step.badge}" style="font-size: 12px;">สถานะงาน: ${step.label}</span>
+              ${isRework ? '<span class="badge" style="background: #fee2e2; color: #991b1b; font-size: 12px; font-weight: 700;">วนกลับขั้นตอนที่ 6 (สั่งแก้ไข)</span>' : ''}
+              ${isSubmittedForReview ? '<span class="badge" style="background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700;">ขั้นตอนที่ 9: รอตรวจงาน</span>' : ''}
+              ${isCustomerReview ? '<span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 700;">ขั้นตอนที่ 10: ลูกค้าตรวจรับ</span>' : ''}
+              ${isCompleted ? '<span class="badge" style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700;">ประวัติงาน (มีประกัน)</span>' : ''}
             </div>
           </div>
           <h2 style="margin: 0; color: var(--navy); display: flex; align-items: center; gap: 8px;">
             ${category.name}
-            <span style="font-size: 14px; font-weight: normal; color: var(--gray-600);">— ศูนย์สั่งการเดินรถ (OCC)</span>
+            <span style="font-size: 14px; font-weight: normal; color: var(--gray-600);">— รายละเอียดงานซ่อมและศูนย์สั่งการ</span>
           </h2>
         </div>
 
         <!-- 10-Step Interactive Workflow Pipeline Stepper -->
-        <div class="workflow-pipeline" title="ขั้นตอนการทำงาน 10 ขั้นตอนตามกฎคุณเชิด">
+        <div class="workflow-pipeline" title="ขั้นตอนการทำงาน 10 ขั้นตอนตามมาตรฐานรักบ้าน">
           <div class="pipeline-step ${currentStepNum >= 1 ? 'done' : ''} ${currentStepNum === 1 ? 'active' : ''}">1. ลูกค้าจ้าง</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 2 ? 'done' : ''} ${currentStepNum === 2 ? 'active' : ''}">2. เราเห็น</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 3 ? 'done' : ''} ${currentStepNum === 3 ? 'active' : ''}">3. ส่งช่างรับ</div>
-          <span class="pipeline-arrow">➔</span>
-          <div class="pipeline-step ${currentStepNum >= 4 ? 'done' : ''} ${currentStepNum === 4 ? 'active' : ''}">4. พักเงิน PPT</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step ${currentStepNum >= 4 ? 'done' : ''} ${currentStepNum === 4 ? 'active' : ''}">4. พักเงินค่าบริการ</div>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 5 ? 'done' : ''} ${currentStepNum === 5 ? 'active' : ''}">5. ช่างรับงาน</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 6 ? 'done' : ''} ${currentStepNum === 6 ? 'active' : ''}">6. เราประสานงาน</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 7 ? 'done' : ''} ${currentStepNum === 7 ? 'active' : ''}">7. เราสั่งเริ่มงาน</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 8 ? 'done' : ''} ${currentStepNum === 8 ? 'active' : ''}">8. ช่างส่งงาน</div>
-          <span class="pipeline-arrow">➔</span>
+          <span class="pipeline-arrow">→</span>
           <div class="pipeline-step ${currentStepNum >= 9 ? 'done' : ''} ${currentStepNum === 9 ? 'active' : ''}">9. เราตรวจงาน</div>
-          <span class="pipeline-arrow">➔</span>
-          <div class="pipeline-step ${currentStepNum >= 10 ? 'done' : ''} ${currentStepNum === 10 ? 'active' : ''}">10. ลูกค้ารับงาน/ประกัน</div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step ${currentStepNum >= 10 ? 'done' : ''} ${currentStepNum === 10 ? 'active' : ''}">10. ลูกค้ารับงานและประกัน</div>
         </div>
 
-        <!-- Accountability Banner (Cherd's Law: เกิดข้อบกพร่องร่วม เมื่อลูกค้าไม่รับงานหลังผ่านการตรวจงาน) -->
+        <!-- Accountability Banner -->
         ${(isRework || job.accountability) ? `
           <div class="accountability-banner">
-            <div class="accountability-title">⚠️ บันทึกความรับผิดชอบร่วม</div>
+            <div class="accountability-title">บันทึกความรับผิดชอบร่วม</div>
             <div class="accountability-desc">
               ลูกค้าไม่รับงานและขอให้แก้ไขตามเหตุผล: <em>"${escapeHtml(job.accountability?.rejectionReason || 'พบจุดบกพร่องที่ต้องแก้ไขเพิ่มเติมหน้างาน')}"</em><br>
-              📌 <strong>บันทึกความรับผิดชอบร่วมตามกฎคุณเชิด:</strong> ผู้ตรวจในขั้นตอนที่ 9 (<code>${escapeHtml(job.accountability?.penalizedInspector || 'ทีมตรวจ')}</code>) และช่างผู้ปฏิบัติงาน (<code>${escapeHtml(job.assignedTeamId || '-')}</code>)<br>
-              🔄 <strong>ระบบวนลูปกลับมาที่:</strong> <strong>ขั้นตอนที่ 6 (เราประสานงาน)</strong> เพื่อตรวจสอบอะไหล่และนัดหมายแก้ไขให้ลูกค้าโดยด่วน
+              <strong>บันทึกความรับผิดชอบร่วม:</strong> ผู้ตรวจในขั้นตอนที่ 9 (<code>${escapeHtml(job.accountability?.penalizedInspector || 'ทีมตรวจ')}</code>) และช่างผู้ปฏิบัติงาน (<code>${escapeHtml(job.assignedTeamId || '-')}</code>)<br>
+              <strong>ระบบวนกลับมาที่:</strong> <strong>ขั้นตอนที่ 6 (เราประสานงาน)</strong> เพื่อตรวจสอบอะไหล่และนัดหมายแก้ไขให้ลูกค้าโดยด่วน
             </div>
           </div>
         ` : ''}
@@ -1240,7 +1321,7 @@ async function openJobModal(job) {
         ${isCompleted ? `
           <div class="warranty-card">
             <div class="warranty-header">
-              <span class="warranty-title">🛡️ ความคุ้มครองการรับประกันเปิดใช้งานแล้ว</span>
+              <span class="warranty-title">ความคุ้มครองการรับประกันเปิดใช้งานแล้ว</span>
               <span class="badge" style="background: #10b981; color: #fff; font-size: 11px;">มีผลคุ้มครอง</span>
             </div>
             <div style="font-size: 13px; color: #065f46; line-height: 1.6;">
@@ -1251,22 +1332,38 @@ async function openJobModal(job) {
           </div>
         ` : ''}
 
-        <!-- ศูนย์ประสานงานปัญหาหน้างาน (Two-Way In-App Closed Loop 100% ห้ามโทรศัพท์) -->
+        <!-- ศูนย์ประสานงานปัญหาหน้างาน -->
         ${job.adminIssue ? `
           <div style="background: #fff7ed; border: 2px solid ${job.adminIssue.status === 'pending_admin' ? '#ea580c' : '#16a34a'}; border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
               <h4 style="margin: 0; color: #9a3412; font-size: 14px; font-weight: 700;">
-                🚨 ศูนย์แก้ปัญหาฉุกเฉิน (สื่อสารผ่านแอป 100% ห้ามโทรศัพท์)
+                ศูนย์แก้ปัญหาฉุกเฉิน (สื่อสารผ่านแอป 100% ห้ามโทรศัพท์)
               </h4>
               <span class="badge" style="background: ${job.adminIssue.status === 'pending_admin' ? '#fee2e2' : '#dcfce7'}; color: ${job.adminIssue.status === 'pending_admin' ? '#991b1b' : '#15803d'}; font-size: 11px; font-weight: 800; border: 1px solid ${job.adminIssue.status === 'pending_admin' ? '#fca5a5' : '#86efac'};">
-                ${job.adminIssue.status === 'pending_admin' ? '🚨 คนขับรอคำตอบ' : (job.adminIssue.status === 'resolved' ? '🟢 สับรางเรียบร้อย' : 'ช่างรับทราบผลแล้ว')}
+                ${job.adminIssue.status === 'pending_admin' ? 'ช่างรอคำตอบ' : (job.adminIssue.status === 'resolved' ? 'จัดการปัญหาเรียบร้อย' : 'ช่างรับทราบผลแล้ว')}
               </span>
             </div>
 
-            <!-- กล่องที่ 1: รายละเอียดปัญหาที่คนขับช่างแจ้งเข้ามา -->
+            <!-- แถบนำทางด่วน & ตัวช่วยแอดมิน -->
+            ${job.adminIssue.sopGuide ? `
+              <div style="background: #ffffff; border: 1.5px solid #fed7aa; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px;">
+                <div style="font-size: 13px; font-weight: 700; color: #9a3412; margin-bottom: 4px;">
+                  ขั้นตอนนำทาง: ${escapeHtml(job.adminIssue.sopGuide)}
+                </div>
+                ${job.adminIssue.quickActionLabel ? `
+                  <div style="margin-top: 6px;">
+                    <button type="button" id="btn-sop-quick-action" style="background: #ea580c; color: #ffffff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                      ${escapeHtml(job.adminIssue.quickActionLabel)}
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
+
+            <!-- กล่องที่ 1: รายละเอียดปัญหาที่ช่างแจ้งเข้ามา -->
             <div style="background: #ffffff; border: 1px solid #fed7aa; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px;">
               <div style="font-weight: 700; color: #c2410c; margin-bottom: 2px;">
-                🔧 คนขับผู้แจ้ง: ${escapeHtml(job.adminIssue.techName || job.assignedTechName || '-')} [${escapeHtml(job.adminIssue.techId || job.assignedTeamId || '')}]
+                ช่างผู้แจ้ง: ${escapeHtml(job.adminIssue.techName || job.assignedTechName || '-')} [${escapeHtml(job.adminIssue.techId || job.assignedTeamId || '')}]
               </div>
               <div style="color: #431407;">
                 <strong>เรื่อง:</strong> ${escapeHtml(job.adminIssue.issueType)} ${job.adminIssue.notes ? `— <em>"${escapeHtml(job.adminIssue.notes)}"</em>` : ''}
@@ -1276,15 +1373,15 @@ async function openJobModal(job) {
               </div>
             </div>
 
-            <!-- กล่องที่ 2: ช่องทางแอดมินสื่อสารกับคนโดยสารผ่านแอป -->
+            <!-- กล่องที่ 2: ช่องทางแอดมินสื่อสารกับลูกค้าผ่านแอป -->
             <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <div style="font-weight: 700; color: #0369a1; font-size: 13px;">
-                  👤 สื่อสารกับคนโดยสาร (ลูกค้า) ผ่านแอป:
+                  สื่อสารกับลูกค้าผ่านแอป:
                 </div>
                 ${job.customerInAppMessage ? `
                   <span class="badge" style="background: ${job.customerReply ? '#dcfce7' : '#fef3c7'}; color: ${job.customerReply ? '#15803d' : '#92400e'}; font-size: 11px;">
-                    ${job.customerReply ? 'คนโดยสารตอบกลับแล้ว' : 'รอคนโดยสารเปิดอ่าน'}
+                    ${job.customerReply ? 'ลูกค้าตอบกลับแล้ว' : 'รอลูกค้าเปิดอ่าน'}
                   </span>
                 ` : ''}
               </div>
@@ -1292,63 +1389,63 @@ async function openJobModal(job) {
               <!-- ข้อความที่เคยส่ง หรือคำตอบจากลูกค้า -->
               ${job.customerInAppMessage ? `
                 <div style="background: #ffffff; border: 1px solid #e0f2fe; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 12.5px; color: #075985;">
-                  <div><strong>ข้อความถึงคนโดยสาร:</strong> "${escapeHtml(job.customerInAppMessage.message)}"</div>
+                  <div><strong>ข้อความถึงลูกค้า:</strong> "${escapeHtml(job.customerInAppMessage.message)}"</div>
                   <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ส่งเมื่อ: ${new Date(job.customerInAppMessage.sentAt).toLocaleTimeString('th-TH')}</div>
                 </div>
               ` : ''}
 
               ${job.customerReply ? `
                 <div style="background: #ecfdf5; border: 1.5px solid #86efac; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; color: #166534;">
-                  <div><strong>คำตอบจากคนโดยสาร:</strong> "${escapeHtml(job.customerReply.text)}"</div>
+                  <div><strong>คำตอบจากลูกค้า:</strong> "${escapeHtml(job.customerReply.text)}"</div>
                   <div style="font-size: 11px; color: #15803d; margin-top: 2px;">ตอบกลับเมื่อ: ${new Date(job.customerReply.repliedAt).toLocaleTimeString('th-TH')}</div>
                 </div>
               ` : ''}
 
               <!-- แม่แบบข้อความด่วนสำหรับแอดมินส่งหาลูกค้า -->
-              <div style="font-size: 12px; font-weight: 600; color: #0369a1; margin-bottom: 4px;">เลือกข้อความด่วนส่งหาคนโดยสาร:</div>
+              <div style="font-size: 12px; font-weight: 600; color: #0369a1; margin-bottom: 4px;">เลือกข้อความด่วนส่งหาลูกค้า:</div>
               <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
-                <button type="button" class="btn-template-msg" data-text="คนขับถึงซอยหน้าบ้านแล้วแต่หาบ้านเลขที่ไม่เจอ ขอหมุดหรือจุดสังเกตเพิ่มเติมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
+                <button type="button" class="btn-template-msg" data-text="ช่างถึงซอยหน้าบ้านแล้วแต่หาบ้านเลขที่ไม่เจอ ขอหมุดหรือจุดสังเกตเพิ่มเติมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
                   หาบ้านไม่เจอ ขอจุดสังเกต
                 </button>
-                <button type="button" class="btn-template-msg" data-text="คนขับถึงหน้าบ้านแล้ว ประตูรั้วปิดอยู่ รบกวนเปิดประตูบ้านให้คนขับด้วยค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
+                <button type="button" class="btn-template-msg" data-text="ช่างถึงหน้าบ้านแล้ว ประตูรั้วปิดอยู่ รบกวนเปิดประตูบ้านให้ช่างด้วยค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
                   ถึงหน้าบ้านแล้ว รบกวนเปิดประตู
                 </button>
-                <button type="button" class="btn-template-msg" data-text="คนขับตรวจพบจุดแก้ไขเพิ่มเติมหน้างาน ขอประสานงานรายละเอียดการซ่อมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
+                <button type="button" class="btn-template-msg" data-text="ช่างตรวจพบจุดแก้ไขเพิ่มเติมหน้างาน ขอประสานงานรายละเอียดการซ่อมค่ะ" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 4px; padding: 4px 10px; font-size: 11.5px; cursor: pointer;">
                   ตรวจพบจุดซ่อมเพิ่มเติม
                 </button>
               </div>
 
               <div style="display: flex; gap: 8px;">
-                <input type="text" id="admin-cust-msg-input" class="form-input" placeholder="พิมพ์ข้อความส่งหาคนโดยสารผ่านแอป..." style="margin-bottom: 0; font-size: 12px; flex: 1;">
+                <input type="text" id="admin-cust-msg-input" class="form-input" placeholder="พิมพ์ข้อความส่งหาลูกค้าผ่านแอป..." style="margin-bottom: 0; font-size: 12px; flex: 1;">
                 <button type="button" class="btn-mint btn-sm" id="btn-send-msg-cust" style="white-space: nowrap; font-weight: 600; padding: 6px 12px;">
-                  📢 ส่งแจ้งคนโดยสาร
+                  ส่งแจ้งลูกค้า
                 </button>
               </div>
             </div>
 
-            <!-- กล่องที่ 3: สรุปผลประสานงานส่งกลับให้คนขับ (ปลดล็อกช่าง) -->
+            <!-- กล่องที่ 3: สรุปผลประสานงานส่งกลับให้ช่าง (ปลดล็อกช่าง) -->
             <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 6px; padding: 12px;">
               <div style="font-weight: 700; color: #166534; font-size: 13px; margin-bottom: 6px;">
-                🟢 ส่งผลประสานงานให้คนขับ (สับรางปลดล็อกจอช่าง):
+                ส่งผลประสานงานให้ช่าง (ปลดล็อกหน้าจอช่าง):
               </div>
               <div style="display: flex; gap: 8px;">
-                <input type="text" id="admin-tech-resolution-input" class="form-input" placeholder="คำแนะนำให้คนขับ (เช่น ลูกค้าแจ้งว่าบ้านอยู่หลังรั้วสีขาว เข้าไปได้เลย)..." value="${escapeHtml(job.adminIssue.resolutionNotes || '')}" style="margin-bottom: 0; font-size: 12px; flex: 1;">
+                <input type="text" id="admin-tech-resolution-input" class="form-input" placeholder="คำแนะนำให้ช่าง (เช่น ลูกค้าแจ้งว่าบ้านอยู่หลังรั้วสีขาว เข้าไปได้เลย)..." value="${escapeHtml(job.adminIssue.resolutionNotes || '')}" style="margin-bottom: 0; font-size: 12px; flex: 1;">
                 <button type="button" class="btn-mint btn-sm" id="btn-send-resolution-tech" style="background: #16a34a; white-space: nowrap; font-weight: 600; padding: 6px 12px;">
-                  🟢 สับรางปลดล็อกคนขับ
+                  ปลดล็อกให้ช่างเริ่มงานต่อ
                 </button>
               </div>
             </div>
 
-            <!-- ปุ่มเคลียร์ขบวนถัดไป (Next Train Flow) ถ้ามีขบวนติดปัญหาอื่นค้างอยู่ -->
+            <!-- ปุ่มเคลียร์งานถัดไปถ้ามีงานติดปัญหาอื่นค้างอยู่ -->
             ${(() => {
               const allC = [...(window._allJobs || []), ...(window._simIssuesActive ? MOCK_MULTI_ISSUES : [])];
               const others = allC.filter(o => o.id !== job.id && o.adminIssue && o.adminIssue.status === 'pending_admin');
               if (others.length === 0) return '';
               return `
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1.5px dashed #fed7aa; display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
-                  <span style="font-size: 12.5px; color: #c2410c; font-weight: 700;">มีรถไฟติดปัญหาค้างรออีก ${others.length} ขบวน:</span>
+                  <span style="font-size: 12.5px; color: #c2410c; font-weight: 700;">มีงานติดปัญหาค้างรออีก ${others.length} งาน:</span>
                   <button type="button" id="btn-next-train-flow" data-id="${others[0].id}" style="background: #ea580c; color: #ffffff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                    ⏩ เคลียร์ขบวนถัดไป: [${others[0].id.slice(0, 10)}] ➔
+                    เคลียร์งานถัดไป: [${others[0].id.slice(0, 10)}]
                   </button>
                 </div>
               `;
@@ -1358,10 +1455,10 @@ async function openJobModal(job) {
 
         <!-- Dual-Sided Panel: Customer Side vs Technician & Ops Side -->
         <div class="dual-container">
-          <!-- ฝั่งซ้าย: ข้อมูลคนโดยสาร (Customer Side 👤) -->
+          <!-- ฝั่งซ้าย: ข้อมูลลูกค้า -->
           <div class="dual-panel">
             <div class="dual-panel-header">
-              <h4 class="dual-panel-title">👤 ข้อมูลคนโดยสาร (ลูกค้า)</h4>
+              <h4 class="dual-panel-title">ข้อมูลลูกค้า</h4>
               <span style="font-size: 11px; color: var(--gray-500);">ข้อมูลผู้แจ้ง</span>
             </div>
 
@@ -1372,7 +1469,7 @@ async function openJobModal(job) {
                 <strong>ที่อยู่หน้างาน:</strong> ${escapeHtml(address)}
                 <div style="margin-top: 4px;">
                   <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank" style="color: #0284c7; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                    เปิดแผนที่นำทาง ↗
+                    เปิดแผนที่นำทาง
                   </a>
                 </div>
               </div>
@@ -1403,14 +1500,14 @@ async function openJobModal(job) {
             </div>
           </div>
 
-          <!-- ฝั่งขวา: ข้อมูลช่าง & เรา (Technician & Ops Side) -->
+          <!-- ฝั่งขวา: ข้อมูลช่าง และฝ่ายบริหาร -->
           <div class="dual-panel">
             <div class="dual-panel-header">
               <h4 class="dual-panel-title">ช่างผู้รับผิดชอบ และฝ่ายบริหาร</h4>
               <span style="font-size: 11px; color: var(--gray-500);">ข้อมูลผู้ปฏิบัติงาน</span>
             </div>
 
-            <!-- Dropdown Pro Technicians 15 Candidates -->
+            <!-- Dropdown Technicians 15 Candidates -->
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label class="form-label" style="font-weight: 600; color: var(--navy); font-size: 13px; margin: 0;">
@@ -1451,7 +1548,7 @@ async function openJobModal(job) {
             <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200);">
               <span style="font-size: 12px; color: var(--gray-600);">หน้าจอช่าง:</span>
               <a href="/tech.html?techId=${currentSelectedTechId || 'RPS-T01'}" target="_blank" style="color: var(--mint-600); font-weight: 600; text-decoration: none; font-size: 12px;">
-                เปิดหน้าจอช่าง ↗
+                เปิดหน้าจอช่าง
               </a>
             </div>
 
@@ -1581,7 +1678,7 @@ async function openJobModal(job) {
             </p>
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
               <button class="secondary" id="btn-customer-reject" style="color: #991b1b; border-color: #f87171; font-weight: 600;">
-                ลูกค้าไม่รับงาน & ขอแก้ไข (วนกลับไปข้อ 6)
+                ลูกค้าไม่รับงานและขอแก้ไข (วนกลับไปข้อ 6)
               </button>
               <button class="btn-mint" id="btn-customer-accept" style="font-weight: 600;">
                 ลูกค้ารับงานสมบูรณ์ (เริ่มนับประกัน)
@@ -1620,7 +1717,7 @@ async function openJobModal(job) {
     if (!tech) {
       previewContainer.innerHTML = `
         <div style="color: var(--gray-400); text-align: center; padding: 6px;">
-          ยังไม่ได้เลือกช่าง — กรุณาเลือกช่าง Pro จาก Dropdown ด้านบน
+          ยังไม่ได้เลือกช่าง — กรุณาเลือกช่างจากรายการด้านบน
         </div>
       `;
       return;
@@ -1695,6 +1792,26 @@ async function openJobModal(job) {
     };
   });
 
+  // Clean SOP Quick Action Button (ตัวช่วยแอดมิน 1 คลิก)
+  const btnSopQuick = document.getElementById('btn-sop-quick-action');
+  if (btnSopQuick && job.adminIssue) {
+    btnSopQuick.onclick = () => {
+      if (job.adminIssue.customerTemplate) {
+        const custInput = document.getElementById('admin-cust-msg-input');
+        if (custInput) custInput.value = job.adminIssue.customerTemplate;
+      }
+      if (job.adminIssue.techResolution) {
+        const techInput = document.getElementById('admin-tech-resolution-input');
+        if (techInput) techInput.value = job.adminIssue.techResolution;
+      }
+      if (job.adminIssue.recommendedTechId) {
+        job.assignedTeamId = job.adminIssue.recommendedTechId;
+        job.assignedTechName = job.adminIssue.recommendedTechName;
+      }
+      showToast('ระบบกรอกข้อความและเลือกแนวทางแก้ไขให้อัตโนมัติแล้วค่ะ', 'success');
+    };
+  }
+
   // Issue Coordination Center: Send In-App Message to Customer
   const btnSendMsgCust = document.getElementById('btn-send-msg-cust');
   if (btnSendMsgCust) {
@@ -1709,7 +1826,7 @@ async function openJobModal(job) {
       btnSendMsgCust.disabled = true;
       btnSendMsgCust.textContent = 'กำลังส่ง...';
 
-      if (job.id.startsWith('SIM-')) {
+      if (job.id.startsWith('SIM-') || job.id.startsWith('NM-')) {
         const simJob = MOCK_MULTI_ISSUES.find(s => s.id === job.id);
         if (simJob) {
           simJob.customerInAppMessage = {
@@ -1717,11 +1834,11 @@ async function openJobModal(job) {
             sentAt: new Date().toISOString()
           };
           simJob.customerReply = {
-            text: 'รับทราบค่ะ ประสานงานเรียบร้อยแล้วค่ะ คนขับเข้ามาได้เลย',
+            text: 'รับทราบค่ะ ประสานงานเรียบร้อยแล้วค่ะ ช่างเข้ามาได้เลย',
             repliedAt: new Date().toISOString()
           };
         }
-        showToast('ส่งข้อความประสานงานถึงคนโดยสารผ่านแอปเรียบร้อยแล้วค่ะ', 'success');
+        showToast('ส่งข้อความประสานงานถึงลูกค้าผ่านแอปเรียบร้อยแล้วค่ะ', 'success');
         refreshJobsTable();
         openJobModal(simJob || job);
         return;
@@ -1742,7 +1859,7 @@ async function openJobModal(job) {
           agentId: 'agent-3-ops',
           agentName: 'Agent-3: แอดมิน Ops 🏛️',
           step: 6,
-          stepName: '6. เราประสานงาน (ส่งข้อความถึงคนโดยสารในแอป)',
+          stepName: '6. เราประสานงาน (ส่งข้อความถึงลูกค้าในแอป)',
           action: 'ADMIN_SENT_INAPP_MESSAGE_TO_CUSTOMER',
           jobId: job.id,
           status: 'success',
@@ -1752,7 +1869,7 @@ async function openJobModal(job) {
           }
         });
 
-        showToast('ส่งข้อความประสานงานถึงคนโดยสารผ่านแอปเรียบร้อยแล้วค่ะ', 'success');
+        showToast('ส่งข้อความประสานงานถึงลูกค้าผ่านแอปเรียบร้อยแล้วค่ะ', 'success');
         const updatedSnap = await getDoc(doc(db, 'jobs', job.id));
         if (updatedSnap.exists()) {
           openJobModal({ id: updatedSnap.id, ...updatedSnap.data() });
@@ -1760,7 +1877,7 @@ async function openJobModal(job) {
       } catch (err) {
         alert(`เกิดข้อผิดพลาดในการส่งข้อความ: ${err.message}`);
         btnSendMsgCust.disabled = false;
-        btnSendMsgCust.textContent = '📢 ส่งแจ้งคนโดยสาร';
+        btnSendMsgCust.textContent = '📢 ส่งแจ้งลูกค้า';
       }
     };
   }
@@ -1775,14 +1892,14 @@ async function openJobModal(job) {
       btnSendResolutionTech.disabled = true;
       btnSendResolutionTech.textContent = 'กำลังส่ง...';
 
-      if (job.id.startsWith('SIM-')) {
+      if (job.id.startsWith('SIM-') || job.id.startsWith('NM-')) {
         const simJob = MOCK_MULTI_ISSUES.find(s => s.id === job.id);
         if (simJob) {
           simJob.adminIssue.status = 'resolved';
           simJob.adminIssue.resolutionNotes = resolutionNotes;
           simJob.adminIssue.resolvedAt = new Date().toISOString();
         }
-        showToast('สับรางปลดล็อกคนขับขบวนนี้เรียบร้อยแล้วค่ะ', 'success');
+        showToast('ปลดล็อกให้ช่างปฏิบัติงานต่อเรียบร้อยแล้วค่ะ', 'success');
         refreshJobsTable();
         openJobModal(simJob || job);
         return;
@@ -1800,7 +1917,7 @@ async function openJobModal(job) {
           agentId: 'agent-3-ops',
           agentName: 'Agent-3: แอดมิน Ops 🏛️',
           step: 6,
-          stepName: '6. เราประสานงาน (ส่งผลประสานงานปลดล็อกคนขับ)',
+          stepName: '6. เราประสานงาน (ส่งผลประสานงานปลดล็อกช่าง)',
           action: 'ADMIN_RESOLVED_ISSUE_FOR_TECH',
           jobId: job.id,
           status: 'success',
@@ -1810,7 +1927,7 @@ async function openJobModal(job) {
           }
         });
 
-        showToast('สับรางปลดล็อกคนขับเรียบร้อยแล้ว (คนขับจะเห็นปุ่มเริ่มงานต่อ)', 'success');
+        showToast('ปลดล็อกให้ช่างเรียบร้อยแล้ว (ช่างจะเห็นปุ่มเริ่มงานต่อ)', 'success');
         const updatedSnap = await getDoc(doc(db, 'jobs', job.id));
         if (updatedSnap.exists()) {
           openJobModal({ id: updatedSnap.id, ...updatedSnap.data() });
@@ -1818,12 +1935,12 @@ async function openJobModal(job) {
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
         btnSendResolutionTech.disabled = false;
-        btnSendResolutionTech.textContent = '🟢 สับรางปลดล็อกคนขับ';
+        btnSendResolutionTech.textContent = '🟢 ปลดล็อกให้ช่างเริ่มงานต่อ';
       }
     };
   }
 
-  // Next Train Flow Button (สลับเปิดขบวนถัดไปทันที)
+  // Next Job Flow Button (สลับเปิดงานถัดไปทันที)
   const btnNextTrainFlow = document.getElementById('btn-next-train-flow');
   if (btnNextTrainFlow) {
     btnNextTrainFlow.onclick = () => {
@@ -1856,12 +1973,12 @@ async function openJobModal(job) {
           assignedAt: new Date().toISOString(),
         });
 
-        // Agent-3 Audit Log: Ops ส่งงานให้ช่าง Pro รับงาน (สเต็ป 3)
+        // บันทึกประวัติการทำงาน: ส่งงานให้ช่างรับงาน (สเต็ป 3)
         await logAgentActivity({
           agentId: 'agent-3-ops',
-          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          agentName: 'ฝ่ายบริหารส่วนกลาง',
           step: 3,
-          stepName: '3. ส่งช่างรับ (Dispatch Pro Tech)',
+          stepName: '3. ส่งช่างรับ',
           action: 'DISPATCH_PRO_TECH',
           jobId: job.id,
           status: 'success',
@@ -1898,17 +2015,17 @@ async function openJobModal(job) {
             customerConfirmChecked,
             notes,
             coordinatedAt: new Date().toISOString(),
-            coordinator: auth.currentUser?.email || 'admin@ppt.com',
+            coordinator: auth.currentUser?.email || 'admin@rakbaan.com',
           },
           workflowStep: 6,
         });
 
-        // Agent-3 Audit Log: Ops ประสานงาน 3 ฝ่าย (สเต็ป 6)
+        // บันทึกประวัติการทำงาน: ประสานงาน 3 ฝ่าย (สเต็ป 6)
         await logAgentActivity({
           agentId: 'agent-3-ops',
-          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          agentName: 'ฝ่ายบริหารส่วนกลาง',
           step: 6,
-          stepName: '6. เราประสานงาน (Ops 3-Way Coordination)',
+          stepName: '6. เราประสานงาน',
           action: 'OPS_COORDINATE_3WAY',
           jobId: job.id,
           status: 'success',
@@ -1940,12 +2057,12 @@ async function openJobModal(job) {
           opsAuthorizedAt: new Date().toISOString(),
         });
 
-        // Agent-3 Audit Log: Ops สั่งเริ่มงานอย่างเป็นทางการ (สเต็ป 7)
+        // บันทึกประวัติการทำงาน: สั่งเริ่มงานอย่างเป็นทางการ (สเต็ป 7)
         await logAgentActivity({
           agentId: 'agent-3-ops',
-          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          agentName: 'ฝ่ายบริหารส่วนกลาง',
           step: 7,
-          stepName: '7. เราสั่งเริ่มงาน (Ops Authorizes Work)',
+          stepName: '7. เราสั่งเริ่มงาน',
           action: 'OPS_AUTHORIZE_START_WORK',
           jobId: job.id,
           status: 'success',
@@ -1959,45 +2076,45 @@ async function openJobModal(job) {
     };
   }
 
-  // Step 9 QC Gate 1: Pass QC and send to Customer Review
+  // Step 9: Pass and send to Customer Review
   const btnPassQc1 = document.getElementById('btn-pass-qc1');
   if (btnPassQc1) {
     btnPassQc1.onclick = async () => {
-      const qcNotes = document.getElementById('qc-inspector-notes')?.value.trim() || 'ตรวจงานผ่านเกณฑ์มาตรฐาน PPT';
+      const qcNotes = document.getElementById('qc-inspector-notes')?.value.trim() || 'ตรวจงานผ่านเกณฑ์มาตรฐาน';
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
           status: 'in_progress', // Safe 1-of-5 status
           workflowStep: 9,
           workflowStatus: 'customer_review',
-          qcInspector: auth.currentUser?.email || 'admin@ppt.com',
+          qcInspector: auth.currentUser?.email || 'admin@rakbaan.com',
           qcNotes,
           qcPassedAt: new Date().toISOString(),
         });
 
-        // Agent-4 Audit Log: ผู้ตรวจ QC ผ่านงานสเต็ป 9 และส่งต่อให้ลูกค้าตรวจรับ
+        // บันทึกประวัติการทำงาน: ผ่านงานสเต็ป 9 และส่งต่อให้ลูกค้าตรวจรับ
         await logAgentActivity({
           agentId: 'agent-4-qc',
-          agentName: 'Agent-4: ผู้ตรวจ QC 🔍',
+          agentName: 'ฝ่ายตรวจงาน',
           step: 9,
-          stepName: '9. เราตรวจ QC (Ops/QC Inspects)',
+          stepName: '9. เราตรวจงาน',
           action: 'QC_INSPECTION_PASSED',
           jobId: job.id,
           status: 'success',
           details: {
             qcNotes,
-            inspector: auth.currentUser?.email || 'admin@ppt.com',
+            inspector: auth.currentUser?.email || 'admin@rakbaan.com',
           },
         });
 
         closeModal();
-        showToast('ผ่าน QC ด่านเราเรียบร้อย ส่งต่อลูกค้าตรวจรับ (ขั้นตอนที่ 9)', 'success');
+        showToast('ผ่านการตรวจงานเรียบร้อย ส่งต่อลูกค้าตรวจรับ (ขั้นตอนที่ 9)', 'success');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }
     };
   }
 
-  // Step 9 QC Gate 1: Reject QC and send back to Tech for on-site revision
+  // Step 9: Reject and send back to Tech for on-site revision
   const btnRejectQc1 = document.getElementById('btn-reject-qc1');
   if (btnRejectQc1) {
     btnRejectQc1.onclick = async () => {
@@ -2012,12 +2129,12 @@ async function openJobModal(job) {
           qcRejectedAt: new Date().toISOString(),
         });
 
-        // Agent-4 Audit Log: ผู้ตรวจ QC ตีกลับให้ช่างแก้ไขหน้างาน
+        // บันทึกประวัติการทำงาน: ตีกลับให้ช่างแก้ไขหน้างาน
         await logAgentActivity({
           agentId: 'agent-4-qc',
-          agentName: 'Agent-4: ผู้ตรวจ QC 🔍',
+          agentName: 'ฝ่ายตรวจงาน',
           step: 9,
-          stepName: '9. เราตรวจ QC (Ops/QC Inspects)',
+          stepName: '9. เราตรวจงาน',
           action: 'QC_INSPECTION_REJECTED',
           jobId: job.id,
           status: 'warning',
@@ -2034,7 +2151,7 @@ async function openJobModal(job) {
     };
   }
 
-  // Step 10 QC Gate 2: Customer Accepts Job & Activate Digital Warranty
+  // Step 10: Customer Accepts Job & Activate Digital Warranty
   const btnCustomerAccept = document.getElementById('btn-customer-accept');
   if (btnCustomerAccept) {
     btnCustomerAccept.onclick = async () => {
@@ -2057,12 +2174,12 @@ async function openJobModal(job) {
           },
         });
 
-        // Agent-1 & Agent-3 Audit Log: ปิดงานและเปิดรับประกันดิจิทัล (สเต็ป 10)
+        // บันทึกประวัติการทำงาน: ปิดงานและเปิดรับประกันดิจิทัล (สเต็ป 10)
         await logAgentActivity({
           agentId: 'agent-1-customer',
-          agentName: 'Agent-1: ลูกค้า 👤',
+          agentName: 'ลูกค้า',
           step: 10,
-          stepName: '10. ลูกค้ารับงาน/ประกัน (Customer Accepts)',
+          stepName: '10. ลูกค้ารับงานและประกัน',
           action: 'CUSTOMER_ACCEPT_JOB',
           jobId: job.id,
           status: 'success',
@@ -2073,27 +2190,27 @@ async function openJobModal(job) {
         });
 
         closeModal();
-        showToast(`ลูกค้ารับงานเรียบร้อย เริ่มนับประกันดิจิทัล ${defaultWarrantyDays} วัน ปิดงานสำเร็จ 🎉`, 'success');
+        showToast(`ลูกค้ารับงานเรียบร้อย เริ่มนับประกันดิจิทัล ${defaultWarrantyDays} วัน ปิดงานสำเร็จ`, 'success');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }
     };
   }
 
-  // Step 10 QC Gate 2: Customer Rejects Job -> Trigger Accountability Penalty & Loopback to Step 6
+  // Step 10: Customer Rejects Job -> Trigger Accountability Penalty & Loopback to Step 6
   const btnCustomerReject = document.getElementById('btn-customer-reject');
   if (btnCustomerReject) {
     btnCustomerReject.onclick = async () => {
       const reason = prompt('ระบุเหตุผลที่ลูกค้าไม่รับงานและขอแก้ไข (ข้อบกพร่องหน้างาน):');
       if (!reason) return;
 
-      const inspectorEmail = job.qcInspector || auth.currentUser?.email || 'ทีมตรวจ PPT';
+      const inspectorEmail = job.qcInspector || auth.currentUser?.email || 'ทีมตรวจงาน';
       const techId = job.assignedTeamId || 'ช่างผู้ปฏิบัติงาน';
 
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
           status: 'in_progress', // Safe 1-of-5 status
-          workflowStep: 6, // Loopback to Step 6 (เราประสานงาน)
+          workflowStep: 6, // Loopback to Step 6
           workflowStatus: 'rework_needed',
           accountability: {
             penalizedInspector: inspectorEmail,
@@ -2104,12 +2221,12 @@ async function openJobModal(job) {
           },
         });
 
-        // Agent-1 & Agent-4 Audit Log: ตีกลับวนลูปข้อ 6 พร้อมธงโทษความรับผิดชอบร่วม
+        // บันทึกประวัติการทำงาน: ตีกลับวนลูปข้อ 6 พร้อมธงโทษความรับผิดชอบร่วม
         await logAgentActivity({
           agentId: 'agent-1-customer',
-          agentName: 'Agent-1: ลูกค้า 👤',
+          agentName: 'ลูกค้า',
           step: 10,
-          stepName: '10. ลูกค้าสั่งแก้ไขงาน (Accountability Triggered)',
+          stepName: '10. ลูกค้าสั่งแก้ไขงาน',
           action: 'CUSTOMER_REJECT_JOB_REWORK',
           jobId: job.id,
           status: 'warning',
@@ -2122,7 +2239,7 @@ async function openJobModal(job) {
         });
 
         closeModal();
-        showToast(`ลูกค้าไม่รับงาน: บันทึก Accountability โทษคู่ (${inspectorEmail} + ${techId}) และวนกลับไปขั้นตอนที่ 6 ทันที`, 'info');
+        showToast(`ลูกค้าไม่รับงาน: บันทึกความรับผิดชอบร่วม (${inspectorEmail} และ ${techId}) และวนกลับไปขั้นตอนที่ 6 ทันที`, 'info');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }
@@ -2191,7 +2308,7 @@ function showToast(message, type = 'success') {
   }
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span class="toast-icon">${type === 'success' ? '✓' : 'ℹ️'}</span><span class="toast-msg">${message}</span>`;
+  toast.innerHTML = `<span class="toast-icon">${type === 'success' ? '✓' : 'ℹ'}</span><span class="toast-msg">${message}</span>`;
   toastContainer.appendChild(toast);
   setTimeout(() => {
     toast.classList.add('fade-out');
@@ -2212,11 +2329,11 @@ function openOpsPlaybookModal() {
       <div style="background: #fff; border-radius: 18px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.4); border: 2px solid #10b981; animation: toastIn 0.25s ease;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 18px;">
           <div>
-            <div style="font-size: 21px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-              <span>📖</span> <span>คู่มือปฏิบัติการส่วนกลาง (Ops SOP Hub)</span>
+            <div style="font-size: 21px; font-weight: 800; color: #0f172a;">
+              คู่มือปฏิบัติการส่วนกลาง
             </div>
             <div style="font-size: 14px; color: #64748b; margin-top: 2px;">
-              ระเบียบปฏิบัติ 4 กะเวลาประจำวัน • สูตรจ่ายงาน 5D • รับมือเหตุฉุกเฉิน
+              ระเบียบปฏิบัติ 4 ช่วงเวลาประจำวัน • เกณฑ์จ่ายงาน 5 มิติ • การรับมือเหตุฉุกเฉิน
             </div>
           </div>
           <button type="button" id="btn-ops-playbook-close" style="background: #f1f5f9; border: none; font-size: 20px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; color: #475569;">✕</button>
@@ -2224,55 +2341,55 @@ function openOpsPlaybookModal() {
 
         <!-- กะเวลา 4 ช่วง -->
         <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
-          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-            <span>⏰</span> <span>1. จังหวะทำงาน 4 ช่วงเวลาประจำวัน (Daily Rhythm)</span>
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
+            1. จังหวะทำงาน 4 ช่วงเวลาประจำวัน
           </div>
           <div style="font-size: 14px; color: #334155; line-height: 1.55;">
-            • <strong>07:30 น. (กะเช้า):</strong> ตรวจสอบเคสค้างคืน ยืนยันนัดหมาย และปล่อยช่างรอบแรก<br>
-            • <strong>08:30–17:00 น. (กะกลางวัน):</strong> มอนิเตอร์ Live SLA และแก้ปัญหาช่างล่าช้าเกิน 15 นาที<br>
-            • <strong>17:00–20:00 น. (กะค่ำ):</strong> ปิดรับงานด่วนมาก (Hotline) ตัดรอบงานหลัง 17:00 ไปรอบ 08:00 วันถัดไป<br>
-            • <strong>20:00 น. (ตัดรอบวัน):</strong> ยุติการทำงานช่าง ตรวจสอบยอดเงินพัก บจก.เพียบพร้อมทำ
+            • <strong>07:30 น. (รอบเช้า):</strong> ตรวจสอบงานค้างคืน ยืนยันนัดหมาย และปล่อยช่างรอบแรก<br>
+            • <strong>08:30–17:00 น. (รอบกลางวัน):</strong> ติดตามเวลาทำงาน และแก้ปัญหาช่างล่าช้าเกิน 15 นาที<br>
+            • <strong>17:00–20:00 น. (รอบค่ำ):</strong> ปิดรับงานด่วนมาก ตัดรอบงานหลัง 17:00 น. ไปรอบ 08:00 น. วันถัดไป<br>
+            • <strong>20:00 น. (ตัดรอบวัน):</strong> ยุติการทำงานช่าง ตรวจสอบยอดเงินพัก บจก. เพียบพร้อมทำ
           </div>
         </div>
 
-        <!-- เกณฑ์ 5D -->
+        <!-- เกณฑ์ 5 มิติ -->
         <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-left: 4px solid #0284c7; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
-          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-            <span>🎯</span> <span>2. เกณฑ์การจ่ายงาน 5 มิติ (5D Dispatch)</span>
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
+            2. เกณฑ์การจ่ายงาน 5 มิติ
           </div>
           <div style="font-size: 14px; color: #334155; line-height: 1.55;">
-            1. <strong>Skill (ทักษะตรงสาย):</strong> ช่างมีใบรับรองและทักษะตรงประเภทงานซ่อม<br>
-            2. <strong>GPS (ระยะทางใกล้สุด):</strong> คิดค่าเดินทางมาตรฐาน (+15฿/กม. เกิน 10 กม.)<br>
-            3. <strong>SLA (เวลาลงตัว):</strong> ไม่จัดคิวงานซ้อนเหลื่อมเวลากัน ป้องกันช่างสาย<br>
-            4. <strong>Trust Score (วินัยสูง):</strong> ช่างเกรด A/B (≥ 80 แต้ม) ได้รับคิวงานก่อน ช่างเกรด F ระบบล็อกอัตโนมัติ<br>
-            5. <strong>Fairness (กระจายงานเป็นธรรม):</strong> เกลี่ยงานให้ช่างอย่างสมดุล ไม่กระจุกตัว
+            1. <strong>ทักษะตรงสาย:</strong> ช่างมีใบรับรองและทักษะตรงประเภทงานซ่อม<br>
+            2. <strong>ระยะทางใกล้สุด:</strong> คิดค่าเดินทางมาตรฐาน (+15 บาท/กม. เกิน 10 กม.)<br>
+            3. <strong>เวลาลงตัว:</strong> ไม่จัดคิวงานซ้อนเหลื่อมเวลากัน ป้องกันช่างสาย<br>
+            4. <strong>วินัยและความประพฤติ:</strong> ช่างเกรด A/B (≥ 80 แต้ม) ได้รับคิวงานก่อน ช่างเกรด F ระบบล็อกอัตโนมัติ<br>
+            5. <strong>กระจายงานเป็นธรรม:</strong> เกลี่ยงานให้ช่างอย่างสมดุล ไม่กระจุกตัว
           </div>
         </div>
 
-        <!-- Exception Matrix -->
+        <!-- ตารางรับมือเหตุฉุกเฉิน -->
         <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-left: 4px solid #f59e0b; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
-          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-            <span>🚨</span> <span>3. ตารางรับมือเหตุฉุกเฉิน (Exception Matrix)</span>
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
+            3. ตารางรับมือเหตุฉุกเฉิน
           </div>
           <div style="font-size: 14px; color: #334155; line-height: 1.55;">
             • <strong>ช่างไม่ตอบรับเกิน 15 นาที:</strong> จ่ายงานให้ช่างสำรองทันที และตัด 5 คะแนนวินัย<br>
-            • <strong>ลูกค้าไม่อยู่บ้าน:</strong> รอ 15 นาที โทรประสานงาน 2 ครั้ง หากติดต่อไม่ได้ ยกเลิกพร้อมคิดค่าตรวจเช็ค<br>
-            • <strong>หน้างานมีงานงอก/อะไหล่เพิ่ม:</strong> ออกใบเสนอราคาเสริมผ่านระบบ ห้ามช่างเรียกเก็บเงินสดหน้างาน
+            • <strong>ลูกค้าไม่อยู่บ้าน:</strong> รอ 15 นาที ประสานงาน 2 ครั้ง หากติดต่อไม่ได้ ยกเลิกพร้อมคิดค่าตรวจเช็ค<br>
+            • <strong>หน้างานมีงานงอกหรืออะไหล่เพิ่ม:</strong> ออกใบสรุปรายการเสริมผ่านระบบ ห้ามช่างเรียกเก็บเงินสดหน้างาน
           </div>
         </div>
 
-        <!-- Escrow Rule -->
+        <!-- กฎเงินพัก -->
         <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-left: 4px solid #ef4444; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;">
-          <div style="font-size: 16px; font-weight: 800; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-            <span>💰</span> <span>4. กฎเงินพัก บจก. เพียบพร้อมทำ ห้ามรับเงินสดหน้างานทุกกรณี</span>
+          <div style="font-size: 16px; font-weight: 800; color: #991b1b; margin-bottom: 6px;">
+            4. กฎเงินพัก บจก. เพียบพร้อมทำ ห้ามรับเงินสดหน้างานทุกกรณี
           </div>
           <div style="font-size: 14px; color: #7f1d1d; line-height: 1.55;">
-            เงินทุกบาทลูกค้าชำระเข้าบัญชีกลาง บจก. เพียบพร้อมทำ ก่อนเริ่มงาน • ปลดล็อกโอนให้ช่างเมื่อผ่าน QC รูปถ่าย และลูกค้ายืนยันตรวจรับงานแล้วเท่านั้น • ตรวจสอบพบรับเงินสดหน้างาน ปรับเงินและตัดสิทธิ์ช่างทันที
+            เงินทุกบาทลูกค้าชำระเข้าบัญชีกลาง บจก. เพียบพร้อมทำ ก่อนเริ่มงาน • ปลดล็อกโอนให้ช่างเมื่อผ่านการตรวจรูปถ่าย และลูกค้ายืนยันตรวจรับงานแล้วเท่านั้น • ตรวจสอบพบรับเงินสดหน้างาน ปรับเงินและตัดสิทธิ์ช่างทันที
           </div>
         </div>
 
         <button type="button" id="btn-ops-playbook-ok" style="width: 100%; background: #10b981; color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 16px; font-weight: 700; cursor: pointer;">
-          เข้าใจและพร้อมปฏิบัติงานตามมาตรฐาน Ops ➔
+          เข้าใจและพร้อมปฏิบัติงานตามมาตรฐาน
         </button>
       </div>
     </div>
