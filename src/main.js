@@ -190,13 +190,12 @@ function renderNoRole(user, role) {
       <div class="brand-badge" style="justify-content: center; margin-bottom: 24px;">
         <span style="font-size: 32px;">🏡</span>
         <div>
-          <h1 class="brand-title" style="font-size: 22px;">รักบ้าน@CNX — Ops Portal</h1>
+          <h1 class="brand-title" style="font-size: 22px;">รักบ้าน@CNX — การบริหารรักบ้าน</h1>
         </div>
       </div>
       <div class="notice">
-        บัญชี <strong>${user.email}</strong> ยังไม่มีสิทธิ์ staff (role ปัจจุบัน: <code>${role}</code>).<br />
-        ให้ผู้ดูแลระบบรัน:<br />
-        <code>node scripts/grant-staff-role.js ${user.email}</code><br />
+        บัญชี <strong>${user.email}</strong> ยังไม่มีสิทธิ์เจ้าหน้าที่ (สถานะปัจจุบัน: <code>${role}</code>)<br />
+        กรุณาติดต่อผู้ดูแลระบบเพื่อเปิดสิทธิ์การใช้งาน<br />
         แล้วกด "ออกจากระบบ" ด้านล่าง แล้ว "เข้าสู่ระบบ" ใหม่อีกครั้ง
       </div>
       <button class="secondary" id="signout">ออกจากระบบ</button>
@@ -443,7 +442,7 @@ function renderTechniciansView(container) {
               <td style="text-align: center; font-weight: 600; color: var(--navy);">${t.completedJobs} งาน</td>
               <td>
                 <div style="display: flex; flex-direction: column; gap: 2px; font-size: 11px;">
-                  <span style="color: #0284c7;">คะแนนวินัย: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</strong></span>
+                  <span style="color: #0284c7;">คะแนนวินัย: <strong>${Math.round(t.companyScore || 95)}/100 (${Math.round(t.companyScore || 95) >= 95 ? 'ระดับดีเยี่ยม' : 'ระดับดี'})</strong></span>
                   <span style="color: #d97706;">ลูกค้า: <strong>${t.customerRating}</strong> (${t.reviewCount})</span>
                 </div>
               </td>
@@ -1431,7 +1430,7 @@ async function openJobModal(job) {
               <span class="journey-metric-num">${tm.executionMins} นาที</span>
             </div>
             <div class="journey-metric-pill">
-              <span class="journey-metric-label">🔍 ตรวจ QC (${job.qcInspectorId || 'QC-01'})</span>
+              <span class="journey-metric-label">🔍 ตรวจมาตรฐาน (${job.qcInspectorId || 'QC-01'})</span>
               <span class="journey-metric-num">${tm.qcMins} นาที</span>
             </div>
           </div>
@@ -1924,7 +1923,7 @@ async function openJobModal(job) {
 
           <div style="display: flex; gap: 10px; margin-top: 4px; font-size: 11px; align-items: center;">
             <span style="color: #b45309; font-weight: 600;">คะแนนลูกค้า: ${tech.customerRating} / 5.0 (${tech.reviewCount} รีวิว)</span>
-            <span style="color: #0369a1; font-weight: 600;">คะแนนวินัย: ${Math.round(tech.companyScore || 95)}/100 (${Math.round(tech.companyScore || 95) >= 95 ? 'เกรด A' : 'เกรด B'})</span>
+            <span style="color: #0369a1; font-weight: 600;">คะแนนวินัย: ${Math.round(tech.companyScore || 95)}/100 (${Math.round(tech.companyScore || 95) >= 95 ? 'ระดับดีเยี่ยม' : 'ระดับดี'})</span>
           </div>
 
           ${firstReview ? `
@@ -2035,7 +2034,7 @@ async function openJobModal(job) {
 
         await logAgentActivity({
           agentId: 'agent-3-ops',
-          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          agentName: 'บทบาทที่ 3: ฝ่ายบริหารรักบ้าน 🏛️',
           step: 6,
           stepName: '6. เราประสานงาน (ส่งข้อความถึงลูกค้าในแอป)',
           action: 'ADMIN_SENT_INAPP_MESSAGE_TO_CUSTOMER',
@@ -2093,7 +2092,7 @@ async function openJobModal(job) {
 
         await logAgentActivity({
           agentId: 'agent-3-ops',
-          agentName: 'Agent-3: แอดมิน Ops 🏛️',
+          agentName: 'บทบาทที่ 3: ฝ่ายบริหารรักบ้าน 🏛️',
           step: 6,
           stepName: '6. เราประสานงาน (ส่งผลประสานงานปลดล็อกช่าง)',
           action: 'ADMIN_RESOLVED_ISSUE_FOR_TECH',
@@ -2135,7 +2134,7 @@ async function openJobModal(job) {
     btnAssignAndSend.onclick = async () => {
       const selectedId = selectElem.value;
       if (!selectedId) {
-        alert('กรุณาเลือกช่าง Pro จาก Dropdown ก่อนทำการมอบหมายงานค่ะ');
+        alert('กรุณาเลือกช่างมืออาชีพจากรายชื่อก่อนทำการมอบหมายงานค่ะ');
         return;
       }
       const tech = getTechnicianById(selectedId);
@@ -2288,7 +2287,7 @@ async function openJobModal(job) {
           status: 'success',
           dwellMinutes: 8,
           timeSpent: 'ตรวจรับรองคุณภาพ 8 นาที',
-          items: 'ผ่านเกณฑ์ตรวจสอบรูปคู่ Before/After 100%',
+          items: 'ผ่านเกณฑ์ตรวจสอบรูปคู่ก่อนทำและหลังทำ 100%',
           details: {
             qcNotes,
             inspector: selectedInspector,
@@ -2468,7 +2467,7 @@ async function openJobModal(job) {
         }
         await updateDoc(doc(db, 'jobs', job.id), updatePayload);
         closeModal();
-        showToast('บันทึกการเปลี่ยนแปลงสถานะแมนนวลเรียบร้อยแล้ว', 'success');
+        showToast('บันทึกการเปลี่ยนแปลงสถานะเรียบร้อยแล้ว', 'success');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }

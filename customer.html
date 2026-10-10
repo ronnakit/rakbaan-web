@@ -1,39 +1,787 @@
 <!doctype html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>รักบ้าน@CNX — จอลูกค้า</title>
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background: #080c14;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>รักบ้าน@เชียงใหม่ — บริการดูแลและซ่อมแซมบ้าน</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00A86B;
+      --primary-dark: #008755;
+      --navy: #002B49;
+      --navy-light: #0d3b66;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --amber: #d97706;
+      --rose: #e11d48;
+      --blue: #0284c7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #080c14;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-size: 18px; /* กฎขนาดฟอนต์อากงอาม่า 18-20pt */
+      line-height: 1.5;
+    }
+
+    .app-frame {
+      width: 100%;
+      max-width: 440px;
+      height: 100vh;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    /* ส่วนหัวของแอป */
+    .app-header {
+      background: var(--navy);
+      color: #ffffff;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      font-size: 26px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #ffffff;
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ปุ่มสลับภาษาของลูกค้า: ข้อยกเว้นที่คุณเชิดอนุญาต */
+    .lang-switcher-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .lang-switcher-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ตัวเนื้อหาหลัก เลื่อนได้ */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* แบนเนอร์ปรัชญาบริการ */
+    .philosophy-banner {
+      background: #eff6ff;
+      border-left: 4px solid var(--blue);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 15px;
+      color: #1e40af;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* กฎปุ่มไมโครโฟนรับสัมผัส */
+    .mic-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 0;
+    }
+
+    .btn-tap-to-talk {
+      background: linear-gradient(135deg, #00A86B 0%, #059669 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 19px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(0, 168, 107, 0.35);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-tap-to-talk.listening {
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .mic-status-label {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* ช่องค้นหาอาการเสียสองมิติ (Dual Synonyms) */
+    .search-box-wrapper {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    /* รายการบริการยอดนิยม (ขอบเขตงาน + เครื่องหมายถูกเขียว) */
+    .service-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .service-card:hover, .service-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 4px 16px rgba(0, 168, 107, 0.15);
+    }
+
+    .service-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .service-title {
+      font-size: 19px;
+      color: var(--navy);
+    }
+
+    .service-price {
+      font-size: 20px;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .service-scope-list {
+      list-style: none;
+      padding: 0;
+      margin: 4px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .service-scope-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .service-scope-item span {
+      color: #16a34a;
+    }
+
+    /* นัดหมายเวลา (SLA ไร้สูตรคำนวณ) */
+    .sla-options {
+      display: flex;
+      gap: 10px;
+    }
+
+    .sla-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      text-align: center;
+      font-size: 16px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .sla-btn.active {
+      border-color: var(--primary);
+      background: #f0fdf4;
+      color: var(--primary-dark);
+    }
+
+    /* ปุ่มยืนยันแจ้งซ่อม */
+    .btn-submit-order {
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 20px;
+      cursor: pointer;
+      width: 100%;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-submit-order:hover {
+      background: var(--navy-light);
+    }
+
+    /* กล่องติดตามสถานะงานสด 10 ขั้นตอน */
+    .live-tracker-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1.5px solid #bfdbfe;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tracker-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 14px;
+      background: #eff6ff;
+      color: #1e40af;
+      width: fit-content;
+    }
+
+    .step-progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      color: var(--navy);
+    }
+
+    .time-saved-badge {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .qc-stamp-badge {
+      background: #f3e8ff;
+      color: #7e22ce;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .warranty-card {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 12px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 15px;
+    }
+
+    /* แถบด้านล่างสำหรับเปลี่ยนโหมด */
+    .app-bottom-bar {
+      padding: 8px 14px;
+      background: #f1f5f9;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <span class="brand-logo">🏡</span>
+        <span class="brand-title" id="text-brand">รักบ้าน@เชียงใหม่</span>
+      </div>
+      <div class="header-tools">
+        <!-- ภาษาอังกฤษ / ภาษาไทย (ข้อยกเว้นตามที่คุณเชิดสั่งการ) -->
+        <button class="lang-switcher-btn" id="btn-toggle-lang" title="Switch Language">
+          🌐 <span id="lang-indicator">EN</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <main class="content-scroll">
+      
+      <!-- Philosophy Banner -->
+      <div class="philosophy-banner">
+        <span>⏱️</span>
+        <span id="text-philosophy">ปรัชญาการบริการ: เวลาคือสิ่งล้ำค่ามากกว่าเงิน</span>
+      </div>
+
+      <!-- Live Job Tracker (Real-time Firestore) -->
+      <div id="live-job-tracker" class="live-tracker-card" style="display: none;">
+        <div class="service-header-row">
+          <span class="tracker-badge" id="tracker-job-id">งานบริการกำลังดำเนินการ</span>
+          <span style="font-size: 13px; color: #22c55e;" id="tracker-pulse">● อัปเดตสด</span>
+        </div>
+        <div style="font-size: 18px; color: var(--navy);" id="tracker-job-title">ล้างแอร์ทั่วไป (ติดผนัง)</div>
+        
+        <div class="step-progress-row">
+          <span>📍</span>
+          <span id="tracker-current-step">ขั้นตอนที่ 1: รับเรื่องคำขอแจ้งซ่อม</span>
+        </div>
+
+        <div id="tracker-time-metrics" class="time-saved-badge" style="display: none;">
+          <span>⚡</span>
+          <span id="tracker-time-text">เสร็จเร็วกว่านัดหมาย 24 นาที</span>
+        </div>
+
+        <div id="tracker-qc-badge" class="qc-stamp-badge" style="display: none;">
+          <span>🔍</span>
+          <span id="tracker-qc-text">รับรองมาตรฐานโดย คุณวิชัย ตรวจการ (QC-01)</span>
+        </div>
+
+        <div id="tracker-warranty-box" class="warranty-card" style="display: none;">
+          <div style="color: #b45309; font-size: 16px;">🛡️ ใบรับประกันดิจิทัล 90 วัน</div>
+          <div style="color: #78350f; font-size: 13.5px;" id="tracker-warranty-dates">คุ้มครองงานฝีมือและการรั่วซึม</div>
+        </div>
+
+        <div id="tracker-action-buttons" style="display: none; gap: 8px; margin-top: 4px;">
+          <button type="button" id="btn-cust-accept" style="flex: 1; background: #16a34a; color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 16px; cursor: pointer; font-family: inherit;">
+            ✓ ตรวจรับมอบงาน
+          </button>
+          <button type="button" id="btn-cust-reject" style="background: #dc2626; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit;">
+            สั่งแก้ไข
+          </button>
+        </div>
+      </div>
+
+      <!-- Tap to talk -->
+      <section class="mic-section">
+        <button type="button" class="btn-tap-to-talk" id="btn-mic">
+          <span>🎤</span>
+          <span id="text-mic-btn">แตะเพื่อพูดสั่งงาน</span>
+        </button>
+        <span class="mic-status-label" id="text-mic-status">หรือพิมพ์ค้นหาอาการเสียด้านล่าง</span>
+      </section>
+
+      <!-- Search Box (Dual Synonyms) -->
+      <div class="search-box-wrapper">
+        <input type="text" id="service-search-input" class="search-input" placeholder="ค้นหาบริการ หรือ อาการเสีย (เช่น แอร์ไม่เย็น)" />
+      </div>
+
+      <!-- Services Selection -->
+      <div style="font-size: 17px; color: var(--navy); margin-top: 4px;" id="text-popular-services">
+        บริการยอดนิยม (เชียงใหม่)
+      </div>
+
+      <!-- Service Card 1: ล้างแอร์ติดผนัง -->
+      <div class="service-card selected" id="card-service-1" onclick="selectService('AC-CLN-01', 'ล้างแอร์ทั่วไป (ติดผนัง)', 600)">
+        <div class="service-header-row">
+          <span class="service-title" id="s1-title">ล้างแอร์ทั่วไป (ติดผนัง)</span>
+          <span class="service-price">฿600</span>
+        </div>
+        <ul class="service-scope-list">
+          <li class="service-scope-item"><span>✓</span> <span id="s1-item1">ล้างคอยล์เย็น โฟมฆ่าเชื้อ ขจัดกลิ่นอับ</span></li>
+          <li class="service-scope-item"><span>✓</span> <span id="s1-item2">ฉีดล้างคอยล์ร้อน ระบายความร้อนเต็มระบบ</span></li>
+          <li class="service-scope-item"><span>✓</span> <span id="s1-item3">เช็คน้ำยาแอร์และท่อน้ำทิ้งมาตรฐาน</span></li>
+        </ul>
+      </div>
+
+      <!-- Service Card 2: ซ่อมปั๊มน้ำ -->
+      <div class="service-card" id="card-service-2" onclick="selectService('PLUMB-01', 'ซ่อมปั๊มน้ำและระบบประปา', 550)">
+        <div class="service-header-row">
+          <span class="service-title" id="s2-title">ซ่อมปั๊มน้ำและระบบประปา</span>
+          <span class="service-price">฿550</span>
+        </div>
+        <ul class="service-scope-list">
+          <li class="service-scope-item"><span>✓</span> <span id="s2-item1">ตรวจเช็คปั๊มน้ำร้อง ปั๊มทำงานตัดถี่</span></li>
+          <li class="service-scope-item"><span>✓</span> <span id="s2-item2">ตรวจเช็คท่อประปารั่วซึม ก๊อกหัก</span></li>
+          <li class="service-scope-item"><span>✓</span> <span id="s2-item3">อะไหล่แท้มาตรฐาน มอก. รับประกัน 90 วัน</span></li>
+        </ul>
+      </div>
+
+      <!-- Urgency SLA Selection -->
+      <div style="font-size: 17px; color: var(--navy); margin-top: 6px;" id="text-sla-title">
+        เวลานัดหมายเข้าบริการ
+      </div>
+      <div class="sla-options">
+        <button type="button" class="sla-btn active" id="btn-sla-normal" onclick="setSla('normal', 0)">
+          <div id="sla-norm-label">รอบนัดหมายปกติ</div>
+          <div style="font-size: 13px; color: var(--text-muted);" id="sla-norm-desc">ไม่มีค่าบริการเพิ่ม</div>
+        </button>
+        <button type="button" class="sla-btn" id="btn-sla-urgent" onclick="setSla('urgent', 150)">
+          <div id="sla-urg-label">นัดหมายด่วนพิเศษ</div>
+          <div style="font-size: 13px; color: #b45309;" id="sla-urg-desc">+150 บาท</div>
+        </button>
+      </div>
+
+      <!-- Summary & Order Button -->
+      <div style="margin-top: 8px;">
+        <button type="button" class="btn-submit-order" id="btn-submit-order" onclick="submitBooking()">
+          <span id="text-btn-submit">ยืนยันแจ้งซ่อม (฿600)</span>
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Bottom Bar -->
+    <footer class="app-bottom-bar">
+      <span>🏡 รักบ้าน@เชียงใหม่</span>
+      <span style="font-size: 11px;">เวอร์ชัน 1.5.0-mvp-time</span>
+    </footer>
+  </div>
+
+  <script type="module">
+    import { db } from './src/firebase.js';
+    import { collection, query, orderBy, limit, onSnapshot, addDoc, doc, updateDoc } from 'firebase/firestore';
+
+    let currentLang = 'th'; // 'th' | 'en'
+    let selectedService = { code: 'AC-CLN-01', title: 'ล้างแอร์ทั่วไป (ติดผนัง)', price: 600 };
+    let selectedSla = { type: 'normal', fee: 0 };
+    let activeJobDoc = null;
+
+    window.selectService = (code, title, price) => {
+      selectedService = { code, title, price };
+      document.getElementById('card-service-1').classList.toggle('selected', code === 'AC-CLN-01');
+      document.getElementById('card-service-2').classList.toggle('selected', code === 'PLUMB-01');
+      updatePriceDisplay();
+    };
+
+    window.setSla = (type, fee) => {
+      selectedSla = { type, fee };
+      document.getElementById('btn-sla-normal').classList.toggle('active', type === 'normal');
+      document.getElementById('btn-sla-urgent').classList.toggle('active', type === 'urgent');
+      updatePriceDisplay();
+    };
+
+    function updatePriceDisplay() {
+      const total = selectedService.price + selectedSla.fee;
+      const submitText = currentLang === 'th' 
+        ? `ยืนยันแจ้งซ่อม (฿${total.toLocaleString()})`
+        : `Confirm Booking (฿${total.toLocaleString()})`;
+      document.getElementById('text-btn-submit').textContent = submitText;
+    }
+
+    // Language Toggle (ข้อยกเว้นที่คุณเชิดอนุญาต: ภาษาอังกฤษเฉพาะที่ปุ่มเปลี่ยนภาษาของแอปลูกค้า)
+    const btnToggleLang = document.getElementById('btn-toggle-lang');
+    const langIndicator = document.getElementById('lang-indicator');
+
+    btnToggleLang.onclick = () => {
+      if (currentLang === 'th') {
+        currentLang = 'en';
+        langIndicator.textContent = 'TH';
+        applyEnglishTranslations();
+      } else {
+        currentLang = 'th';
+        langIndicator.textContent = 'EN';
+        applyThaiTranslations();
       }
-      .mobile-frame {
-        width: 100%;
-        max-width: 430px;
-        height: 100%;
-        background: #ffffff;
-        position: relative;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      updatePriceDisplay();
+    };
+
+    function applyEnglishTranslations() {
+      document.getElementById('text-brand').textContent = 'RakBaan@ChiangMai';
+      document.getElementById('text-philosophy').textContent = 'Core Motto: Time is more valuable than money';
+      document.getElementById('text-mic-btn').textContent = 'Tap to speak order';
+      document.getElementById('text-mic-status').textContent = 'Or search repair problem below';
+      document.getElementById('service-search-input').placeholder = 'Search service or symptom (e.g. AC not cold)';
+      document.getElementById('text-popular-services').textContent = 'Popular Services (Chiang Mai)';
+      document.getElementById('s1-title').textContent = 'General AC Cleaning (Wall Mounted)';
+      document.getElementById('s1-item1').textContent = 'Indoor coil clean, foam sanitize, remove odor';
+      document.getElementById('s1-item2').textContent = 'Outdoor condenser wash, full heat dispersion';
+      document.getElementById('s1-item3').textContent = 'Check refrigerant pressure and drain line';
+      document.getElementById('s2-title').textContent = 'Water Pump and Plumbing Repair';
+      document.getElementById('s2-item1').textContent = 'Fix pump constant cycling or strange noise';
+      document.getElementById('s2-item2').textContent = 'Inspect pipe leakage and broken faucets';
+      document.getElementById('s2-item3').textContent = 'Certified genuine parts with 90-day warranty';
+      document.getElementById('text-sla-title').textContent = 'Appointment Time';
+      document.getElementById('sla-norm-label').textContent = 'Standard Schedule';
+      document.getElementById('sla-norm-desc').textContent = 'No additional charge';
+      document.getElementById('sla-urg-label').textContent = 'Urgent Booking';
+      document.getElementById('sla-urg-desc').textContent = '+150 Baht';
+    }
+
+    function applyThaiTranslations() {
+      document.getElementById('text-brand').textContent = 'รักบ้าน@เชียงใหม่';
+      document.getElementById('text-philosophy').textContent = 'ปรัชญาการบริการ: เวลาคือสิ่งล้ำค่ามากกว่าเงิน';
+      document.getElementById('text-mic-btn').textContent = 'แตะเพื่อพูดสั่งงาน';
+      document.getElementById('text-mic-status').textContent = 'หรือพิมพ์ค้นหาอาการเสียด้านล่าง';
+      document.getElementById('service-search-input').placeholder = 'ค้นหาบริการ หรือ อาการเสีย (เช่น แอร์ไม่เย็น)';
+      document.getElementById('text-popular-services').textContent = 'บริการยอดนิยม (เชียงใหม่)';
+      document.getElementById('s1-title').textContent = 'ล้างแอร์ทั่วไป (ติดผนัง)';
+      document.getElementById('s1-item1').textContent = 'ล้างคอยล์เย็น โฟมฆ่าเชื้อ ขจัดกลิ่นอับ';
+      document.getElementById('s1-item2').textContent = 'ฉีดล้างคอยล์ร้อน ระบายความร้อนเต็มระบบ';
+      document.getElementById('s1-item3').textContent = 'เช็คน้ำยาแอร์และท่อน้ำทิ้งมาตรฐาน';
+      document.getElementById('s2-title').textContent = 'ซ่อมปั๊มน้ำและระบบประปา';
+      document.getElementById('s2-item1').textContent = 'ตรวจเช็คปั๊มน้ำร้อง ปั๊มทำงานตัดถี่';
+      document.getElementById('s2-item2').textContent = 'ตรวจเช็คท่อประปารั่วซึม ก๊อกหัก';
+      document.getElementById('s2-item3').textContent = 'อะไหล่แท้มาตรฐาน มอก. รับประกัน 90 วัน';
+      document.getElementById('text-sla-title').textContent = 'เวลานัดหมายเข้าบริการ';
+      document.getElementById('sla-norm-label').textContent = 'รอบนัดหมายปกติ';
+      document.getElementById('sla-norm-desc').textContent = 'ไม่มีค่าบริการเพิ่ม';
+      document.getElementById('sla-urg-label').textContent = 'นัดหมายด่วนพิเศษ';
+      document.getElementById('sla-urg-desc').textContent = '+150 บาท';
+    }
+
+    // Tap to talk mic
+    const btnMic = document.getElementById('btn-mic');
+    btnMic.onclick = () => {
+      btnMic.classList.toggle('listening');
+      if (btnMic.classList.contains('listening')) {
+        document.getElementById('text-mic-btn').textContent = currentLang === 'th' ? '🔴 กำลังฟังเสียง...' : '🔴 Listening...';
+        setTimeout(() => {
+          btnMic.classList.remove('listening');
+          document.getElementById('text-mic-btn').textContent = currentLang === 'th' ? 'แตะเพื่อพูดสั่งงาน' : 'Tap to speak order';
+          document.getElementById('service-search-input').value = currentLang === 'th' ? 'แอร์ไม่เย็น มีกลิ่นอับ' : 'AC not cold';
+          window.selectService('AC-CLN-01', 'ล้างแอร์ทั่วไป (ติดผนัง)', 600);
+        }, 2200);
+      } else {
+        document.getElementById('text-mic-btn').textContent = currentLang === 'th' ? 'แตะเพื่อพูดสั่งงาน' : 'Tap to speak order';
       }
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        display: block;
+    };
+
+    // Submit Booking
+    window.submitBooking = async () => {
+      const btn = document.getElementById('btn-submit-order');
+      btn.disabled = true;
+      btn.textContent = currentLang === 'th' ? 'กำลังส่งคำขอแจ้งซ่อม...' : 'Submitting booking...';
+
+      try {
+        const total = selectedService.price + selectedSla.fee;
+        const newJob = {
+          customerId: 'customer_cherd',
+          customerName: 'คุณเชิดศักดิ์ (เจ้าของบ้าน)',
+          customerPhone: '081-882-9988',
+          title: `${selectedService.title} ${selectedSla.type === 'urgent' ? '+ งานด่วนพิเศษ' : ''}`,
+          category: selectedService.code.startsWith('AC') ? 'air_con' : 'plumbing',
+          serviceCode: selectedService.code,
+          basePrice: selectedService.price,
+          price: total,
+          urgencySla: selectedSla.type,
+          urgencyFee: selectedSla.fee,
+          carePlus: true,
+          status: 'pending_review',
+          workflowStep: 1,
+          workflowStatus: 'new_booking',
+          addressText: '88/12 ถ.สุเทพ ต.สุเทพ อ.เมือง จ.เชียงใหม่',
+          distanceKm: 3.5,
+          travelFee: 0,
+          createdAt: new Date().toISOString(),
+          escrowStatus: 'held_ppt',
+          timeMetrics: {
+            responseMinutes: 2,
+            dispatchMinutes: 3,
+            travelMinutes: 22,
+            procurementMinutes: 15,
+            executionMinutes: 40,
+            qcMinutes: 8,
+            totalElapsedMinutes: 0,
+            slaTargetMinutes: 120,
+            slaStatus: 'on_track'
+          }
+        };
+
+        await addDoc(collection(db, 'jobs'), newJob);
+        alert(currentLang === 'th' ? 'ส่งคำขอแจ้งซ่อมเรียบร้อยแล้วค่ะ เจ้าหน้าที่ศูนย์ควบคุมกำลังรับเรื่อง' : 'Booking submitted successfully!');
+      } catch (e) {
+        alert('Error: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        updatePriceDisplay();
       }
-    </style>
-  </head>
-  <body>
-    <div class="mobile-frame">
-      <iframe src="http://localhost:8080/"></iframe>
-    </div>
-  </body>
+    };
+
+    // Live Snapshot Listener for Customer Jobs
+    const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'), limit(1));
+    onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) return;
+      const docData = snapshot.docs[0].data();
+      const jobId = snapshot.docs[0].id;
+      activeJobDoc = { id: jobId, ...docData };
+
+      renderLiveJobTracker(activeJobDoc);
+    });
+
+    const STEP_DESCRIPTIONS_TH = {
+      1: 'ขั้นตอนที่ 1: รับเรื่องคำขอแจ้งซ่อมเรียบร้อย',
+      2: 'ขั้นตอนที่ 2: ฝ่ายบริหารรับเรื่องและตรวจสอบพิกัด GPS',
+      3: 'ขั้นตอนที่ 3: มอบหมายช่างมืออาชีพตรงสายงาน',
+      4: 'ขั้นตอนที่ 4: พักเงินค่าบริการในระบบปลอดภัย',
+      5: 'ขั้นตอนที่ 5: ช่างรับงานและกำลังเดินทางมาหาคุณ',
+      6: 'ขั้นตอนที่ 6: ประสานงานชิ้นส่วนและนัดหมายเรียบร้อย',
+      7: 'ขั้นตอนที่ 7: ช่างถึงหน้างานและเริ่มงานซ่อมแซม',
+      8: 'ขั้นตอนที่ 8: ช่างซ่อมเสร็จและส่งมอบรูปภาพงาน',
+      9: 'ขั้นตอนที่ 9: ตรวจสอบรับรองคุณภาพมาตรฐานเรียบร้อย',
+      10: 'ขั้นตอนที่ 10: งานสำเร็จสมบูรณ์ พร้อมใบรับประกัน 90 วัน'
+    };
+
+    function renderLiveJobTracker(job) {
+      const trackerElem = document.getElementById('live-job-tracker');
+      if (!trackerElem) return;
+      trackerElem.style.display = 'flex';
+
+      document.getElementById('tracker-job-id').textContent = `รหัสงาน: ${job.id.slice(0, 10).toUpperCase()}`;
+      document.getElementById('tracker-job-title').textContent = job.title || 'บริการดูแลบ้าน';
+
+      const stepNum = job.workflowStep || 1;
+      document.getElementById('tracker-current-step').textContent = STEP_DESCRIPTIONS_TH[stepNum] || `ขั้นตอนที่ ${stepNum}`;
+
+      // Time Saved Badge
+      const timeElem = document.getElementById('tracker-time-metrics');
+      if (stepNum >= 8 && job.timeMetrics && job.timeMetrics.totalElapsedMinutes > 0) {
+        timeElem.style.display = 'flex';
+        const minsAhead = job.timeMetrics.minutesAhead || 24;
+        document.getElementById('tracker-time-text').textContent = currentLang === 'th'
+          ? `รักบ้านดูแลเสร็จเร็วกว่ากำหนด ${minsAhead} นาที 🟢`
+          : `Completed ${minsAhead} mins ahead of schedule 🟢`;
+      } else {
+        timeElem.style.display = 'none';
+      }
+
+      // QC Badge
+      const qcElem = document.getElementById('tracker-qc-badge');
+      if (stepNum >= 9) {
+        qcElem.style.display = 'flex';
+        const qcName = job.qcInspectorName || job.qcInspector || 'คุณวิชัย ตรวจการ (QC-01)';
+        document.getElementById('tracker-qc-text').textContent = currentLang === 'th'
+          ? `รับรองมาตรฐานโดย ${qcName}`
+          : `Quality Certified by ${qcName}`;
+      } else {
+        qcElem.style.display = 'none';
+      }
+
+      // Warranty Box
+      const warElem = document.getElementById('tracker-warranty-box');
+      if (stepNum >= 10 && job.warranty) {
+        warElem.style.display = 'flex';
+        document.getElementById('tracker-warranty-dates').textContent = currentLang === 'th'
+          ? `ระยะเวลาคุ้มครอง: ${job.warranty.startDate || '-'} ถึง ${job.warranty.endDate || '-'}`
+          : `Coverage: ${job.warranty.startDate || '-'} to ${job.warranty.endDate || '-'}`;
+      } else {
+        warElem.style.display = 'none';
+      }
+
+      // Action Buttons (Accept / Reject) in Step 9 or 10
+      const actElem = document.getElementById('tracker-action-buttons');
+      if (stepNum === 9 || job.workflowStatus === 'customer_review') {
+        actElem.style.display = 'flex';
+      } else {
+        actElem.style.display = 'none';
+      }
+    }
+
+    // Accept / Reject Buttons in Customer screen
+    document.getElementById('btn-cust-accept').onclick = async () => {
+      if (!activeJobDoc) return;
+      const now = new Date();
+      const end = new Date();
+      end.setDate(now.getDate() + 90);
+
+      await updateDoc(doc(db, 'jobs', activeJobDoc.id), {
+        status: 'completed',
+        workflowStep: 10,
+        workflowStatus: 'completed_with_warranty',
+        customerAcceptedAt: now.toISOString(),
+        warranty: {
+          days: 90,
+          startDate: now.toISOString().split('T')[0],
+          endDate: end.toISOString().split('T')[0],
+          status: 'active',
+          coverage: 'งานฝีมือล้างแอร์ ท่อน้ำทิ้ง และการรั่วซึม 90 วันเต็ม'
+        }
+      });
+      alert(currentLang === 'th' ? 'ตรวจรับมอบงานเรียบร้อยแล้วค่ะ ขอบพระคุณที่ไว้วางใจรักบ้าน' : 'Job accepted. Warranty active!');
+    };
+
+    document.getElementById('btn-cust-reject').onclick = async () => {
+      if (!activeJobDoc) return;
+      const reason = prompt(currentLang === 'th' ? 'ระบุจุดที่ต้องการให้ช่างแก้ไขเพิ่มเติม:' : 'Please specify rework reason:');
+      if (!reason) return;
+
+      await updateDoc(doc(db, 'jobs', activeJobDoc.id), {
+        status: 'in_progress',
+        workflowStep: 6,
+        workflowStatus: 'rework_needed',
+        accountability: {
+          penalizedInspector: activeJobDoc.qcInspectorName || 'คุณวิชัย ตรวจการ (QC-01)',
+          penalizedTechnician: activeJobDoc.assignedTechName || 'ช่างมืออาชีพ',
+          rejectionReason: reason,
+          rejectedAt: new Date().toISOString(),
+          penaltyFlag: true
+        }
+      });
+      alert(currentLang === 'th' ? 'ส่งคำขอแก้ไขงานเรียบร้อย ฝ่ายบริหารจะประสานงานส่งช่างกลับเข้าแก้ไขทันที' : 'Rework requested. Ops has dispatched the technician back.');
+    };
+  </script>
+</body>
 </html>

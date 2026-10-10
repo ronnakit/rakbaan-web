@@ -11,24 +11,24 @@ import { collection, addDoc, query, orderBy, limit, onSnapshot } from 'firebase/
 const auditChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('rakbaan_audit_channel') : null;
 
 export const AGENT_ROLES = {
-  AGENT_1: { id: 'agent-1-customer', name: 'Agent-1: ลูกค้า 👤', color: '#0284c7' },
-  AGENT_2: { id: 'agent-2-tech', name: 'Agent-2: ช่าง Pro 🔧', color: '#d97706' },
-  AGENT_3: { id: 'agent-3-ops', name: 'Agent-3: แอดมิน Ops 🏛️', color: '#16a34a' },
-  AGENT_4: { id: 'agent-4-qc', name: 'คุณวิชัย ตรวจการ (QC-01) 🔍', color: '#9333ea' },
-  MALI:    { id: 'mali-lead', name: 'น้องมะลิ: แม่ทัพ 👩‍💼', color: '#e11d48' },
+  AGENT_1: { id: 'agent-1-customer', name: 'บทบาทที่ 1: ลูกค้า 👤', color: '#0284c7' },
+  AGENT_2: { id: 'agent-2-tech', name: 'บทบาทที่ 2: ช่างมืออาชีพ 🔧', color: '#d97706' },
+  AGENT_3: { id: 'agent-3-ops', name: 'บทบาทที่ 3: ฝ่ายบริหารรักบ้าน 🏛️', color: '#16a34a' },
+  AGENT_4: { id: 'agent-4-qc', name: 'บทบาทที่ 4: คุณวิชัย ตรวจการ (QC-01) 🔍', color: '#9333ea' },
+  MALI:    { id: 'mali-lead', name: 'น้องมะลิ: ผู้ดูแลโครงการ 👩‍💼', color: '#e11d48' },
 };
 
 export const STEP_NAMES = {
-  1: '1. ลูกค้าจ้าง (Customer Books)',
-  2: '2. เราเห็น (Ops Acknowledges)',
-  3: '3. ส่งช่างรับ (Dispatch Pro Tech)',
-  4: '4. พักเงิน PPT (Escrow Held)',
-  5: '5. ช่างรับงาน (Tech Accepts & Travel)',
-  6: '6. เราประสานงาน (Ops 3-Way Coordination)',
-  7: '7. เราสั่งเริ่มงาน (Ops Authorizes Work)',
-  8: '8. ช่างส่งงาน (Tech Submits Photos)',
-  9: '9. เราตรวจ QC (Ops/QC Inspects)',
-  10: '10. ลูกค้ารับงาน/ประกัน (Customer Accepts & Warranty)',
+  1: '1. ลูกค้าแจ้งซ่อม',
+  2: '2. เราเห็นและรับเรื่อง',
+  3: '3. ส่งมอบหมายช่างมืออาชีพ',
+  4: '4. พักเงินค่าบริการในระบบ',
+  5: '5. ช่างรับงานและออกเดินทาง',
+  6: '6. เราประสานงานสามฝ่าย',
+  7: '7. เราสั่งเริ่มงานซ่อม',
+  8: '8. ช่างส่งมอบงานพร้อมรูปภาพ',
+  9: '9. เราตรวจมาตรฐานคุณภาพงาน',
+  10: '10. ลูกค้ารับมอบงานและเปิดใบรับประกัน',
 };
 
 /**
