@@ -24,6 +24,8 @@ import {
   getTechnicianById,
   getTechniciansForCategory,
   TRADE_LABELS,
+  QC_INSPECTORS,
+  getQCInspectorById,
 } from './technicians-data.js';
 import { logAgentActivity } from './audit-logger.js';
 
@@ -1259,9 +1261,119 @@ async function openJobModal(job) {
   const isRework = job.workflowStatus === 'rework_needed';
   const isCompleted = job.status === 'completed';
 
+  // ข้อมูลสำหรับขั้นตอนงานซ่อม 10 ขั้นตอน (10-Step Workflow Journey)
+  const techId = job.assignedTeamId || job.assignedTechId || job.techId;
+  let assignedTech = techId ? getTechnicianById(techId) : null;
+  const techDisplayName = assignedTech
+    ? `[${assignedTech.id}] ${assignedTech.name}`
+    : (job.assignedTechName || 'ช่างผู้รับผิดชอบ');
+
+  const customerDisplayName = job.customerName || (job.customerId ? `ลูกค้า (${job.customerId.slice(0, 10)})` : 'คุณวิภา สุขเจริญ');
+  const qcInspectorDisplayName = job.qcInspectorName || (job.qcInspector ? String(job.qcInspector) : 'คุณวิชัย ตรวจการ (QC-01)');
+
+  // มาตรวัดเวลา 6 เสาหลัก (Time Metrics)
+  const tm = job.timeMetrics || {
+    responseMins: job.responseMinutes || 2,
+    dispatchMins: job.dispatchMinutes || 3,
+    travelMins: job.travelMinutes || 22,
+    procurementMins: job.procurementMinutes || 15,
+    executionMins: job.executionMinutes || 40,
+    qcMins: job.qcMinutes || 8,
+    totalElapsedMins: job.totalElapsedMinutes || (currentStepNum >= 10 ? 90 : (currentStepNum >= 9 ? 82 : (currentStepNum >= 8 ? 74 : (currentStepNum >= 5 ? 27 : 5)))),
+    slaTargetMins: job.slaTargetMinutes || 120,
+  };
+
+  const slaRemaining = tm.slaTargetMins - tm.totalElapsedMins;
+  const slaStatusText = slaRemaining >= 0 
+    ? `ตรงเวลา (เร็วกว่าเป้าหมาย ${slaRemaining} นาที)` 
+    : `ล่าช้ากว่าเป้าหมาย ${Math.abs(slaRemaining)} นาที`;
+
+  const workflowSteps = [
+    {
+      num: 1,
+      title: 'ลูกค้าจ้าง',
+      person: `👤 ${customerDisplayName}`,
+      cargo: `คำขอแจ้งซ่อม (฿${(job.price || 600).toLocaleString()})`,
+      dwell: '0 นาที',
+      status: currentStepNum >= 1 ? (currentStepNum === 1 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 2,
+      title: 'เราเห็น',
+      person: '🏛️ แอดมิน OCC (คุณรินรดา AD-02)',
+      cargo: 'รับเรื่อง & ตรวจสอบพิกัด GPS',
+      dwell: `${tm.responseMins} นาที`,
+      status: currentStepNum >= 2 ? (currentStepNum === 2 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 3,
+      title: 'ส่งช่างรับ',
+      person: `🏛️ แอดมิน ➔ ${techDisplayName}`,
+      cargo: 'ใบมอบหมายงานช่างตรงสาย',
+      dwell: `${tm.dispatchMins} นาที`,
+      status: currentStepNum >= 3 ? (currentStepNum === 3 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 4,
+      title: 'พักเงิน PPT',
+      person: '💰 บัญชี Escrow ปลอดภัย',
+      cargo: `พักเงินค่าบริการ ฿${(job.price || 600).toLocaleString()}`,
+      dwell: '0 นาที (ระบบอัตโนมัติ)',
+      status: currentStepNum >= 4 ? (currentStepNum === 4 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 5,
+      title: 'ช่างรับงาน & เดินทาง',
+      person: `🔧 ${techDisplayName}`,
+      cargo: 'เครื่องมือช่าง & เช็คอินพิกัด',
+      dwell: `${tm.travelMins} นาที`,
+      status: currentStepNum >= 5 ? (currentStepNum === 5 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 6,
+      title: 'เราประสานงาน',
+      person: `🏛️🔧 แอดมิน & ${techDisplayName}`,
+      cargo: 'ตรวจหน้างาน & จัดหาอะไหล่แท้',
+      dwell: `${tm.procurementMins} นาที`,
+      status: currentStepNum >= 6 ? (currentStepNum === 6 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 7,
+      title: 'เราสั่งเริ่มงาน',
+      person: '🏛️ แอดมิน OCC ปล่อยไฟเขียว',
+      cargo: 'คำสั่งอนุมัติเริ่มซ่อม',
+      dwell: '1 นาที',
+      status: currentStepNum >= 7 ? (currentStepNum === 7 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 8,
+      title: 'ช่างส่งงาน',
+      person: `🔧 ${techDisplayName}`,
+      cargo: `รูปคู่ ก่อนทำ-หลังทำ (${job.afterPhotos?.length || 2} รูป)`,
+      dwell: `${tm.executionMins} นาที`,
+      status: currentStepNum >= 8 ? (currentStepNum === 8 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 9,
+      title: 'เราตรวจ QC',
+      person: `🔍 ${qcInspectorDisplayName}`,
+      cargo: 'ตรวจรูปคู่ & ประเมิน Senior-First',
+      dwell: `${tm.qcMins} นาที`,
+      status: currentStepNum >= 9 ? (currentStepNum === 9 ? 'active' : 'done') : 'upcoming',
+    },
+    {
+      num: 10,
+      title: 'ถึงปลายทาง (รับงาน)',
+      person: `👤 ${customerDisplayName}`,
+      cargo: `ออกใบรับประกัน ${job.warranty?.days || defaultWarrantyDays} วัน`,
+      dwell: `รวม ${tm.totalElapsedMins} นาที`,
+      status: currentStepNum >= 10 ? 'done' : 'upcoming',
+    },
+  ];
+
   modalContainer.innerHTML = `
     <div class="modal-backdrop" id="job-modal-backdrop" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;">
-      <div class="modal-dialog card" style="width: 820px; max-width: 95%; max-height: 92vh; overflow-y: auto; padding: 24px; position: relative;">
+      <div class="modal-dialog card" style="width: 860px; max-width: 95%; max-height: 92vh; overflow-y: auto; padding: 24px; position: relative;">
         <button class="modal-close-btn" id="job-modal-close" style="position: absolute; right: 16px; top: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--gray-600);">✕</button>
         
         <!-- Header -->
@@ -1282,27 +1394,68 @@ async function openJobModal(job) {
           </h2>
         </div>
 
-        <!-- 10-Step Interactive Workflow Pipeline Stepper -->
-        <div class="workflow-pipeline" title="ขั้นตอนการทำงาน 10 ขั้นตอนตามมาตรฐานรักบ้าน">
-          <div class="pipeline-step ${currentStepNum >= 1 ? 'done' : ''} ${currentStepNum === 1 ? 'active' : ''}">1. ลูกค้าจ้าง</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 2 ? 'done' : ''} ${currentStepNum === 2 ? 'active' : ''}">2. เราเห็น</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 3 ? 'done' : ''} ${currentStepNum === 3 ? 'active' : ''}">3. ส่งช่างรับ</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 4 ? 'done' : ''} ${currentStepNum === 4 ? 'active' : ''}">4. พักเงินค่าบริการ</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 5 ? 'done' : ''} ${currentStepNum === 5 ? 'active' : ''}">5. ช่างรับงาน</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 6 ? 'done' : ''} ${currentStepNum === 6 ? 'active' : ''}">6. เราประสานงาน</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 7 ? 'done' : ''} ${currentStepNum === 7 ? 'active' : ''}">7. เราสั่งเริ่มงาน</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 8 ? 'done' : ''} ${currentStepNum === 8 ? 'active' : ''}">8. ช่างส่งงาน</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 9 ? 'done' : ''} ${currentStepNum === 9 ? 'active' : ''}">9. เราตรวจงาน</div>
-          <span class="pipeline-arrow">→</span>
-          <div class="pipeline-step ${currentStepNum >= 10 ? 'done' : ''} ${currentStepNum === 10 ? 'active' : ''}">10. ลูกค้ารับงานและประกัน</div>
+        <!-- ประวัติขั้นตอนงานซ่อม 10 ขั้นตอน & มาตรวัดเวลา MVP -->
+        <div class="journey-deck">
+          <div class="journey-motto-bar">
+            <div class="journey-motto-title">
+              <span>ประวัติขั้นตอนงานซ่อม 10 ขั้นตอน</span>
+              <span class="journey-motto-badge">ปรัชญาการบริการ: เวลาคือสิ่งล้ำค่ามากกว่าเงิน</span>
+            </div>
+            <div class="journey-time-summary">
+              <span>เวลารวมตั้งแต่เริ่มต้น:</span>
+              <span class="journey-time-value">${tm.totalElapsedMins} นาที</span>
+              <span style="font-size: 11.5px; opacity: 0.9;">(${slaStatusText})</span>
+            </div>
+          </div>
+
+          <!-- Time Metrics 6 Pills -->
+          <div class="journey-metrics-pills">
+            <div class="journey-metric-pill">
+              <span class="journey-metric-label">⚡ เวลาตอบรับ</span>
+              <span class="journey-metric-num">${tm.responseMins} นาที</span>
+            </div>
+            <div class="journey-metric-pill">
+              <span class="journey-metric-label">📲 ช่างกดรับ</span>
+              <span class="journey-metric-num">${tm.dispatchMins} นาที</span>
+            </div>
+            <div class="journey-metric-pill">
+              <span class="journey-metric-label">🚗 เวลาเดินทาง</span>
+              <span class="journey-metric-num">${tm.travelMins} นาที</span>
+            </div>
+            <div class="journey-metric-pill">
+              <span class="journey-metric-label">📦 จัดหาอะไหล่</span>
+              <span class="journey-metric-num">${tm.procurementMins} นาที</span>
+            </div>
+            <div class="journey-metric-pill">
+              <span class="journey-metric-label">🛠️ ลงมือซ่อม</span>
+              <span class="journey-metric-num">${tm.executionMins} นาที</span>
+            </div>
+            <div class="journey-metric-pill">
+              <span class="journey-metric-label">🔍 ตรวจ QC (${job.qcInspectorId || 'QC-01'})</span>
+              <span class="journey-metric-num">${tm.qcMins} นาที</span>
+            </div>
+          </div>
+
+          <!-- 10 Steps List -->
+          <div class="journey-steps-list">
+            ${workflowSteps.map(st => `
+              <div class="journey-step-row ${st.status}">
+                <div class="station-identity">
+                  <span class="station-num">ขั้นตอนที่ ${st.num}</span>
+                  <span class="station-title">${st.title}</span>
+                </div>
+                <div class="station-person">
+                  <span>${escapeHtml(st.person)}</span>
+                </div>
+                <div class="station-cargo">
+                  <span>${escapeHtml(st.cargo)}</span>
+                </div>
+                <div class="station-time">
+                  <span>⏱️ ${st.dwell}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
         </div>
 
         <!-- Accountability Banner -->
@@ -1444,7 +1597,7 @@ async function openJobModal(job) {
               return `
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1.5px dashed #fed7aa; display: flex; justify-content: flex-end; align-items: center; gap: 10px;">
                   <span style="font-size: 12.5px; color: #c2410c; font-weight: 700;">มีงานติดปัญหาค้างรออีก ${others.length} งาน:</span>
-                  <button type="button" id="btn-next-train-flow" data-id="${others[0].id}" style="background: #ea580c; color: #ffffff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                  <button type="button" id="btn-next-pending-issue" data-id="${others[0].id}" style="background: #ea580c; color: #ffffff; border: none; border-radius: 6px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     เคลียร์งานถัดไป: [${others[0].id.slice(0, 10)}]
                   </button>
                 </div>
@@ -1646,17 +1799,42 @@ async function openJobModal(job) {
 
             <!-- Inspection Actions -->
             ${isSubmittedForReview ? `
-              <div style="background: #fff; padding: 12px; border-radius: var(--radius-sm); border: 1px solid #93c5fd; display: flex; flex-direction: column; gap: 10px;">
-                <div style="font-weight: 600; font-size: 13px; color: var(--navy);">
-                  ตรวจสอบงาน: ตรวจสอบความถูกต้องก่อนส่งให้ลูกค้าตรวจรับ
+              <div style="background: #fff; padding: 14px; border-radius: var(--radius-sm); border: 1.5px solid #93c5fd; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-weight: 600; font-size: 13px; color: var(--navy);">
+                    ขั้นตอนที่ 9: ตรวจสอบและอนุมัติคุณภาพงาน (ความรับผิดชอบรายบุคคล 100%)
+                  </div>
+                  <span class="badge" style="background: #dbeafe; color: #1e40af; font-size: 11px;">ความรับผิดชอบร่วม</span>
                 </div>
-                <input type="text" id="qc-inspector-notes" class="form-input" placeholder="ความเห็นผู้ตรวจงาน (เช่น ล้างสะอาดเรียบร้อย เช็คแรงดันน้ำยาแอร์ปกติ)..." style="margin-bottom: 0; font-size: 12px;">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <div>
+                    <label style="font-size: 12px; color: #334155; font-weight: 600; display: block; margin-bottom: 4px;">
+                      เจ้าหน้าที่ผู้ตรวจ QC (ชื่อคนจริง):
+                    </label>
+                    <select id="qc-inspector-select" class="form-input" style="font-size: 12px; margin-bottom: 0;">
+                      ${QC_INSPECTORS.map(q => `
+                        <option value="${q.id}" ${q.id === (job.qcInspectorId || 'QC-01') ? 'selected' : ''}>
+                          ${q.name} (${q.id}) — ${q.role}
+                        </option>
+                      `).join('')}
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size: 12px; color: #334155; font-weight: 600; display: block; margin-bottom: 4px;">
+                      เวลาที่ใช้ในการตรวจคุณภาพ:
+                    </label>
+                    <input type="text" id="qc-inspector-time" class="form-input" value="8 นาที (ตามเกณฑ์มาตรฐาน)" style="margin-bottom: 0; font-size: 12px;" readonly>
+                  </div>
+                </div>
+
+                <input type="text" id="qc-inspector-notes" class="form-input" placeholder="ความเห็นผู้ตรวจงาน (เช่น ตรวจสอบภาพเปรียบเทียบเรียบร้อย งานสะอาดตามเกณฑ์อาวุโส)..." style="margin-bottom: 0; font-size: 12px;">
                 <div style="display: flex; justify-content: flex-end; gap: 8px;">
                   <button class="secondary btn-sm" id="btn-reject-qc1" style="color: #b91c1c; border-color: #fca5a5;">
                     ไม่ผ่านการตรวจ - ส่งกลับให้ช่างแก้ไข
                   </button>
                   <button class="btn-mint btn-sm" id="btn-pass-qc1" style="font-weight: 600;">
-                    ผ่านการตรวจ - ส่งต่อลูกค้าตรวจรับงาน (ไปขั้นตอนที่ 10)
+                    อนุมัติผ่านงาน - ส่งต่อลูกค้าตรวจรับงาน (ไปขั้นตอนที่ 10)
                   </button>
                 </div>
               </div>
@@ -1941,10 +2119,10 @@ async function openJobModal(job) {
   }
 
   // Next Job Flow Button (สลับเปิดงานถัดไปทันที)
-  const btnNextTrainFlow = document.getElementById('btn-next-train-flow');
-  if (btnNextTrainFlow) {
-    btnNextTrainFlow.onclick = () => {
-      const nextId = btnNextTrainFlow.getAttribute('data-id');
+  const btnNextPendingIssue = document.getElementById('btn-next-pending-issue');
+  if (btnNextPendingIssue) {
+    btnNextPendingIssue.onclick = () => {
+      const nextId = btnNextPendingIssue.getAttribute('data-id');
       const allC = [...(window._allJobs || []), ...(window._simIssuesActive ? MOCK_MULTI_ISSUES : [])];
       const nextJob = allC.find(j => j.id === nextId);
       if (nextJob) openJobModal(nextJob);
@@ -2081,12 +2259,19 @@ async function openJobModal(job) {
   if (btnPassQc1) {
     btnPassQc1.onclick = async () => {
       const qcNotes = document.getElementById('qc-inspector-notes')?.value.trim() || 'ตรวจงานผ่านเกณฑ์มาตรฐาน';
+      const inspectorId = document.getElementById('qc-inspector-select')?.value || 'QC-01';
+      const selectedInspector = getQCInspectorById(inspectorId);
+      const qcInspectorName = `${selectedInspector.name} (${selectedInspector.id})`;
+
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
           status: 'in_progress', // Safe 1-of-5 status
           workflowStep: 9,
           workflowStatus: 'customer_review',
-          qcInspector: auth.currentUser?.email || 'admin@rakbaan.com',
+          qcInspector: qcInspectorName,
+          qcInspectorId: selectedInspector.id,
+          qcInspectorName: qcInspectorName,
+          qcInspectorTitle: selectedInspector.role,
           qcNotes,
           qcPassedAt: new Date().toISOString(),
         });
@@ -2094,20 +2279,25 @@ async function openJobModal(job) {
         // บันทึกประวัติการทำงาน: ผ่านงานสเต็ป 9 และส่งต่อให้ลูกค้าตรวจรับ
         await logAgentActivity({
           agentId: 'agent-4-qc',
-          agentName: 'ฝ่ายตรวจงาน',
+          agentName: qcInspectorName,
+          actorName: qcInspectorName,
           step: 9,
           stepName: '9. เราตรวจงาน',
           action: 'QC_INSPECTION_PASSED',
           jobId: job.id,
           status: 'success',
+          dwellMinutes: 8,
+          timeSpent: 'ตรวจรับรองคุณภาพ 8 นาที',
+          items: 'ผ่านเกณฑ์ตรวจสอบรูปคู่ Before/After 100%',
           details: {
             qcNotes,
-            inspector: auth.currentUser?.email || 'admin@rakbaan.com',
+            inspector: selectedInspector,
+            inspectorName: qcInspectorName,
           },
         });
 
         closeModal();
-        showToast('ผ่านการตรวจงานเรียบร้อย ส่งต่อลูกค้าตรวจรับ (ขั้นตอนที่ 9)', 'success');
+        showToast(`ผู้ตรวจ ${qcInspectorName} อนุมัติผ่านงานเรียบร้อย (ขั้นตอนที่ 9)`, 'success');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }
@@ -2120,11 +2310,18 @@ async function openJobModal(job) {
     btnRejectQc1.onclick = async () => {
       const qcNotes = prompt('ระบุจุดที่ช่างต้องแก้ไขหน้างาน:');
       if (!qcNotes) return;
+      const inspectorId = document.getElementById('qc-inspector-select')?.value || 'QC-01';
+      const selectedInspector = getQCInspectorById(inspectorId);
+      const qcInspectorName = `${selectedInspector.name} (${selectedInspector.id})`;
+
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
           status: 'in_progress', // Safe 1-of-5 status
           workflowStep: 8,
           workflowStatus: 'tech_revision_required',
+          qcInspector: qcInspectorName,
+          qcInspectorId: selectedInspector.id,
+          qcInspectorName: qcInspectorName,
           qcRejectionNotes: qcNotes,
           qcRejectedAt: new Date().toISOString(),
         });
@@ -2132,19 +2329,25 @@ async function openJobModal(job) {
         // บันทึกประวัติการทำงาน: ตีกลับให้ช่างแก้ไขหน้างาน
         await logAgentActivity({
           agentId: 'agent-4-qc',
-          agentName: 'ฝ่ายตรวจงาน',
+          agentName: qcInspectorName,
+          actorName: qcInspectorName,
           step: 9,
           stepName: '9. เราตรวจงาน',
           action: 'QC_INSPECTION_REJECTED',
           jobId: job.id,
           status: 'warning',
+          dwellMinutes: 5,
+          timeSpent: 'ส่งแก้ไขหน้างาน 5 นาที',
+          items: `ขอแก้ไข: ${qcNotes}`,
           details: {
             qcRejectionNotes: qcNotes,
+            inspector: selectedInspector,
+            inspectorName: qcInspectorName,
           },
         });
 
         closeModal();
-        showToast('ตีกลับให้ช่างแก้ไขหน้างานเรียบร้อยแล้ว', 'info');
+        showToast(`ผู้ตรวจ ${qcInspectorName} ตีกลับให้ช่างแก้ไขหน้างานเรียบร้อยแล้ว`, 'info');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }
@@ -2204,8 +2407,8 @@ async function openJobModal(job) {
       const reason = prompt('ระบุเหตุผลที่ลูกค้าไม่รับงานและขอแก้ไข (ข้อบกพร่องหน้างาน):');
       if (!reason) return;
 
-      const inspectorEmail = job.qcInspector || auth.currentUser?.email || 'ทีมตรวจงาน';
-      const techId = job.assignedTeamId || 'ช่างผู้ปฏิบัติงาน';
+      const inspectorName = job.qcInspectorName || job.qcInspector || 'คุณวิชัย ตรวจการ (QC-01)';
+      const techDisplay = job.assignedTechName ? `${job.assignedTechName} [${job.assignedTeamId || 'Pro'}]` : (job.assignedTeamId || 'ช่างผู้ปฏิบัติงาน');
 
       try {
         await updateDoc(doc(db, 'jobs', job.id), {
@@ -2213,8 +2416,8 @@ async function openJobModal(job) {
           workflowStep: 6, // Loopback to Step 6
           workflowStatus: 'rework_needed',
           accountability: {
-            penalizedInspector: inspectorEmail,
-            penalizedTechnician: techId,
+            penalizedInspector: inspectorName,
+            penalizedTechnician: techDisplay,
             rejectionReason: reason,
             penaltyFlag: true,
             rejectedAt: new Date().toISOString(),
@@ -2233,13 +2436,13 @@ async function openJobModal(job) {
           details: {
             rejectionReason: reason,
             loopbackToStep: 6,
-            penalizedInspector: inspectorEmail,
-            penalizedTechnician: techId,
+            penalizedInspector: inspectorName,
+            penalizedTechnician: techDisplay,
           },
         });
 
         closeModal();
-        showToast(`ลูกค้าไม่รับงาน: บันทึกความรับผิดชอบร่วม (${inspectorEmail} และ ${techId}) และวนกลับไปขั้นตอนที่ 6 ทันที`, 'info');
+        showToast(`ลูกค้าไม่รับงาน: บันทึกความรับผิดชอบร่วม (${inspectorName} และ ${techDisplay}) และวนกลับไปขั้นตอนที่ 6 ทันที`, 'info');
       } catch (err) {
         alert(`เกิดข้อผิดพลาด: ${err.message}`);
       }

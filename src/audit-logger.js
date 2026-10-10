@@ -14,7 +14,7 @@ export const AGENT_ROLES = {
   AGENT_1: { id: 'agent-1-customer', name: 'Agent-1: ลูกค้า 👤', color: '#0284c7' },
   AGENT_2: { id: 'agent-2-tech', name: 'Agent-2: ช่าง Pro 🔧', color: '#d97706' },
   AGENT_3: { id: 'agent-3-ops', name: 'Agent-3: แอดมิน Ops 🏛️', color: '#16a34a' },
-  AGENT_4: { id: 'agent-4-qc', name: 'Agent-4: ผู้ตรวจ QC 🔍', color: '#9333ea' },
+  AGENT_4: { id: 'agent-4-qc', name: 'คุณวิชัย ตรวจการ (QC-01) 🔍', color: '#9333ea' },
   MALI:    { id: 'mali-lead', name: 'น้องมะลิ: แม่ทัพ 👩‍💼', color: '#e11d48' },
 };
 
@@ -32,42 +32,55 @@ export const STEP_NAMES = {
 };
 
 /**
- * บันทึกการกระทำของ Agent
+ * บันทึกการกระทำของ Agent ตาม 3 มิติ: คน (Actor) - สิ่งของ/เงิน (Items/Cost) - เวลา (Time/Dwell)
  * @param {Object} entry 
  * @param {string} entry.agentId รหัส Agent เช่น 'agent-1-customer'
  * @param {string} [entry.agentName] ชื่อ Agent
+ * @param {string} [entry.actorName] ชื่อคนจริงผู้รับผิดชอบ (เช่น คุณวิชัย ตรวจการ QC-01)
  * @param {number} entry.step ลำดับขั้นตอน 1-10
  * @param {string} [entry.stepName] ชื่อขั้นตอน
  * @param {string} entry.action ชื่อ Action เช่น 'SUBMIT_JOB'
  * @param {string} [entry.jobId] รหัสงาน
  * @param {'info'|'success'|'warning'|'error'} [entry.status='info'] สถานะ
+ * @param {number} [entry.dwellMinutes] เวลาที่ใช้ในขั้นตอนนี้ (นาที)
+ * @param {string} [entry.timeSpent] ข้อความสรุปเวลา เช่น 'เวลาในขั้นตอนนี้ 22 นาที'
+ * @param {string|Object} [entry.items] สิ่งของหรือเงินที่เคลื่อนไหวในขั้นตอนนี้
  * @param {Object} [entry.details] รายละเอียดเพิ่มเติม
  * @param {string} [entry.error] ข้อความแจ้งเตือนข้อผิดพลาด
  */
 export async function logAgentActivity({
   agentId,
   agentName,
+  actorName,
   step,
   stepName,
   action,
   jobId = null,
   status = 'info',
+  dwellMinutes = null,
+  timeSpent = null,
+  items = null,
   details = {},
   error = null,
 }) {
   const role = Object.values(AGENT_ROLES).find(r => r.id === agentId) || { name: agentId, color: '#64748b' };
   const resolvedStepName = stepName || STEP_NAMES[step] || `ขั้นตอนที่ ${step}`;
+  const resolvedActor = actorName || agentName || (agentId === 'agent-4-qc' ? 'คุณวิชัย ตรวจการ (QC-01)' : role.name);
 
   const payload = {
     timestamp: new Date().toISOString(),
     agentId,
     agentName: agentName || role.name,
+    actorName: resolvedActor,
     agentColor: role.color,
     step: Number(step) || 0,
     stepName: resolvedStepName,
     action,
     jobId: jobId || '(ไม่ระบุ)',
     status,
+    dwellMinutes: dwellMinutes !== null ? Number(dwellMinutes) : (details?.dwellMinutes ?? null),
+    timeSpent: timeSpent || details?.timeSpent || (dwellMinutes ? `ใช้เวลา ${dwellMinutes} นาที` : null),
+    items: items || details?.items || null,
     details,
     error: error ? String(error) : null,
   };
