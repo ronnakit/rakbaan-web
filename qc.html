@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>รักบ้าน@เชียงใหม่ — จอผู้ตรวจการคุณภาพส่วนกลาง</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --qc-purple: #7e22ce;
+        --qc-purple-dark: #581c87;
+        --qc-purple-light: #faf5ff;
+        --qc-purple-border: #e9d5ff;
+        --qc-navy: #0f172a;
+        --qc-slate: #1e293b;
+        --qc-card: #ffffff;
+        --qc-bg: #f8fafc;
+        --qc-text-main: #0f172a;
+        --qc-text-muted: #475569;
+        --qc-border: #e2e8f0;
+        --qc-green: #15803d;
+        --qc-green-bg: #f0fdf4;
+        --qc-green-border: #bbf7d0;
+        --qc-amber: #b45309;
+        --qc-amber-bg: #fefce8;
+        --qc-amber-border: #fef08a;
+        --qc-red: #b91c1c;
+        --qc-red-bg: #fef2f2;
+        --qc-red-border: #fecaca;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background-color: #e2e8f0;
+        font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--qc-text-main);
+        -webkit-tap-highlight-color: transparent;
+        font-size: 16px;
+        line-height: 1.45;
+      }
+
+      .qc-container {
+        max-width: 580px;
+        margin: 0 auto;
+        min-height: 100vh;
+        background: var(--qc-bg);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 25px rgba(0,0,0,0.12);
+        position: relative;
+      }
+
+      .qc-app-bar {
+        background: linear-gradient(135deg, var(--qc-navy) 0%, var(--qc-purple-dark) 100%);
+        color: #fff;
+        padding: 12px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+      }
+
+      .qc-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .qc-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .qc-brand-logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #a855f7, var(--qc-purple));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 2px 8px rgba(126, 34, 206, 0.4);
+      }
+
+      .qc-brand-title {
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.3px;
+      }
+
+      .qc-brand-sub {
+        font-size: 12px;
+        color: #d8b4fe;
+        font-weight: 500;
+      }
+
+      .qc-inspector-selector {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 6px 10px;
+        color: #fff;
+        font-size: 13.5px;
+        font-family: inherit;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .qc-inspector-selector option {
+        background: var(--qc-slate);
+        color: #fff;
+      }
+
+      .qc-profile-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      .qc-tabs {
+        display: flex;
+        background: #fff;
+        border-bottom: 2px solid var(--qc-border);
+        position: sticky;
+        top: 96px;
+        z-index: 90;
+      }
+
+      .qc-tab {
+        flex: 1;
+        padding: 12px 6px;
+        text-align: center;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--qc-text-muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .qc-tab.active {
+        color: var(--qc-purple);
+        border-bottom-color: var(--qc-purple);
+        background: var(--qc-purple-light);
+      }
+
+      .qc-tab-badge {
+        background: #e2e8f0;
+        color: #334155;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 10px;
+      }
+
+      .qc-tab.active .qc-tab-badge {
+        background: var(--qc-purple);
+        color: #fff;
+      }
+
+      .qc-feed {
+        padding: 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .qc-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1.5px solid var(--qc-border);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .qc-card.highlight {
+        border-color: var(--qc-purple);
+        box-shadow: 0 4px 14px rgba(126, 34, 206, 0.12);
+      }
+
+      .qc-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .qc-card-id {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--qc-purple-dark);
+        background: var(--qc-purple-light);
+        padding: 2px 8px;
+        border-radius: 6px;
+        border: 1px solid var(--qc-purple-border);
+      }
+
+      .qc-card-status {
+        font-size: 13px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+      }
+
+      .status-waiting {
+        background: var(--qc-amber-bg);
+        color: var(--qc-amber);
+        border: 1px solid var(--qc-amber-border);
+      }
+
+      .status-certified {
+        background: var(--qc-green-bg);
+        color: var(--qc-green);
+        border: 1px solid var(--qc-green-border);
+      }
+
+      .qc-card-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--qc-navy);
+        line-height: 1.3;
+      }
+
+      .qc-card-meta {
+        font-size: 14px;
+        color: var(--qc-text-muted);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 10px 12px;
+        border-radius: 8px;
+      }
+
+      .qc-photo-compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 4px;
+      }
+
+      .qc-photo-box {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .qc-photo-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--qc-text-muted);
+      }
+
+      .qc-photo-img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1.5px solid var(--qc-border);
+        background: #e2e8f0;
+      }
+
+      .qc-checklist-box {
+        background: #faf5ff;
+        border: 1.5px solid var(--qc-purple-border);
+        border-radius: 10px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .qc-checklist-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--qc-purple-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .qc-check-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 14.5px;
+        color: #3b0764;
+        cursor: pointer;
+        line-height: 1.35;
+      }
+
+      .qc-check-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--qc-purple);
+        cursor: pointer;
+        margin-top: 1px;
+      }
+
+      .qc-btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 6px;
+      }
+
+      .btn-qc-approve {
+        width: 100%;
+        min-height: 52px;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 16.5px;
+        font-weight: 800;
+        font-family: inherit;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+        transition: all 0.2s;
+      }
+
+      .btn-qc-approve:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .btn-qc-rework {
+        width: 100%;
+        min-height: 44px;
+        background: #fff;
+        color: #c2410c;
+        border: 1.5px solid #fdba74;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-qc-rework:hover {
+        background: #fff7ed;
+      }
+
+      .qc-guard-note {
+        font-size: 13px;
+        color: #6b21a8;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .qc-empty-state {
+        text-align: center;
+        padding: 48px 16px;
+        color: var(--qc-text-muted);
+      }
+
+      .qc-empty-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="qc-container">
+      <!-- ส่วนหัวของแอปผู้ตรวจการคุณภาพส่วนกลาง -->
+      <div class="qc-app-bar">
+        <div class="qc-header-top">
+          <div class="qc-brand">
+            <div class="qc-brand-logo">🔍</div>
+            <div>
+              <div class="qc-brand-title">รักบ้าน@เชียงใหม่</div>
+              <div class="qc-brand-sub">ฝ่ายตรวจการคุณภาพส่วนกลาง</div>
+            </div>
+          </div>
+          <div>
+            <select id="select-qc-inspector" class="qc-inspector-selector">
+              <option value="QC-01">คุณวิชัย ตรวจการ (ผู้ตรวจอาวุโส)</option>
+              <option value="QC-02">คุณอรพินท์ ประณีต (ผู้ตรวจสถาปัตย์)</option>
+              <option value="QC-03">คุณมนัส ละเอียดลออ (ผู้ตรวจฉุกเฉิน)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="qc-profile-card">
+          <span id="qc-inspector-name-badge">ผู้ตรวจการ: <strong>คุณวิชัย ตรวจการ</strong></span>
+          <span id="qc-license-badge" style="color: #f3e8ff;">ใบอนุญาต: QC-CERT-2026-001</span>
+        </div>
+      </div>
+
+      <!-- แถบนำทาง 3 แท็บ -->
+      <div class="qc-tabs">
+        <button class="qc-tab active" data-tab="pending" id="tab-pending">
+          <span>รอตรวจรับรอง</span>
+          <span class="qc-tab-badge" id="badge-pending-count">0</span>
+        </button>
+        <button class="qc-tab" data-tab="in_progress" id="tab-in-progress">
+          <span>กำลังทำหน้างาน</span>
+          <span class="qc-tab-badge" id="badge-progress-count">0</span>
+        </button>
+        <button class="qc-tab" data-tab="completed" id="tab-completed">
+          <span>ส่งมอบแล้ว</span>
+          <span class="qc-tab-badge" id="badge-completed-count">0</span>
+        </button>
+      </div>
+
+      <!-- กระดานแสดงรายการงาน -->
+      <div class="qc-feed" id="qc-feed-container">
+        <div class="qc-empty-state">
+          <div class="qc-empty-icon">⏳</div>
+          <div style="font-size: 16px; font-weight: 700;">กำลังโหลดข้อมูลรายการงานตรวจ...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- สคริปต์การทำงานของแอป QC กลาง -->
+    <script type="module">
+      import { db } from './src/firebase.js';
+      import { collection, onSnapshot, doc, updateDoc, query, orderBy, limit } from 'firebase/firestore';
+      import { QC_INSPECTORS, getQCInspectorById } from './src/technicians-data.js';
+      import { logAgentActivity } from './src/audit-logger.js';
+
+      let currentInspector = QC_INSPECTORS[0];
+      let currentTab = 'pending';
+      let allJobs = [];
+
+      // สลับผู้ตรวจการ
+      const selectElem = document.getElementById('select-qc-inspector');
+      selectElem.onchange = () => {
+        currentInspector = getQCInspectorById(selectElem.value);
+        document.getElementById('qc-inspector-name-badge').innerHTML = `ผู้ตรวจการ: <strong>${currentInspector.name}</strong>`;
+        document.getElementById('qc-license-badge').textContent = `ใบอนุญาต: ${currentInspector.license}`;
+        renderJobs();
+      };
+
+      // สลับแท็บ
+      document.querySelectorAll('.qc-tab').forEach(btn => {
+        btn.onclick = () => {
+          document.querySelectorAll('.qc-tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentTab = btn.getAttribute('data-tab');
+          renderJobs();
+        };
+      });
+
+      // ดึงข้อมูลสดจาก Firestore
+      const q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'), limit(50));
+      onSnapshot(q, (snapshot) => {
+        allJobs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        updateBadges();
+        renderJobs();
+      });
+
+      function updateBadges() {
+        const pending = allJobs.filter(j => j.status === 'under_review' || (j.workflowStep === 9 && j.status !== 'completed')).length;
+        const progress = allJobs.filter(j => j.status === 'in_progress' || j.status === 'assigned' || j.status === 'traveling').length;
+        const completed = allJobs.filter(j => j.status === 'completed').length;
+
+        document.getElementById('badge-pending-count').textContent = pending;
+        document.getElementById('badge-progress-count').textContent = progress;
+        document.getElementById('badge-completed-count').textContent = completed;
+      }
+
+      function renderJobs() {
+        const container = document.getElementById('qc-feed-container');
+        let filtered = [];
+
+        if (currentTab === 'pending') {
+          filtered = allJobs.filter(j => j.status === 'under_review' || (j.workflowStep === 9 && j.status !== 'completed'));
+        } else if (currentTab === 'in_progress') {
+          filtered = allJobs.filter(j => j.status === 'in_progress' || j.status === 'assigned' || j.status === 'traveling');
+        } else {
+          filtered = allJobs.filter(j => j.status === 'completed');
+        }
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+            <div class="qc-empty-state">
+              <div class="qc-empty-icon">🍃</div>
+              <div style="font-size: 16px; font-weight: 700; color: #475569;">ไม่มีรายการงานในหมวดนี้</div>
+              <div style="font-size: 14px; margin-top: 4px;">ระบบตรวจการพร้อมรองรับงานใหม่ทันที</div>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filtered.map(job => renderJobCard(job)).join('');
+        attachEvents(filtered);
+      }
+
+      function renderJobCard(job) {
+        const isWaitingQC = job.status === 'under_review' || (job.workflowStep === 9 && job.status !== 'completed');
+        const beforePhoto = (job.beforePhotos && job.beforePhotos[0]) || 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60';
+        const afterPhoto = (job.afterPhotos && job.afterPhotos[0]) || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop&q=60';
+        const techName = job.assignedTechName || 'ช่างสมหมาย ใจซื่อ (RPS-T01)';
+        const customerName = job.customerName || 'คุณเชิดศักดิ์ (เจ้าของบ้าน)';
+        const addressText = job.addressDetail || '88/12 ถ.สุเทพ ต.สุเทพ อ.เมือง จ.เชียงใหม่';
+
+        return `
+          <div class="qc-card ${isWaitingQC ? 'highlight' : ''}" id="card-${job.id}">
+            <div class="qc-card-header">
+              <div class="qc-card-id">#${job.id.slice(0, 8).toUpperCase()}</div>
+              <div class="qc-card-status ${isWaitingQC ? 'status-waiting' : 'status-certified'}">
+                ${isWaitingQC ? '⚠️ รอฝ่ายตรวจการรับรอง' : '✅ รับรองมาตรฐานแล้ว'}
+              </div>
+            </div>
+
+            <div class="qc-card-title">${job.title || 'บริการดูแลซ่อมบำรุง'}</div>
+
+            <div class="qc-card-meta">
+              <div>👤 เจ้าของบ้าน: <strong>${customerName}</strong></div>
+              <div>🔧 ช่างผู้ดูแล: <strong>${techName}</strong></div>
+              <div style="grid-column: span 2;">📍 ที่อยู่: ${addressText}</div>
+            </div>
+
+            <!-- รูปคู่เปรียบเทียบก่อนทำและหลังทำ -->
+            <div style="font-size: 14px; font-weight: 700; color: #475569; margin-top: 4px;">
+              หลักฐานรูปภาพเปรียบเทียบ (ก่อนทำ vs หลังทำ):
+            </div>
+            <div class="qc-photo-compare">
+              <div class="qc-photo-box">
+                <span class="qc-photo-label">รูปก่อนทำ:</span>
+                <img src="${beforePhoto}" class="qc-photo-img" alt="รูปก่อนทำ" />
+              </div>
+              <div class="qc-photo-box">
+                <span class="qc-photo-label">รูปหลังทำ:</span>
+                <img src="${afterPhoto}" class="qc-photo-img" alt="รูปหลังทำ" />
+              </div>
+            </div>
+
+            ${isWaitingQC ? `
+              <!-- รายการตรวจมาตรฐาน 5 ข้อ (กลไกป้องกันความผิดพลาดของมนุษย์) -->
+              <div class="qc-checklist-box">
+                <div class="qc-checklist-title">
+                  <span>เกณฑ์ตรวจสอบมาตรฐาน 5 ข้อ</span>
+                  <span style="font-size: 12px; color: #6b21a8;" id="qc-count-${job.id}">0/5 ข้อ</span>
+                </div>
+
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="clean" />
+                  <span>๑. ความสะอาดเรียบร้อยของพื้นที่หน้างานและเก็บเศษวัสดุ</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="parts" />
+                  <span>๒. การใช้อะไหล่แท้และอุปกรณ์ถูกต้องตามมาตรฐาน มอก.</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="test" />
+                  <span>๓. ผลการทดสอบเครื่องทำงานได้สมบูรณ์ต่อหน้าลูกค้า</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="safety" />
+                  <span>๔. ความปลอดภัย เก็บเครื่องมือและตัดต่อสายไฟถูกต้อง</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="explain" />
+                  <span>๕. การอธิบายและแนะนำวิธีการใช้งานแก่เจ้าของบ้าน</span>
+                </label>
+              </div>
+
+              <div class="qc-btn-group">
+                <div class="qc-guard-note" id="note-guard-${job.id}">
+                  🔒 กรุณาแตะตรวจให้ครบทั้ง ๕ ข้อเพื่อปลดล็อคปุ่มส่งมอบงาน
+                </div>
+                <button class="btn-qc-approve" id="btn-approve-${job.id}" disabled>
+                  <span>รับรองมาตรฐานและส่งมอบงานให้ลูกค้า</span>
+                </button>
+                <button class="btn-qc-rework" id="btn-rework-${job.id}">
+                  <span>ส่งแก้งาน (พบจุดบกพร่องหน้างาน)</span>
+                </button>
+              </div>
+            ` : `
+              <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; color: #166534;">
+                🛡️ <strong>รับรองมาตรฐานเรียบร้อยแล้ว:</strong> โดย ${job.qcInspectorName || 'คุณวิชัย ตรวจการ'} เมื่อ ${job.qcCertifiedAt ? new Date(job.qcCertifiedAt).toLocaleTimeString('th-TH') : 'เรียบร้อย'}
+              </div>
+            `}
+          </div>
+        `;
+      }
+
+      function attachEvents(jobs) {
+        jobs.forEach(job => {
+          const isWaitingQC = job.status === 'under_review' || (job.workflowStep === 9 && job.status !== 'completed');
+          if (!isWaitingQC) return;
+
+          const checkboxes = document.querySelectorAll(`.chk-item-${job.id}`);
+          const approveBtn = document.getElementById(`btn-approve-${job.id}`);
+          const reworkBtn = document.getElementById(`btn-rework-${job.id}`);
+          const countElem = document.getElementById(`qc-count-${job.id}`);
+          const noteGuard = document.getElementById(`note-guard-${job.id}`);
+
+          checkboxes.forEach(chk => {
+            chk.onchange = () => {
+              const checkedCount = Array.from(checkboxes).filter(c => c.checked).length;
+              countElem.textContent = `${checkedCount}/5 ข้อ`;
+
+              if (checkedCount === 5) {
+                approveBtn.disabled = false;
+                noteGuard.textContent = '🔓 ครบ ๕ ข้อแล้ว พร้อมส่งมอบงานให้ลูกค้าได้ทันที';
+                noteGuard.style.color = '#15803d';
+              } else {
+                approveBtn.disabled = true;
+                noteGuard.textContent = `🔒 ตรวจไปแล้ว ${checkedCount}/๕ ข้อ (กรุณาตรวจให้ครบทุกข้อ)`;
+                noteGuard.style.color = '#6b21a8';
+              }
+            };
+          });
+
+          // ปุ่มอนุมัติและส่งมอบงานให้ลูกค้า
+          approveBtn.onclick = async () => {
+            if (approveBtn.disabled) return;
+            const now = new Date();
+            const end = new Date();
+            end.setDate(now.getDate() + 90);
+
+            try {
+              await updateDoc(doc(db, 'jobs', job.id), {
+                status: 'completed',
+                workflowStep: 10,
+                workflowStatus: 'qc_certified_delivered',
+                deliveredBy: 'qc_inspector',
+                qcInspectorId: currentInspector.id,
+                qcInspectorName: currentInspector.name,
+                qcInspectorTitle: currentInspector.role,
+                qcCertifiedAt: now.toISOString(),
+                qcPassedAt: now.toISOString(),
+                warranty: {
+                  days: 90,
+                  startDate: now.toISOString().split('T')[0],
+                  endDate: end.toISOString().split('T')[0],
+                  status: 'active',
+                  coverage: `งานผ่านการรับรองมาตรฐานความปลอดภัยโดย ${currentInspector.name}`
+                }
+              });
+
+              await logAgentActivity({
+                agentId: 'agent-4-qc',
+                agentName: `บทบาทที่ ๔: ${currentInspector.name} (${currentInspector.id})`,
+                actorName: currentInspector.name,
+                step: 9,
+                stepName: '๙. เราตรวจมาตรฐานคุณภาพงาน',
+                action: 'QC_APPROVED_AND_DELIVERED',
+                jobId: job.id,
+                status: 'success',
+                dwellMinutes: 8,
+                timeSpent: 'ตรวจรับรองคุณภาพ ๘ นาที',
+                items: `ผ่านเกณฑ์ตรวจสอบ ๕ ข้อครบถ้วน พร้อมส่งมอบงานให้ลูกค้า`,
+                details: {
+                  inspector: currentInspector.name,
+                  license: currentInspector.license,
+                  timestamp: now.toISOString()
+                }
+              });
+
+              alert(`คุณวิชัย รับรองมาตรฐานและส่งมอบงาน #${job.id.slice(0, 8).toUpperCase()} ให้ลูกค้าเรียบร้อยแล้วค่ะ`);
+            } catch (err) {
+              alert(`เกิดข้อผิดพลาด: ${err.message}`);
+            }
+          };
+
+          // ปุ่มส่งแก้งาน
+          reworkBtn.onclick = async () => {
+            const reason = prompt('กรุณาระบุจุดบกพร่องที่ต้องให้ช่างแก้ไขหน้างาน:');
+            if (!reason) return;
+
+            try {
+              await updateDoc(doc(db, 'jobs', job.id), {
+                status: 'in_progress',
+                workflowStep: 7,
+                workflowStatus: 'rework_requested',
+                deliveredBy: 'rework_pending',
+                accountability: {
+                  penalizedInspector: currentInspector.name,
+                  penalizedTechnician: job.assignedTechName || 'ช่างมืออาชีพ',
+                  rejectionReason: reason,
+                  rejectedAt: new Date().toISOString(),
+                  penaltyFlag: true
+                },
+                reworkNotes: reason,
+                reworkRequestedAt: new Date().toISOString()
+              });
+
+              await logAgentActivity({
+                agentId: 'agent-4-qc',
+                agentName: `บทบาทที่ ๔: ${currentInspector.name} (${currentInspector.id})`,
+                actorName: currentInspector.name,
+                step: 9,
+                stepName: '๙. เราตรวจมาตรฐานคุณภาพงาน (สั่งแก้งาน)',
+                action: 'QC_REWORK_REQUESTED',
+                jobId: job.id,
+                status: 'warning',
+                dwellMinutes: 5,
+                timeSpent: 'ตรวจสอบพบจุดบกพร่อง ๕ นาที',
+                items: `ส่งงานกลับให้ช่างแก้ไข: ${reason}`,
+                details: {
+                  inspector: currentInspector.name,
+                  reason
+                }
+              });
+
+              alert(`ส่งคำขอแก้ไขงานกลับไปยังช่างเรียบร้อยแล้วค่ะ`);
+            } catch (err) {
+              alert(`เกิดข้อผิดพลาด: ${err.message}`);
+            }
+          };
+        });
+      }
+    </script>
+  </body>
+</html>

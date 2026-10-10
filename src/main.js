@@ -1798,43 +1798,20 @@ async function openJobModal(job) {
 
             <!-- Inspection Actions -->
             ${isSubmittedForReview ? `
-              <div style="background: #fff; padding: 14px; border-radius: var(--radius-sm); border: 1.5px solid #93c5fd; display: flex; flex-direction: column; gap: 10px;">
+              <div style="background: #faf5ff; border: 1.5px solid #d8b4fe; border-radius: var(--radius-sm); padding: 14px; display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <div style="font-weight: 600; font-size: 13px; color: var(--navy);">
-                    ขั้นตอนที่ 9: ตรวจสอบและอนุมัติคุณภาพงาน (ความรับผิดชอบรายบุคคล 100%)
+                  <div style="font-weight: 700; font-size: 14px; color: #6b21a8;">
+                    🛡️ ขั้นตอนที่ ๙: รอฝ่ายตรวจการคุณภาพตรวจสอบและส่งมอบงาน
                   </div>
-                  <span class="badge" style="background: #dbeafe; color: #1e40af; font-size: 11px;">ความรับผิดชอบร่วม</span>
+                  <span class="badge" style="background: #f3e8ff; color: #7e22ce; font-weight: 700;">คุณวิชัย ตรวจการ (QC-01)</span>
                 </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                  <div>
-                    <label style="font-size: 12px; color: #334155; font-weight: 600; display: block; margin-bottom: 4px;">
-                      เจ้าหน้าที่ผู้ตรวจ QC (ชื่อคนจริง):
-                    </label>
-                    <select id="qc-inspector-select" class="form-input" style="font-size: 12px; margin-bottom: 0;">
-                      ${QC_INSPECTORS.map(q => `
-                        <option value="${q.id}" ${q.id === (job.qcInspectorId || 'QC-01') ? 'selected' : ''}>
-                          ${q.name} (${q.id}) — ${q.role}
-                        </option>
-                      `).join('')}
-                    </select>
-                  </div>
-                  <div>
-                    <label style="font-size: 12px; color: #334155; font-weight: 600; display: block; margin-bottom: 4px;">
-                      เวลาที่ใช้ในการตรวจคุณภาพ:
-                    </label>
-                    <input type="text" id="qc-inspector-time" class="form-input" value="8 นาที (ตามเกณฑ์มาตรฐาน)" style="margin-bottom: 0; font-size: 12px;" readonly>
-                  </div>
+                <div style="font-size: 13px; color: #581c87; line-height: 1.45;">
+                  งานนี้ถูกกำหนดให้ <strong>ต้องผ่านฝ่ายตรวจการตรวจสอบและส่งมอบเท่านั้น</strong> โดยฝ่ายตรวจการจะตรวจภาพคู่และเช็คเกณฑ์ ๕ ข้อ ผ่านหน้าจอผู้ตรวจการส่วนกลาง เพื่อป้องกันความผิดพลาดของมนุษย์ (ฝ่ายบริหารทั่วไปไม่สามารถกดอนุมัติข้ามขั้นตอนได้)
                 </div>
-
-                <input type="text" id="qc-inspector-notes" class="form-input" placeholder="ความเห็นผู้ตรวจงาน (เช่น ตรวจสอบภาพเปรียบเทียบเรียบร้อย งานสะอาดตามเกณฑ์อาวุโส)..." style="margin-bottom: 0; font-size: 12px;">
-                <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                  <button class="secondary btn-sm" id="btn-reject-qc1" style="color: #b91c1c; border-color: #fca5a5;">
-                    ไม่ผ่านการตรวจ - ส่งกลับให้ช่างแก้ไข
-                  </button>
-                  <button class="btn-mint btn-sm" id="btn-pass-qc1" style="font-weight: 600;">
-                    อนุมัติผ่านงาน - ส่งต่อลูกค้าตรวจรับงาน (ไปขั้นตอนที่ 10)
-                  </button>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+                  <a href="/qc.html" target="_blank" class="btn-sm" style="background: #7e22ce; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                    🔍 เปิดหน้าจอผู้ตรวจการ (qc.html)
+                  </a>
                 </div>
               </div>
             ` : ''}

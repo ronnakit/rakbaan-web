@@ -343,6 +343,9 @@
       <button class="btn-action" id="btn-trigger-rework" style="background: linear-gradient(135deg, #b91c1c 0%, #ea580c 100%); border: none; color: #fff; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
         <span>⚠️</span> จำลองสั่งแก้งาน (วนกลับขั้นตอน 6 และบทลงโทษร่วม)
       </button>
+      <a href="/qc.html" target="_blank" class="btn-action" style="background: linear-gradient(135deg, #7e22ce 0%, #9333ea 100%); border: none; color: #fff; text-decoration: none; font-weight: 700;">
+        <span>🔍</span> จอผู้ตรวจการ (คุณวิชัย QC)
+      </a>
       <button class="btn-action" id="btn-reload-all">
         <span>🔄</span> รีเฟรชทั้ง 3 จอ
       </button>
@@ -371,15 +374,18 @@
       </div>
     </section>
 
-    <!-- Screen 2: Ops Admin Hub (บทบาทที่ 3 และ 4) -->
+    <!-- Screen 2: Ops Admin Hub & QC Portal -->
     <section class="screen-card">
       <div class="screen-header">
-        <div class="screen-title" style="color: #4ade80;">
-          <span>🏛️</span> บทบาทที่ 3 และ 4: การบริหารรักบ้านและตรวจงาน
+        <div class="screen-title" id="screen2-title" style="color: #4ade80;">
+          <span>🏛️</span> บทบาทที่ 3: การบริหารรักบ้าน
         </div>
-        <div class="screen-tools">
-          <button class="btn-icon" id="btn-reload-ops" title="รีเฟรชการบริหารรักบ้าน">🔄</button>
-          <a href="/" target="_blank" class="btn-icon" title="เปิดแท็บใหม่">↗</a>
+        <div class="screen-tools" style="gap: 6px;">
+          <button class="btn-action" id="btn-toggle-screen2" style="font-size: 11px; padding: 3px 8px; background: rgba(168, 85, 247, 0.2); border-color: #a855f7; color: #d8b4fe;">
+            สลับดูจอผู้ตรวจการ (QC-01) 🔍
+          </button>
+          <button class="btn-icon" id="btn-reload-ops" title="รีเฟรชหน้าจอนี้">🔄</button>
+          <a href="/" target="_blank" class="btn-icon" id="link-screen2-external" title="เปิดแท็บใหม่">↗</a>
         </div>
       </div>
       <div class="screen-iframe-wrapper">
@@ -510,6 +516,34 @@
           frameCust.src = '/customer.html';
           if (linkCust) linkCust.href = '/customer.html';
           btnToggleCust.textContent = '🌐 Web MVP';
+        }
+      };
+    }
+
+    let screen2Mode = 'ops';
+    const btnToggleScreen2 = document.getElementById('btn-toggle-screen2');
+    const screen2Title = document.getElementById('screen2-title');
+    const linkScreen2 = document.getElementById('link-screen2-external');
+    if (btnToggleScreen2) {
+      btnToggleScreen2.onclick = () => {
+        if (screen2Mode === 'ops') {
+          screen2Mode = 'qc';
+          frameOps.src = '/qc.html';
+          screen2Title.innerHTML = '<span style="color: #a855f7;">🔍 บทบาทที่ 4: จอผู้ตรวจการคุณภาพ (คุณวิชัย QC-01)</span>';
+          btnToggleScreen2.textContent = 'สลับกลับการบริหารรักบ้าน 🏛️';
+          btnToggleScreen2.style.background = 'rgba(74, 222, 128, 0.2)';
+          btnToggleScreen2.style.borderColor = '#4ade80';
+          btnToggleScreen2.style.color = '#86efac';
+          if (linkScreen2) linkScreen2.href = '/qc.html';
+        } else {
+          screen2Mode = 'ops';
+          frameOps.src = '/?devAdmin=true';
+          screen2Title.innerHTML = '<span>🏛️</span> บทบาทที่ 3: การบริหารรักบ้าน';
+          btnToggleScreen2.textContent = 'สลับดูจอผู้ตรวจการ (QC-01) 🔍';
+          btnToggleScreen2.style.background = 'rgba(168, 85, 247, 0.2)';
+          btnToggleScreen2.style.borderColor = '#a855f7';
+          btnToggleScreen2.style.color = '#d8b4fe';
+          if (linkScreen2) linkScreen2.href = '/';
         }
       };
     }

@@ -63,6 +63,18 @@ function getTradeLabel(trade) {
   }
 }
 
+// ตรวจสอบว่างานนี้ต้องผ่านฝ่ายตรวจการ (คุณวิชัย ตรวจการ) หรือช่างส่งมอบได้เอง
+export function isQcRequired(job) {
+  if (job.handoverMode === 'qc_required') return true;
+  if (job.handoverMode === 'tech_direct') return false;
+  const title = (job.title || '').toLowerCase();
+  const cat = (job.serviceCategory || '').toLowerCase();
+  if (title.includes('ไฟฟ้า') || title.includes('ปั๊มน้ำ') || title.includes('โครงสร้าง') || cat.includes('electrical') || cat.includes('roof')) {
+    return true;
+  }
+  return false;
+}
+
 // Initialize
 initTechPortal();
 
@@ -743,8 +755,9 @@ function renderJobCardHtml(job) {
   const isAssigned = job.status === 'assigned';
   const isTraveling = job.status === 'traveling';
   const isInProgress = job.status === 'in_progress';
-  const isSubmitted = job.workflowStatus === 'tech_submitted';
+  const isSubmitted = job.workflowStatus === 'tech_submitted' || job.status === 'under_review';
   const isCompleted = job.status === 'completed';
+  const qcRequired = isQcRequired(job);
 
   let statusBadgeClass = 'status-assigned';
   let statusText = 'มอบหมายแล้ว รอรับงาน';
@@ -931,17 +944,27 @@ function renderJobCardHtml(job) {
                 </div>
               </div>
 
-              <textarea class="tech-notes-input" id="notes-${job.id}" placeholder="ระบุรายละเอียดงาน หรือข้อความถึงฝ่ายตรวจงาน...">${escapeHtml(currentNotes)}</textarea>
+              <!-- ป้ายระบุรูปแบบการส่งมอบงาน (กลไกป้องกันความผิดพลาด) -->
+              <div style="background: ${qcRequired ? '#faf5ff' : '#f0fdf4'}; border: 1.5px solid ${qcRequired ? '#e9d5ff' : '#bbf7d0'}; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 13.5px; line-height: 1.4;">
+                <div style="font-weight: 800; color: ${qcRequired ? '#6b21a8' : '#15803d'};">
+                  ${qcRequired ? '🛡️ งานสำคัญมีความเสี่ยงสูง (ส่งฝ่ายตรวจการก่อน)' : '🚀 งานมาตรฐานทั่วไป (ช่างส่งมอบได้เอง)'}
+                </div>
+                <div style="color: ${qcRequired ? '#581c87' : '#166534'}; margin-top: 2px;">
+                  ${qcRequired ? 'ระบบจะส่งรูปภาพคู่ให้ คุณวิชัย ตรวจการ รับรองมาตรฐานและส่งมอบให้ลูกค้า' : 'ช่างสามารถส่งมอบงานให้ลูกค้าได้โดยตรง พร้อมเปิดใบรับประกันทันที'}
+                </div>
+              </div>
 
-              <button class="btn-tech-action btn-tech-orange" id="btn-submit-ops-${job.id}">
-                ส่งตรวจงาน
+              <textarea class="tech-notes-input" id="notes-${job.id}" placeholder="ระบุรายละเอียดงาน หรือข้อความถึงลูกค้า/ฝ่ายตรวจการ...">${escapeHtml(currentNotes)}</textarea>
+
+              <button class="btn-tech-action" id="btn-submit-ops-${job.id}" style="background: ${qcRequired ? '#7e22ce' : '#16a34a'}; color: #fff; border: none; font-weight: 800;">
+                ${qcRequired ? '🔍 ส่งงานให้ฝ่ายตรวจการตรวจสอบ' : '🚀 ส่งมอบงานให้ลูกค้าโดยตรง'}
               </button>
             </div>
           ` : ''}
 
           ${isSubmitted ? `
-            <div class="tech-alert-card warning">
-              ส่งงานเรียบร้อยแล้ว รอฝ่ายตรวจงานตรวจสอบ
+            <div class="tech-alert-card warning" style="background: #faf5ff; border: 1.5px solid #d8b4fe; color: #6b21a8;">
+              🔍 ส่งงานเรียบร้อยแล้ว — กำลังรอ คุณวิชัย ตรวจการ (QC-01) ตรวจรับรองมาตรฐาน
             </div>
           ` : ''}
 
@@ -1138,63 +1161,122 @@ function attachJobCardEvents(job) {
         return;
       }
 
+      const qcRequired = isQcRequired(job);
       btnSubmitOps.disabled = true;
-      btnSubmitOps.textContent = 'กำลังส่งตรวจงาน...';
+      btnSubmitOps.textContent = qcRequired ? 'กำลังส่งฝ่ายตรวจการ...' : 'กำลังส่งมอบให้ลูกค้า...';
+
+      const now = new Date();
+      const end = new Date();
+      end.setDate(now.getDate() + 90);
 
       try {
-        await updateDoc(doc(db, 'jobs', job.id), {
-          status: 'in_progress',
-          workflowStep: 8,
-          workflowStatus: 'tech_submitted',
-          beforePhotos: [beforeImg],
-          afterPhotos: [afterImg],
-          techNotes: notes,
-          techSubmittedAt: new Date().toISOString(),
-          postFlightChecklist: {
-            cleanArea: true,
-            demoTested: true,
-            noCashConfirmed: true,
-            confirmedAt: new Date().toISOString(),
-          },
-          qcData: {
-            beforePhoto: beforeImg,
-            afterPhoto: afterImg,
+        if (qcRequired) {
+          // เส้นทางที่ ๒: งานสำคัญมีความเสี่ยงสูง (ส่งให้ฝ่ายตรวจการตรวจสอบก่อน)
+          await updateDoc(doc(db, 'jobs', job.id), {
+            status: 'under_review',
+            workflowStep: 9,
+            workflowStatus: 'tech_submitted',
+            deliveredBy: 'pending_qc',
+            beforePhotos: [beforeImg],
+            afterPhotos: [afterImg],
             techNotes: notes,
-            techId: currentTech.id,
-            techName: currentTech.name,
-            submittedAt: new Date().toISOString(),
-          }
-        });
+            techSubmittedAt: now.toISOString(),
+            postFlightChecklist: {
+              cleanArea: true,
+              demoTested: true,
+              noCashConfirmed: true,
+              confirmedAt: now.toISOString(),
+            },
+            qcData: {
+              beforePhoto: beforeImg,
+              afterPhoto: afterImg,
+              techNotes: notes,
+              techId: currentTech.id,
+              techName: currentTech.name,
+              submittedAt: now.toISOString(),
+            }
+          });
 
-        await logAgentActivity({
-          agentId: 'agent-2-tech',
-          agentName: `Agent-2: ช่าง [${currentTech.id}] ${currentTech.name}`,
-          step: 8,
-          stepName: '8. ช่างส่งงาน (Tech Submits Photos)',
-          action: 'TECH_SUBMIT_PHOTOS_FOR_QC',
-          jobId: job.id,
-          status: 'success',
-          details: {
-            techId: currentTech.id,
-            techName: currentTech.name,
-            hasBeforePhoto: Boolean(beforeImg),
-            hasAfterPhoto: Boolean(afterImg),
-            notes: notes.slice(0, 100),
-          },
-        });
+          await logAgentActivity({
+            agentId: 'agent-2-tech',
+            agentName: `บทบาทที่ ๒: ช่าง [${currentTech.id}] ${currentTech.name}`,
+            step: 8,
+            stepName: '๘. ช่างส่งมอบงานพร้อมรูปภาพ (ส่งตรวจการ)',
+            action: 'TECH_SUBMIT_PHOTOS_FOR_QC',
+            jobId: job.id,
+            status: 'success',
+            items: 'ส่งมอบรูปถ่ายคู่ให้ คุณวิชัย ตรวจการ ตรวจสอบ',
+            details: {
+              techId: currentTech.id,
+              techName: currentTech.name,
+              hasBeforePhoto: Boolean(beforeImg),
+              hasAfterPhoto: Boolean(afterImg),
+              notes: notes.slice(0, 100),
+            },
+          });
 
-        photoDrafts.delete(job.id);
-        showToast('ส่งตรวจงานเรียบร้อยแล้ว', 'success');
-        
-        // สลับไปแท็บส่งตรวจแล้ว
-        currentTab = 'submitted';
-        const tabs = document.querySelectorAll('.tech-tab');
-        tabs.forEach(t => t.classList.remove('active'));
-        document.querySelector('[data-tab="submitted"]')?.classList.add('active');
+          photoDrafts.delete(job.id);
+          showToast('ส่งงานให้ฝ่ายตรวจการ (คุณวิชัย) เรียบร้อยแล้ว', 'success');
+
+          currentTab = 'submitted';
+          const tabs = document.querySelectorAll('.tech-tab');
+          tabs.forEach(t => t.classList.remove('active'));
+          document.querySelector('[data-tab="submitted"]')?.classList.add('active');
+        } else {
+          // เส้นทางที่ ๑: งานมาตรฐานทั่วไป (ช่างส่งมอบงานให้ลูกค้าได้โดยตรง)
+          await updateDoc(doc(db, 'jobs', job.id), {
+            status: 'completed',
+            workflowStep: 10,
+            workflowStatus: 'tech_delivered_direct',
+            deliveredBy: 'technician',
+            beforePhotos: [beforeImg],
+            afterPhotos: [afterImg],
+            techNotes: notes,
+            techDeliveredAt: now.toISOString(),
+            warranty: {
+              days: 90,
+              startDate: now.toISOString().split('T')[0],
+              endDate: end.toISOString().split('T')[0],
+              status: 'active',
+              coverage: 'งานรับประกันมาตรฐานช่างมืออาชีพ ๙๐ วันเต็ม'
+            },
+            postFlightChecklist: {
+              cleanArea: true,
+              demoTested: true,
+              noCashConfirmed: true,
+              confirmedAt: now.toISOString(),
+            }
+          });
+
+          await logAgentActivity({
+            agentId: 'agent-2-tech',
+            agentName: `บทบาทที่ ๒: ช่าง [${currentTech.id}] ${currentTech.name}`,
+            step: 8,
+            stepName: '๘. ช่างส่งมอบงานให้ลูกค้าโดยตรง (งานมาตรฐานทั่วไป)',
+            action: 'TECH_DELIVER_DIRECT_TO_CUSTOMER',
+            jobId: job.id,
+            status: 'success',
+            items: 'ช่างส่งมอบงานพร้อมรูปถ่ายคู่และเปิดรับประกัน ๙๐ วัน',
+            details: {
+              techId: currentTech.id,
+              techName: currentTech.name,
+              deliveredAt: now.toISOString()
+            },
+          });
+
+          photoDrafts.delete(job.id);
+          showToast('ส่งมอบงานให้ลูกค้าเรียบร้อยแล้ว', 'success');
+
+          currentTab = 'completed';
+          const tabs = document.querySelectorAll('.tech-tab');
+          tabs.forEach(t => t.classList.remove('active'));
+          document.querySelector('[data-tab="completed"]')?.classList.add('active');
+        }
+        renderJobsFeed();
       } catch (err) {
         alert(`เกิดข้อผิดพลาดในการส่งงาน: ${err.message}`);
         btnSubmitOps.disabled = false;
-        btnSubmitOps.textContent = 'ส่งตรวจงาน';
+        btnSubmitOps.textContent = qcRequired ? '🔍 ส่งงานให้ฝ่ายตรวจการตรวจสอบ' : '🚀 ส่งมอบงานให้ลูกค้าโดยตรง';
       }
     };
   }

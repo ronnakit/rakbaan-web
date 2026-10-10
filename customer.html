@@ -694,7 +694,25 @@
       document.getElementById('tracker-job-title').textContent = job.title || 'บริการดูแลบ้าน';
 
       const stepNum = job.workflowStep || 1;
-      document.getElementById('tracker-current-step').textContent = STEP_DESCRIPTIONS_TH[stepNum] || `ขั้นตอนที่ ${stepNum}`;
+      let stepText = STEP_DESCRIPTIONS_TH[stepNum] || `ขั้นตอนที่ ${stepNum}`;
+
+      if (stepNum === 9) {
+        stepText = currentLang === 'th'
+          ? 'ขั้นตอนที่ ๙: คุณวิชัย ตรวจการ กำลังตรวจสอบมาตรฐานความปลอดภัย 🛡️'
+          : 'Step 9: Mr. Wichai (Senior QC) is inspecting safety standards 🛡️';
+      } else if (stepNum === 10) {
+        if (job.deliveredBy === 'qc_inspector') {
+          stepText = currentLang === 'th'
+            ? 'ขั้นตอนที่ ๑๐: คุณวิชัย ตรวจการ รับรองมาตรฐานและส่งมอบงานเรียบร้อย 🛡️'
+            : 'Step 10: Certified and delivered by Mr. Wichai (Senior QC) 🛡️';
+        } else {
+          stepText = currentLang === 'th'
+            ? 'ขั้นตอนที่ ๑๐: ช่างส่งมอบงานเรียบร้อย พร้อมใบรับประกัน ๙๐ วัน 🔧'
+            : 'Step 10: Work completed and delivered by technician 🔧';
+        }
+      }
+
+      document.getElementById('tracker-current-step').textContent = stepText;
 
       // Time Saved Badge
       const timeElem = document.getElementById('tracker-time-metrics');
@@ -710,12 +728,17 @@
 
       // QC Badge
       const qcElem = document.getElementById('tracker-qc-badge');
-      if (stepNum >= 9) {
+      if (stepNum >= 9 && job.deliveredBy !== 'technician') {
         qcElem.style.display = 'flex';
         const qcName = job.qcInspectorName || job.qcInspector || 'คุณวิชัย ตรวจการ (QC-01)';
         document.getElementById('tracker-qc-text').textContent = currentLang === 'th'
-          ? `รับรองมาตรฐานโดย ${qcName}`
-          : `Quality Certified by ${qcName}`;
+          ? `รับรองมาตรฐานความปลอดภัยโดย ${qcName}`
+          : `Safety Certified by ${qcName}`;
+      } else if (stepNum >= 10 && job.deliveredBy === 'technician') {
+        qcElem.style.display = 'flex';
+        document.getElementById('tracker-qc-text').textContent = currentLang === 'th'
+          ? 'ส่งมอบงานมาตรฐานโดย ช่างมืออาชีพในทะเบียน'
+          : 'Directly delivered by Certified Artisan';
       } else {
         qcElem.style.display = 'none';
       }
