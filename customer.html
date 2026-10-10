@@ -415,13 +415,28 @@
           <div style="color: #78350f; font-size: 13.5px;" id="tracker-warranty-dates">คุ้มครองงานฝีมือและการรั่วซึม</div>
         </div>
 
-        <div id="tracker-action-buttons" style="display: none; gap: 8px; margin-top: 4px;">
-          <button type="button" id="btn-cust-accept" style="flex: 1; background: #16a34a; color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 16px; cursor: pointer; font-family: inherit;">
-            ✓ ตรวจรับมอบงาน
-          </button>
-          <button type="button" id="btn-cust-reject" style="background: #dc2626; color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit;">
-            สั่งแก้ไข
-          </button>
+        <div id="tracker-action-buttons" style="display: none; flex-direction: column; gap: 10px; margin-top: 6px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px;">
+          <!-- 5-Star Rating Section (อากงอาม่า ให้ดาวง่าย ๑-๕ ระดับ) -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <div id="text-rating-prompt" style="font-size: 15px; color: var(--navy);">ความพึงพอใจการบริการ (แตะให้ดาว ๑-๕ ระดับ)</div>
+            <div id="customer-star-rating" style="display: flex; gap: 8px; font-size: 32px; cursor: pointer; user-select: none;">
+              <span class="cust-star" data-val="1" style="color: #f59e0b;">★</span>
+              <span class="cust-star" data-val="2" style="color: #f59e0b;">★</span>
+              <span class="cust-star" data-val="3" style="color: #f59e0b;">★</span>
+              <span class="cust-star" data-val="4" style="color: #f59e0b;">★</span>
+              <span class="cust-star" data-val="5" style="color: #f59e0b;">★</span>
+            </div>
+            <div id="rating-score-text" style="font-size: 13.5px; color: #b45309;">ยอดเยี่ยม ๕ ดาว (ประทับใจมาก)</div>
+          </div>
+
+          <div style="display: flex; gap: 8px; width: 100%;">
+            <button type="button" id="btn-cust-accept" style="flex: 1; background: #16a34a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; font-family: inherit;">
+              ✓ ตรวจรับมอบงาน
+            </button>
+            <button type="button" id="btn-cust-reject" style="background: #dc2626; color: #fff; border: none; padding: 12px 14px; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit;">
+              สั่งแก้ไข
+            </button>
+          </div>
         </div>
       </div>
 
@@ -509,6 +524,45 @@
     let selectedService = { code: 'AC-CLN-01', title: 'ล้างแอร์ทั่วไป (ติดผนัง)', price: 600 };
     let selectedSla = { type: 'normal', fee: 0 };
     let activeJobDoc = null;
+    let currentRating = 5;
+
+    const ratingLabelsTh = {
+      1: '๑ ดาว (ต้องปรับปรุง)',
+      2: '๒ ดาว (พอใช้)',
+      3: '๓ ดาว (ปานกลาง)',
+      4: '๔ ดาว (ดีมาก)',
+      5: 'ยอดเยี่ยม ๕ ดาว (ประทับใจมาก)'
+    };
+    const ratingLabelsEn = {
+      1: '1 Star (Needs Improvement)',
+      2: '2 Stars (Fair)',
+      3: '3 Stars (Average)',
+      4: '4 Stars (Good)',
+      5: 'Excellent 5 Stars (Highly Satisfied)'
+    };
+
+    function updateRatingLabel() {
+      const labelElem = document.getElementById('rating-score-text');
+      if (labelElem) {
+        labelElem.textContent = currentLang === 'th' ? ratingLabelsTh[currentRating] : ratingLabelsEn[currentRating];
+      }
+    }
+
+    window.setCustomerRating = (val) => {
+      currentRating = val;
+      document.querySelectorAll('.cust-star').forEach(star => {
+        const starVal = parseInt(star.getAttribute('data-val'), 10);
+        star.style.color = starVal <= val ? '#f59e0b' : '#cbd5e1';
+      });
+      updateRatingLabel();
+    };
+
+    document.querySelectorAll('.cust-star').forEach(star => {
+      star.onclick = () => {
+        const val = parseInt(star.getAttribute('data-val'), 10);
+        window.setCustomerRating(val);
+      };
+    });
 
     window.selectService = (code, title, price) => {
       selectedService = { code, title, price };
@@ -569,6 +623,9 @@
       document.getElementById('sla-norm-desc').textContent = 'No additional charge';
       document.getElementById('sla-urg-label').textContent = 'Urgent Booking';
       document.getElementById('sla-urg-desc').textContent = '+150 Baht';
+      const promptEl = document.getElementById('text-rating-prompt');
+      if (promptEl) promptEl.textContent = 'Service Satisfaction (Tap to rate 1-5 stars)';
+      updateRatingLabel();
     }
 
     function applyThaiTranslations() {
@@ -591,6 +648,9 @@
       document.getElementById('sla-norm-desc').textContent = 'ไม่มีค่าบริการเพิ่ม';
       document.getElementById('sla-urg-label').textContent = 'นัดหมายด่วนพิเศษ';
       document.getElementById('sla-urg-desc').textContent = '+150 บาท';
+      const promptEl = document.getElementById('text-rating-prompt');
+      if (promptEl) promptEl.textContent = 'ความพึงพอใจการบริการ (แตะให้ดาว ๑-๕ ระดับ)';
+      updateRatingLabel();
     }
 
     // Tap to talk mic
@@ -775,6 +835,7 @@
         workflowStep: 10,
         workflowStatus: 'completed_with_warranty',
         customerAcceptedAt: now.toISOString(),
+        customerRating: currentRating,
         warranty: {
           days: 90,
           startDate: now.toISOString().split('T')[0],

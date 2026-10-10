@@ -3,3 +3,4 @@ dist/
 .env
 service-account-key.json
 *.png
+!public/logo.png

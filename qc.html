@@ -395,7 +395,7 @@
       <div class="qc-app-bar">
         <div class="qc-header-top">
           <div class="qc-brand">
-            <div class="qc-brand-logo">🔍</div>
+            <img src="/logo.png" style="width: 42px; height: 42px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" alt="โลโก้ฝ่ายตรวจการรักบ้าน" />
             <div>
               <div class="qc-brand-title">รักบ้าน@เชียงใหม่</div>
               <div class="qc-brand-sub">ฝ่ายตรวจการคุณภาพส่วนกลาง</div>
@@ -557,41 +557,61 @@
             </div>
 
             ${isWaitingQC ? `
-              <!-- รายการตรวจมาตรฐาน 5 ข้อ (กลไกป้องกันความผิดพลาดของมนุษย์) -->
+              <!-- แบบประเมินมาตรฐานและวินัยช่าง ๑๐ ด้าน (๑๐ คะแนน/ด้าน รวม ๑๐๐ คะแนนเต็ม) -->
               <div class="qc-checklist-box">
                 <div class="qc-checklist-title">
-                  <span>เกณฑ์ตรวจสอบมาตรฐาน 5 ข้อ</span>
-                  <span style="font-size: 12px; color: #6b21a8;" id="qc-count-${job.id}">0/5 ข้อ</span>
+                  <span>แบบประเมินมาตรฐานและวินัยช่าง ๑๐ ด้าน</span>
+                  <span style="font-size: 13.5px; font-weight: 800; color: #7e22ce;" id="qc-score-${job.id}">คะแนน: 0/100</span>
                 </div>
 
                 <label class="qc-check-item">
-                  <input type="checkbox" class="chk-item-${job.id}" data-item="clean" />
-                  <span>๑. ความสะอาดเรียบร้อยของพื้นที่หน้างานและเก็บเศษวัสดุ</span>
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="workmanship" data-pts="10" />
+                  <span>๑. ความเรียบร้อยสมบูรณ์ของงานซ่อมแซม (+10 คะแนน)</span>
                 </label>
                 <label class="qc-check-item">
-                  <input type="checkbox" class="chk-item-${job.id}" data-item="parts" />
-                  <span>๒. การใช้อะไหล่แท้และอุปกรณ์ถูกต้องตามมาตรฐาน มอก.</span>
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="customer_feedback" data-pts="10" />
+                  <span>๒. ผลการตอบรับและความพึงพอใจของลูกค้า (+10 คะแนน)</span>
                 </label>
                 <label class="qc-check-item">
-                  <input type="checkbox" class="chk-item-${job.id}" data-item="test" />
-                  <span>๓. ผลการทดสอบเครื่องทำงานได้สมบูรณ์ต่อหน้าลูกค้า</span>
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="cleanliness" data-pts="10" />
+                  <span>๓. ความสะอาดพื้นที่หน้างานและการเก็บกวาดขยะ (+10 คะแนน)</span>
                 </label>
                 <label class="qc-check-item">
-                  <input type="checkbox" class="chk-item-${job.id}" data-item="safety" />
-                  <span>๔. ความปลอดภัย เก็บเครื่องมือและตัดต่อสายไฟถูกต้อง</span>
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="uniform" data-pts="10" />
+                  <span>๔. การแต่งกายและชุดฟอร์มช่างตามมาตรฐาน (+10 คะแนน)</span>
                 </label>
                 <label class="qc-check-item">
-                  <input type="checkbox" class="chk-item-${job.id}" data-item="explain" />
-                  <span>๕. การอธิบายและแนะนำวิธีการใช้งานแก่เจ้าของบ้าน</span>
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="tools" data-pts="10" />
+                  <span>๕. ความพร้อมของเครื่องมือ อุปกรณ์ และอะไหล่แท้ (+10 คะแนน)</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="punctuality" data-pts="10" />
+                  <span>๖. การตรงต่อเวลานัดหมายและการเข้างาน (+10 คะแนน)</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="politeness" data-pts="10" />
+                  <span>๗. ความสุภาพ กิริยามารยาท และการสื่อสาร (+10 คะแนน)</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="safety" data-pts="10" />
+                  <span>๘. มาตรการความปลอดภัยหน้างานและระบบไฟฟ้า (+10 คะแนน)</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="finance_discipline" data-pts="10" />
+                  <span>๙. วินัยการเงิน ไม่เรียกเก็บหรือรับเงินสดนอกระบบ (+10 คะแนน)</span>
+                </label>
+                <label class="qc-check-item">
+                  <input type="checkbox" class="chk-item-${job.id}" data-item="photo_quality" data-pts="10" />
+                  <span>๑๐. คุณภาพรูปถ่ายหลักฐานคู่ ก่อนทำ-หลังทำ ชัดเจน (+10 คะแนน)</span>
                 </label>
               </div>
 
               <div class="qc-btn-group">
                 <div class="qc-guard-note" id="note-guard-${job.id}">
-                  🔒 กรุณาแตะตรวจให้ครบทั้ง ๕ ข้อเพื่อปลดล็อคปุ่มส่งมอบงาน
+                  🔒 กรุณาตรวจประเมินให้ครบทั้ง ๑๐ ด้าน เพื่อปลดล็อคปุ่มรับรองมาตรฐาน
                 </div>
                 <button class="btn-qc-approve" id="btn-approve-${job.id}" disabled>
-                  <span>รับรองมาตรฐานและส่งมอบงานให้ลูกค้า</span>
+                  <span>รับรองมาตรฐานและบันทึกคะแนนช่าง (0/100)</span>
                 </button>
                 <button class="btn-qc-rework" id="btn-rework-${job.id}">
                   <span>ส่งแก้งาน (พบจุดบกพร่องหน้างาน)</span>
@@ -600,6 +620,9 @@
             ` : `
               <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 8px; padding: 10px 12px; font-size: 13.5px; color: #166534;">
                 🛡️ <strong>รับรองมาตรฐานเรียบร้อยแล้ว:</strong> โดย ${job.qcInspectorName || 'คุณวิชัย ตรวจการ'} เมื่อ ${job.qcCertifiedAt ? new Date(job.qcCertifiedAt).toLocaleTimeString('th-TH') : 'เรียบร้อย'}
+                <div style="margin-top: 4px; color: #047857; font-weight: 700;">
+                  ⭐ คะแนนวินัยช่างในระบบกลาง: ${job.qcScore || 100}/100 คะแนน
+                </div>
               </div>
             `}
           </div>
@@ -614,21 +637,26 @@
           const checkboxes = document.querySelectorAll(`.chk-item-${job.id}`);
           const approveBtn = document.getElementById(`btn-approve-${job.id}`);
           const reworkBtn = document.getElementById(`btn-rework-${job.id}`);
-          const countElem = document.getElementById(`qc-count-${job.id}`);
+          const scoreElem = document.getElementById(`qc-score-${job.id}`);
           const noteGuard = document.getElementById(`note-guard-${job.id}`);
 
           checkboxes.forEach(chk => {
             chk.onchange = () => {
-              const checkedCount = Array.from(checkboxes).filter(c => c.checked).length;
-              countElem.textContent = `${checkedCount}/5 ข้อ`;
+              const checkedList = Array.from(checkboxes).filter(c => c.checked);
+              const checkedCount = checkedList.length;
+              const totalScore = checkedList.reduce((sum, c) => sum + parseInt(c.getAttribute('data-pts') || '10', 10), 0);
 
-              if (checkedCount === 5) {
+              if (scoreElem) scoreElem.textContent = `คะแนน: ${totalScore}/100`;
+
+              if (checkedCount === 10) {
                 approveBtn.disabled = false;
-                noteGuard.textContent = '🔓 ครบ ๕ ข้อแล้ว พร้อมส่งมอบงานให้ลูกค้าได้ทันที';
+                approveBtn.innerHTML = `<span>รับรองมาตรฐานและบันทึกคะแนนช่าง (${totalScore}/๑๐๐)</span>`;
+                noteGuard.textContent = `🔓 ประเมินครบ ๑๐ ด้านแล้ว ได้คะแนน ${totalScore}/๑๐๐ พร้อมรับรองส่งมอบงาน`;
                 noteGuard.style.color = '#15803d';
               } else {
                 approveBtn.disabled = true;
-                noteGuard.textContent = `🔒 ตรวจไปแล้ว ${checkedCount}/๕ ข้อ (กรุณาตรวจให้ครบทุกข้อ)`;
+                approveBtn.innerHTML = `<span>รับรองมาตรฐานและบันทึกคะแนนช่าง (${totalScore}/๑๐๐)</span>`;
+                noteGuard.textContent = `🔒 ประเมินไปแล้ว ${checkedCount}/๑๐ ด้าน (${totalScore}/๑๐๐ คะแนน) กรุณาตรวจให้ครบทุกด้าน`;
                 noteGuard.style.color = '#6b21a8';
               }
             };
@@ -641,6 +669,13 @@
             const end = new Date();
             end.setDate(now.getDate() + 90);
 
+            const checkedItems = Array.from(checkboxes).map(c => ({
+              key: c.getAttribute('data-item'),
+              checked: c.checked,
+              points: c.checked ? 10 : 0
+            }));
+            const totalScore = checkedItems.reduce((sum, item) => sum + item.points, 0);
+
             try {
               await updateDoc(doc(db, 'jobs', job.id), {
                 status: 'completed',
@@ -650,6 +685,8 @@
                 qcInspectorId: currentInspector.id,
                 qcInspectorName: currentInspector.name,
                 qcInspectorTitle: currentInspector.role,
+                qcScore: totalScore,
+                qcRubricBreakdown: checkedItems,
                 qcCertifiedAt: now.toISOString(),
                 qcPassedAt: now.toISOString(),
                 warranty: {
@@ -672,10 +709,12 @@
                 status: 'success',
                 dwellMinutes: 8,
                 timeSpent: 'ตรวจรับรองคุณภาพ ๘ นาที',
-                items: `ผ่านเกณฑ์ตรวจสอบ ๕ ข้อครบถ้วน พร้อมส่งมอบงานให้ลูกค้า`,
+                items: `ประเมินมาตรฐานวินัยช่าง ๑๐ ด้าน ได้คะแนน ${totalScore}/๑๐๐ คะแนน`,
                 details: {
                   inspector: currentInspector.name,
                   license: currentInspector.license,
+                  qcScore: totalScore,
+                  breakdown: checkedItems,
                   timestamp: now.toISOString()
                 }
               });

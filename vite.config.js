@@ -9,6 +9,7 @@ export default defineConfig({
         tech: resolve(__dirname, 'tech.html'),
         customer: resolve(__dirname, 'customer.html'),
         cockpit: resolve(__dirname, 'cockpit.html'),
+        qc: resolve(__dirname, 'qc.html'),
       },
     },
   },

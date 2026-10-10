@@ -117,8 +117,8 @@ if (isDevAdmin) {
 function renderLogin() {
   app.innerHTML = `
     <div style="max-width: 480px; margin: 40px auto 0;">
-      <div class="brand-badge" style="justify-content: center; margin-bottom: 24px;">
-        <span style="font-size: 32px;">🏡</span>
+      <div class="brand-badge" style="justify-content: center; margin-bottom: 24px; align-items: center; gap: 12px;">
+        <img src="/logo.png" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" alt="โลโก้รักบ้าน" />
         <div>
           <h1 class="brand-title" style="font-size: 22px;">การบริหารรักบ้าน</h1>
           <div class="brand-subtitle">ระบบบริหารจัดการสำหรับทีมงานและฝ่ายบริหาร</div>
@@ -208,7 +208,8 @@ function renderDashboard(user, role) {
   app.innerHTML = `
     <div class="layout-wrapper">
       <aside class="sidebar">
-        <div class="brand-badge sidebar-brand">
+        <div class="brand-badge sidebar-brand" style="display: flex; align-items: center; gap: 10px;">
+          <img src="/logo.png" style="width: 38px; height: 38px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" alt="โลโก้รักบ้าน" />
           <div>
             <h1 class="brand-title">การบริหารรักบ้าน</h1>
             <div class="brand-subtitle">ระบบบริหารจัดการงานซ่อมครบวงจร</div>
